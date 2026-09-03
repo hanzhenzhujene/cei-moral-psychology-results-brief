@@ -1,10 +1,12 @@
 {
   "audit_date": "2026-09-02",
-  "canonical_evidence_source_sha": "276acecd603761e6ff61bd6e2685fbb87f0eaa47d",
+  "canonical_evidence_source_sha": "276acecd603761e6ff61bd6e2685fbb87f0eaa47",
   "generator": "work/build_audit.py",
-  "generator_sha256": "2709fba8d70d73759607f1ab0c182130f119a17dc607b8e03292830f01c24ba6",
+  "generator_sha256": "9c448fc990c44e0411d124f33cb3f7cf43d9d37b6271bd1b4bde524462991899",
   "operating_boundary": "offline; no provider runs or external writes",
   "source_repository_head": "b3a348684692f615d789392692ce34a1359192d3",
+  "upstream_recorded_source_sha": "276acecd603761e6ff61bd6e2685fbb87f0eaa47d",
+  "upstream_recorded_source_sha_status": "malformed 41-character token; normalized by removing the spurious final d",
   "validator": "work/validate_audit.py",
-  "validator_sha256": "435078070a72dd8d92ed03624ee6161b54deaaed784a92f5d1405b0361d03152"
+  "validator_sha256": "51085da5fccc5dbf00782a0d6b3ec32b61476cba8dbe2934f669a89d84d3bfd8"
 }

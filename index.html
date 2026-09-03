@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Evidence-aware research lead readout for the CEI moral psychology posters, benchmark audit, and relevant papers.">
+  <meta name="description" content="Research-lead visual readout of CEI moral psychology benchmark results, uncertainty, scaling patterns, and evidence limits.">
   <title>CEI Moral Psychology — Results Brief</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="assets/styles.css">
@@ -15,11 +15,12 @@
     <div class="topbar-inner">
       <a class="brand" href="#top">CEI · Moral Psychology</a>
       <nav class="nav-links" aria-label="Page sections">
-        <a href="#readout">Readout</a>
-        <a href="#evidence">Evidence map</a>
-        <a href="#posters">Four posters</a>
-        <a href="#papers">Papers</a>
+        <a href="#results">Results</a>
+        <a href="#precision">Precision</a>
+        <a href="#scaling">Size &amp; time</a>
         <a href="#decisions">Decisions</a>
+        <a href="#evidence-summary">Evidence</a>
+        <a href="#posters">Poster appendix</a>
       </nav>
     </div>
   </header>
@@ -28,39 +29,172 @@
     <section class="hero" id="top">
       <div class="wrap">
         <p class="eyebrow">Research lead readout · 3 September 2026</p>
-        <h1>What the completed runs actually support</h1>
-        <p class="lede">The banked experiment phase is closed. Evidence validation is not. The strongest result is a measurement story: administration, scorer design, and judge choice shape what appears to be model behavior.</p>
+        <h1>What the benchmark results actually say</h1>
+        <p class="lede">There is substantial result data in the repository. It shows task-specific model differences, two low-precision comparison tasks with wide intervals, and mixed size and release-period patterns—not one stable moral ranking.</p>
 
         <div class="decision-banner">
-          <strong>Release decision</strong>
-          Publish the canonical audit and the measurement design. Hold the poster numerical comparisons until their source package can be recovered and replayed.
+          <strong>Bottom line</strong>
+          Publish the current task aggregates with their saved uncertainty and tracked-artifact limits. Treat size and release-period views as exploratory. The separate MP-v2 poster numbers remain on hold because their replay packets—not the benchmark result tables—are missing.
         </div>
 
         <div class="stat-line" aria-label="Key status summary">
           <div class="stat">
-            <span class="stat-value">143</span>
-            <span class="stat-label">cells in the current canonical audit</span>
+            <span class="stat-value">78</span>
+            <span class="stat-label">current primary text cells</span>
           </div>
           <div class="stat">
-            <span class="stat-value">4 / 4</span>
-            <span class="stat-label">poster source packages missing</span>
+            <span class="stat-value">5 × 8</span>
+            <span class="stat-label">common-roster model × task results</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">18</span>
+            <span class="stat-label">wide intervals, all on compare tasks</span>
           </div>
           <div class="stat">
             <span class="stat-value">0</span>
             <span class="stat-label">exact paper replications</span>
           </div>
-          <div class="stat">
-            <span class="stat-value">Pending</span>
-            <span class="stat-label">Gate M human validation</span>
-          </div>
         </div>
       </div>
     </section>
 
-    <section class="section" id="readout">
+    <section class="section result-section" id="results">
       <div class="wrap">
-        <p class="eyebrow">Executive readout</p>
-        <h2>Four facts change the release</h2>
+        <div class="question-head">
+          <div>
+            <p class="eyebrow">Research question 1 · current primary aggregate</p>
+            <h2>Do the consistently covered models form one stable order?</h2>
+          </div>
+          <span class="evidence-pill verified">Tracked-artifact audit</span>
+        </div>
+        <p class="section-intro">No. No model is the point-estimate leader on all eight tasks. The two MoralBench comparison panels are especially uncertain, so their model order is unresolved.</p>
+
+        <figure class="result-figure wide-chart">
+          <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
+          <a href="assets/results/01_common_roster_task_results.png"><img src="assets/results/01_common_roster_task_results.png" width="3319" height="2104" decoding="async" fetchpriority="high" alt="Eight task-specific confidence interval panels for five consistently covered models; point-estimate leaders differ by task and comparison-task intervals are wide"></a>
+          <figcaption>Five models that pass all eight operational text-task gates. Matched task blocks share scales; normalized preference, accuracy, and METEOR remain separate. “Current” here means tracked aggregate evidence, not raw replay or human validity. Click for full size.</figcaption>
+        </figure>
+
+        <div class="answer-grid">
+          <div><strong>Result</strong><span>No model is the point-estimate leader on all eight tasks.</span></div>
+          <div><strong>Implication</strong><span>Use task-specific results; do not publish one model leaderboard.</span></div>
+          <div><strong>Limit</strong><span>Intervals do not cover route drift, contamination, construct error, or human validity.</span></div>
+        </div>
+        <div class="source-links">
+          <a href="data/results/common_roster_primary.csv">40 plotted rows</a>
+          <a href="evidence/canonical-audit/figures/data/primary_confidence_intervals.csv">All 78 primary rows</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section result-section" id="precision">
+      <div class="wrap">
+        <div class="question-head">
+          <div>
+            <p class="eyebrow">Research question 2 · current primary aggregate</p>
+            <h2>Where does sampling uncertainty block a model order?</h2>
+          </div>
+          <span class="evidence-pill verified">Tracked-artifact audit</span>
+        </div>
+        <p class="section-intro">The precision bottleneck is concentrated: every interval wider than .30 belongs to the two MoralBench comparison tasks.</p>
+
+        <figure class="result-figure wide-chart">
+          <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
+          <a href="assets/results/02_precision_by_task.png"><img src="assets/results/02_precision_by_task.png" width="2940" height="1361" loading="lazy" decoding="async" alt="Horizontal bars of median confidence interval width by task, showing MoralBench comparison tasks near point four and all UniMoral tasks below point zero four"></a>
+          <figcaption>Median full 95% interval width by task. The dashed line marks a planning target of .20; the dotted line marks the audit's wide-interval warning at .30.</figcaption>
+        </figure>
+
+        <div class="answer-grid">
+          <div><strong>Result</strong><span>MFQ compare: .395. Vignette compare: .370. All other medians are .220 or below.</span></div>
+          <div><strong>Implication</strong><span>Recover paired item outcomes first; if the order remains unresolved, add independent items before ranking.</span></div>
+          <div><strong>Limit</strong><span>Narrow row-level intervals are precision, not construct validity.</span></div>
+        </div>
+        <div class="source-links"><a href="data/results/task_precision.csv">Task precision table</a></div>
+      </div>
+    </section>
+
+    <section class="section result-section" id="scaling">
+      <div class="wrap">
+        <p class="eyebrow">Research questions 3–4 · exploratory</p>
+        <h2>Size and release period do not give a simple answer</h2>
+        <p class="section-intro">These panels use a separate selected-grid snapshot. They have no saved confidence intervals and none of the referenced successful raw logs is present in the fresh clone. Provider metadata also records 107,375 reasoning tokens across Qwen3-32B rows and 1,171,189 across DeepSeek V4 rows despite control attempts. These are descriptive hypotheses—not headline evidence.</p>
+
+        <div class="visual-stack">
+          <article class="visual-card">
+            <div class="question-head compact">
+              <div>
+                <h3>Does bigger reliably score better?</h3>
+                <p>Only 5 of 15 complete family × task paths rise monotonically; 9 are mixed and 1 falls.</p>
+              </div>
+              <span class="evidence-pill exploratory">Exploratory</span>
+            </div>
+            <figure class="result-figure flush wide-chart">
+              <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
+              <a href="assets/results/03_size_paths.png"><img src="assets/results/03_size_paths.png" width="3213" height="2017" loading="lazy" decoding="async" alt="Six task-specific small-medium-large line charts for Qwen, Gemma, and Llama showing mostly mixed size paths"></a>
+              <figcaption>Missing paths are labeled incomplete and never drawn as zero. Accuracy panels share a scale; METEOR is separate. UniMoral uses the no-cue route. ValuePrism accuracy predicts synthetic or GPT-4 labels, not moral correctness.</figcaption>
+            </figure>
+            <div class="decision-strip"><strong>Implication</strong><span>Treat size effects as family- and task-specific hypotheses, not a general law.</span></div>
+          </article>
+
+          <article class="visual-card">
+            <div class="question-head compact">
+              <div>
+                <h3>Do newer-route point estimates all rise?</h3>
+                <p>Qwen and DeepSeek point estimates rise on some tasks and fall on others. Gemma lacks a valid newer endpoint.</p>
+              </div>
+              <span class="evidence-pill exploratory">Exploratory</span>
+            </div>
+            <figure class="result-figure flush wide-chart">
+              <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
+              <a href="assets/results/04_release_period_paths.png"><img src="assets/results/04_release_period_paths.png" width="3214" height="2017" loading="lazy" decoding="async" alt="Six task-specific release-quarter point-estimate charts for Qwen and DeepSeek showing mixed directions across tasks"></a>
+              <figcaption>Quarter positions use actual spacing; markers are observations and connecting lines are guides only. DeepSeek relevance ends at 2025-Q4. Route, architecture, and sometimes size change too, so this is not a causal time trend.</figcaption>
+            </figure>
+            <div class="decision-strip"><strong>Implication</strong><span>Do not use release year as a shortcut for expected moral-benchmark point estimates.</span></div>
+          </article>
+        </div>
+
+        <div class="source-links">
+          <a href="data/results/size_path_summary.csv">15 complete size paths</a>
+          <a href="data/results/release_period_task_points.csv">Release-period points</a>
+          <a href="evidence/source-results/SOURCE_MANIFEST.csv">Selected-grid source manifest</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="decisions">
+      <div class="wrap">
+        <p class="eyebrow">Decision surface</p>
+        <h2>Three choices unlock the next credible release</h2>
+
+        <div class="decision-grid">
+          <article class="decision">
+            <span class="decision-number">Decision 1</span>
+            <h3>Release the current task panels</h3>
+            <p>The 78-cell primary aggregate supports a task-level results release with saved uncertainty and explicit tracked-artifact limits.</p>
+          </article>
+          <article class="decision">
+            <span class="decision-number">Decision 2</span>
+            <h3>Repair the saved evidence</h3>
+            <p>Recover raw archives and paired outcomes, adjudicate parser flags, and audit UniMoral duplicate-label disagreement.</p>
+          </article>
+          <article class="decision">
+            <span class="decision-number">Decision 3</span>
+            <h3>Approve Gate M</h3>
+            <p>Run representative human validation before adding model rows or treating automated agreement as correctness.</p>
+          </article>
+        </div>
+
+        <div class="next-action">
+          <strong>Highest-value next action</strong>
+          <p>Repair the existing measurement evidence, then run Gate M human validation. Expand the comparison item banks only after the construct and paired analysis are stable.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="evidence-summary">
+      <div class="wrap">
+        <p class="eyebrow">Release boundary</p>
+        <h2>Four facts keep the story honest</h2>
         <p class="section-intro">Each statement below is tied to a distinct evidence layer. The layers must not be merged.</p>
 
         <table class="takeaway-table">
@@ -177,7 +311,7 @@
         <div class="poster-list">
           <article class="poster-card">
             <figure class="poster-visual">
-              <a href="evidence/posters/FC_POSTER.pdf"><img src="assets/posters/family-c.webp" alt="Preview of the Family Competence poster"></a>
+              <a href="evidence/posters/FC_POSTER.pdf"><img src="assets/posters/family-c.webp" width="1280" height="905" loading="lazy" decoding="async" alt="Preview of the Family Competence poster"></a>
               <figcaption class="poster-caption">Poster 1 · Family Competence · original PDF</figcaption>
             </figure>
             <div class="poster-copy">
@@ -212,7 +346,7 @@
 
           <article class="poster-card">
             <figure class="poster-visual">
-              <a href="evidence/posters/FP_POSTER.pdf"><img src="assets/posters/family-p.webp" alt="Preview of the Family Profile poster"></a>
+              <a href="evidence/posters/FP_POSTER.pdf"><img src="assets/posters/family-p.webp" width="1280" height="905" loading="lazy" decoding="async" alt="Preview of the Family Profile poster"></a>
               <figcaption class="poster-caption">Poster 2 · Family Profile · original PDF</figcaption>
             </figure>
             <div class="poster-copy">
@@ -247,7 +381,7 @@
 
           <article class="poster-card">
             <figure class="poster-visual">
-              <a href="evidence/posters/20260810-BIALIGN_V2_POSTER.pdf"><img src="assets/posters/bialign.webp" alt="Preview of the Bidirectional Alignment poster"></a>
+              <a href="evidence/posters/20260810-BIALIGN_V2_POSTER.pdf"><img src="assets/posters/bialign.webp" width="1280" height="905" loading="lazy" decoding="async" alt="Preview of the Bidirectional Alignment poster"></a>
               <figcaption class="poster-caption">Poster 3 · Bidirectional Alignment · original PDF</figcaption>
             </figure>
             <div class="poster-copy">
@@ -277,7 +411,7 @@
 
           <article class="poster-card">
             <figure class="poster-visual">
-              <a href="evidence/posters/20260810-COGALIGN_V2_POSTER.pdf"><img src="assets/posters/cogalign.webp" alt="Preview of the Administration poster"></a>
+              <a href="evidence/posters/20260810-COGALIGN_V2_POSTER.pdf"><img src="assets/posters/cogalign.webp" width="1280" height="905" loading="lazy" decoding="async" alt="Preview of the Administration poster"></a>
               <figcaption class="poster-caption">Poster 4 · Administration · original PDF</figcaption>
             </figure>
             <div class="poster-copy">
@@ -371,42 +505,14 @@
       </div>
     </section>
 
-    <section class="section" id="decisions">
-      <div class="wrap">
-        <p class="eyebrow">Decision surface</p>
-        <h2>Three choices unlock the next credible release</h2>
-
-        <div class="decision-grid">
-          <article class="decision">
-            <span class="decision-number">Decision 1</span>
-            <h3>Choose the release type</h3>
-            <p>A methods and measurement release is supportable now. A numerical poster-results release is not.</p>
-          </article>
-          <article class="decision">
-            <span class="decision-number">Decision 2</span>
-            <h3>Assign evidence recovery</h3>
-            <p>One owner should restore the poster source packet and resolve the missing commit and seal.</p>
-          </article>
-          <article class="decision">
-            <span class="decision-number">Decision 3</span>
-            <h3>Approve the validity plan</h3>
-            <p>Design Gate M and a cross-family judge panel before adding more model rows.</p>
-          </article>
-        </div>
-
-        <div class="next-action">
-          <strong>Highest-value next action</strong>
-          <p>Recover one complete poster result from item input through final chart. Use it as the reference implementation for the other three posters and test whether the legacy number survives the current instrument.</p>
-        </div>
-      </div>
-    </section>
-
     <section class="section" id="appendix">
       <div class="wrap">
         <p class="eyebrow">Evidence appendix</p>
         <h2>Everything needed for handoff</h2>
         <div class="appendix-links">
+          <a href="docs/RESULTS_READOUT.md"><strong>Results readout</strong><span>Question, result, implication, and limit for every chart</span></a>
           <a href="docs/RESEARCH_LEAD_BRIEF.md"><strong>Research lead brief</strong><span>Decision, findings, and next action</span></a>
+          <a href="data/results/research_question_takeaways.csv"><strong>Research-question table</strong><span>Machine-readable answers and evidence status</span></a>
           <a href="docs/ONBOARDING_AUDIT.md"><strong>Onboarding audit</strong><span>Completion matrix and stale-page corrections</span></a>
           <a href="docs/POSTER_AUDIT.md"><strong>Poster claim audit</strong><span>Result-by-result evidence review</span></a>
           <a href="docs/PAPER_REVIEW.md"><strong>Paper review</strong><span>Methods, findings, and local implementation match</span></a>
@@ -422,7 +528,7 @@
 
   <footer>
     <div class="wrap">
-      Prepared from a pinned clean source checkout and user-provided documents. No model evaluation or paid provider call was run. Poster absence means “not reproducible from this checkout,” not “never existed.”
+      Prepared from a currently clean pinned analysis checkout and user-provided documents. Original run provenance is different: 63 of 78 primary cells record a dirty run state and 15 are blank. No model evaluation or paid provider call was run. Absence means “not reproducible from this checkout,” not “never existed.”
     </div>
   </footer>
 </body>

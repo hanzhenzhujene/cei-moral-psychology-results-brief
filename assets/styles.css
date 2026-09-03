@@ -217,6 +217,172 @@ h3 {
   font-size: 1.05rem;
 }
 
+.result-section {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
+}
+
+.question-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.question-head > div {
+  min-width: 0;
+}
+
+.question-head h2,
+.question-head h3 {
+  max-width: 900px;
+}
+
+.question-head.compact {
+  gap: 1.25rem;
+}
+
+.question-head.compact h3 {
+  margin-bottom: 0.35rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 500;
+}
+
+.question-head.compact p {
+  max-width: 700px;
+  margin: 0;
+  color: var(--muted);
+}
+
+.evidence-pill {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.15rem;
+  padding: 0.42rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.evidence-pill.verified {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.evidence-pill.exploratory {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.result-figure {
+  margin: 2rem 0 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.result-figure a {
+  display: block;
+}
+
+.result-figure img {
+  width: 100%;
+  height: auto;
+}
+
+.swipe-hint {
+  display: none;
+}
+
+.result-figure figcaption {
+  max-width: 920px;
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.answer-grid > div {
+  padding: 1rem 1.05rem 1.1rem;
+  background: var(--surface);
+  border-top: 4px solid var(--blue);
+}
+
+.answer-grid > div:nth-child(2) {
+  border-color: var(--green);
+}
+
+.answer-grid > div:nth-child(3) {
+  border-color: var(--amber);
+}
+
+.answer-grid strong,
+.answer-grid span {
+  display: block;
+}
+
+.answer-grid strong {
+  margin-bottom: 0.35rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.answer-grid span {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.visual-stack {
+  display: grid;
+  gap: 1.6rem;
+}
+
+.visual-card {
+  min-width: 0;
+  padding: 1.5rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.result-figure.flush {
+  margin-top: 1.4rem;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.decision-strip {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.decision-strip strong {
+  color: var(--green);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.decision-strip span {
+  color: var(--muted);
+}
+
 .takeaway-table,
 .paper-table,
 .compact-table {
@@ -643,8 +809,13 @@ footer {
   .stat-line,
   .evidence-lanes,
   .decision-grid,
-  .appendix-links {
+  .appendix-links,
+  .answer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .answer-grid > div:last-child {
+    grid-column: 1 / -1;
   }
 
   .stat:nth-child(3) {
@@ -689,9 +860,63 @@ footer {
   .evidence-lanes,
   .decision-grid,
   .appendix-links,
+  .answer-grid,
   .result-meaning,
   .mini-grid {
     grid-template-columns: 1fr;
+  }
+
+  .question-head {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .question-head.compact {
+    gap: 0.6rem;
+  }
+
+  .answer-grid > div:last-child {
+    grid-column: auto;
+  }
+
+  .result-figure,
+  .visual-card {
+    padding: 0.8rem;
+  }
+
+  .result-figure.flush {
+    padding: 0;
+  }
+
+  .wide-chart {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wide-chart img {
+    width: 820px;
+    max-width: none;
+  }
+
+  .swipe-hint {
+    position: sticky;
+    left: 0;
+    display: block;
+    width: max-content;
+    margin: 0 0 0.55rem;
+    padding: 0.25rem 0.5rem;
+    color: var(--blue);
+    background: var(--blue-soft);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 750;
+  }
+
+  .decision-strip {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
   }
 
   .stat,

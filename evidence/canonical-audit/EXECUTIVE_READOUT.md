@@ -2,7 +2,7 @@
 
 **Decision date:** 2026-09-02  
 **Repository state:** `main` at `b3a348684692f615d789392692ce34a1359192d3` (merge commit for PR #33)  
-**Canonical evidence snapshot:** `276acecd603761e6ff61bd6e2685fbb87f0eaa47d`  
+**Canonical evidence snapshot:** `276acecd603761e6ff61bd6e2685fbb87f0eaa47`  
 **Operating boundary:** offline audit only; no provider runs, repository writes, Slack, or Notion updates.
 
 ## Decision brief

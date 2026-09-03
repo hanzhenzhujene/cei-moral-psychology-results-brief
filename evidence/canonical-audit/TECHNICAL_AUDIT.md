@@ -2,7 +2,7 @@
 
 ## Scope and source precedence
 
-This audit is pinned to repository merge commit `b3a348684692f615d789392692ce34a1359192d3` and the embedded audit source SHA `276acecd603761e6ff61bd6e2685fbb87f0eaa47d`. No files in the cloned repository were edited. The evidence precedence used here is:
+This audit is pinned to repository merge commit `b3a348684692f615d789392692ce34a1359192d3`. Three upstream audit artifacts record the malformed 41-character token `276acecd603761e6ff61bd6e2685fbb87f0eaa47d`; this audit normalizes it to the resolvable 40-character commit `276acecd603761e6ff61bd6e2685fbb87f0eaa47`. No files in the cloned repository were edited. The evidence precedence used here is:
 
 1. `results/index/latest/mft_audit_all_runs.csv` plus `mft_audit_evidence.{json,md}` for inclusion classes and counts.
 2. `mft_primary_valid_only.csv` for primary scores and score provenance.
@@ -50,19 +50,20 @@ The current-primary recomputation has 18 wide intervals, all on MoralBench compa
 
 ## Stale and contradictory surfaces
 
-1. **Checked-in confidence file:** 84 rows reflect the old state. Membership reconciliation finds 73 overlaps, 11 rows no longer primary, and 5 current-primary rows missing. Its 21 wide flags become 18 under the current 78-cell set.
-2. **Onboarding artifact / August 27 freeze:** `84 valid + 19 review + 39 invalid + 1 missing` predates PR #33. It also says all 39 M3oral cells are invalid, whereas the current audit has nine multimodal extensions and 30 exclusions.
-3. **PR #33 body:** says Kimi has 4/8 primary and 4/8 review; canonical evidence says 2/8 primary and 6/8 sensitivity.
-4. **`mft_report.html`:** headline counts are current, but five cells are displayed as primary despite canonical sensitivity status: Kimi MFQ agreement, Kimi vignette agreement, and Llama-4-Scout MFQ agreement/compare and vignette agreement.
-5. **Gemma UniMoral action:** the report/wide matrix shows raw 0.6483; canonical primary evidence uses the parser rescore 0.6904599271.
-6. **Reproducibility-manifest checksum label:** SHA-256 `a254c802…` is labeled `mft_audited_matrix.csv` but matches `mft_matrix_long.csv`; the actual current audited-matrix hash starts `c3edcc6b…`.
-7. **Raw reproducibility:** all 143 canonical-audit `.eval` archives, all four full UniMoral calibration `.eval` files, all 42 referenced ValuePrism broad-inventory accuracy `.eval` files, and the 4,640 M3oralBench images are absent from the fresh clone. The BERTScore bridge preserves 1,782 per-row scores but not raw predictions/references. Tracked artifact consistency and BERTScore re-aggregation are testable; scorer/model-output reproduction is not.
-8. **Matrix manifest language:** core validity intentionally counts all 39 M3oral cells as invalid, while the audit promotes nine into a separate extension. Its explanation that all 39 lack images is stale for those nine.
-9. **Root README scope:** describes an older five-paper, 105-cell Option 1 release and does not route readers to the current 143-cell audit. This is a scope collision, not a count to merge.
-10. **Broad generated analyses:** some average heterogeneous metrics and treat invalid-modality M3oral scores as difficulty evidence. They are unsuitable for ranking or saturation claims.
-11. **UniMoral venue and bridge:** repository prose says “ACL Findings 2025” and “exact same-model.” The authoritative venue is ACL 2025 Volume 1: Long Papers, and only the checkpoint name is nominally shared.
-12. **Stale UniMoral stratification:** `unimoral_stratified_stats.csv` has 1,561 rows / 39 model-task keys, but one key is now sensitivity-only, three current-primary keys are missing, and Gemma action retains raw 0.648338 rather than canonical rescore 0.690460. It cannot support a current language comparison without rebuilding.
-13. **Paper internal limits:** UniMoral contains an 8,784-versus-5,256 count inconsistency and unsupported significance language. Value Kaleidoscope §4.2 reports 613 annotators, Appendix E reports 612, and demographic subgroup counts in Tables 19–21 sum to 468. Separately, the introduction's `>1%` missing-value statement conflicts with §4.1's 0.35% and Ethical Impact's `<1%`; the diverse-study 30% missing-perspective rate is a different protocol and construct. Tables 5, 6, and 13 report no CIs.
+1. **Malformed source SHA:** `mft_audit_evidence.{json,md}` and `reproducibility_manifest.json` record `276acecd603761e6ff61bd6e2685fbb87f0eaa47d`, which is 41 characters and does not resolve. Removing the spurious final `d` yields `276acecd603761e6ff61bd6e2685fbb87f0eaa47`, a real commit and ancestor of the pinned source HEAD. The source consistency check missed this because it compares only the first eight characters. The source clone remains unchanged; the normalization is explicit in this audit's build provenance.
+2. **Checked-in confidence file:** 84 rows reflect the old state. Membership reconciliation finds 73 overlaps, 11 rows no longer primary, and 5 current-primary rows missing. Its 21 wide flags become 18 under the current 78-cell set.
+3. **Onboarding artifact / August 27 freeze:** `84 valid + 19 review + 39 invalid + 1 missing` predates PR #33. It also says all 39 M3oral cells are invalid, whereas the current audit has nine multimodal extensions and 30 exclusions.
+4. **PR #33 body:** says Kimi has 4/8 primary and 4/8 review; canonical evidence says 2/8 primary and 6/8 sensitivity.
+5. **`mft_report.html`:** headline counts are current, but five cells are displayed as primary despite canonical sensitivity status: Kimi MFQ agreement, Kimi vignette agreement, and Llama-4-Scout MFQ agreement/compare and vignette agreement.
+6. **Gemma UniMoral action:** the report/wide matrix shows raw 0.6483; canonical primary evidence uses the parser rescore 0.6904599271.
+7. **Reproducibility-manifest checksum label:** SHA-256 `a254c802…` is labeled `mft_audited_matrix.csv` but matches `mft_matrix_long.csv`; the actual current audited-matrix hash starts `c3edcc6b…`.
+8. **Raw reproducibility:** all 143 canonical-audit `.eval` archives, all four full UniMoral calibration `.eval` files, all 42 referenced ValuePrism broad-inventory accuracy `.eval` files, and the 4,640 M3oralBench images are absent from the fresh clone. The BERTScore bridge preserves 1,782 per-row scores but not raw predictions/references. Tracked artifact consistency and BERTScore re-aggregation are testable; scorer/model-output reproduction is not.
+9. **Matrix manifest language:** core validity intentionally counts all 39 M3oral cells as invalid, while the audit promotes nine into a separate extension. Its explanation that all 39 lack images is stale for those nine.
+10. **Root README scope:** describes an older five-paper, 105-cell Option 1 release and does not route readers to the current 143-cell audit. This is a scope collision, not a count to merge.
+11. **Broad generated analyses:** some average heterogeneous metrics and treat invalid-modality M3oral scores as difficulty evidence. They are unsuitable for ranking or saturation claims.
+12. **UniMoral venue and bridge:** repository prose says “ACL Findings 2025” and “exact same-model.” The authoritative venue is ACL 2025 Volume 1: Long Papers, and only the checkpoint name is nominally shared.
+13. **Stale UniMoral stratification:** `unimoral_stratified_stats.csv` has 1,561 rows / 39 model-task keys, but one key is now sensitivity-only, three current-primary keys are missing, and Gemma action retains raw 0.648338 rather than canonical rescore 0.690460. It cannot support a current language comparison without rebuilding.
+14. **Paper internal limits:** UniMoral contains an 8,784-versus-5,256 count inconsistency and unsupported significance language. Value Kaleidoscope §4.2 reports 613 annotators, Appendix E reports 612, and demographic subgroup counts in Tables 19–21 sum to 468. Separately, the introduction's `>1%` missing-value statement conflicts with §4.1's 0.35% and Ethical Impact's `<1%`; the diverse-study 30% missing-perspective rate is a different protocol and construct. Tables 5, 6, and 13 report no CIs.
 
 ## Provenance quality
 
