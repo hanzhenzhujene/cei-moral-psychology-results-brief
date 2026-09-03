@@ -1,0 +1,10 @@
+{
+  "audit_date": "2026-09-02",
+  "canonical_evidence_source_sha": "276acecd603761e6ff61bd6e2685fbb87f0eaa47d",
+  "generator": "work/build_audit.py",
+  "generator_sha256": "2709fba8d70d73759607f1ab0c182130f119a17dc607b8e03292830f01c24ba6",
+  "operating_boundary": "offline; no provider runs or external writes",
+  "source_repository_head": "b3a348684692f615d789392692ce34a1359192d3",
+  "validator": "work/validate_audit.py",
+  "validator_sha256": "435078070a72dd8d92ed03624ee6161b54deaaed784a92f5d1405b0361d03152"
+}

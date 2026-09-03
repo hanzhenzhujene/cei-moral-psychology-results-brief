@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Evidence-aware research lead readout for the CEI moral psychology posters, benchmark audit, and relevant papers.">
+  <title>CEI Moral Psychology — Results Brief</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to results</a>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top">CEI · Moral Psychology</a>
+      <nav class="nav-links" aria-label="Page sections">
+        <a href="#readout">Readout</a>
+        <a href="#evidence">Evidence map</a>
+        <a href="#posters">Four posters</a>
+        <a href="#papers">Papers</a>
+        <a href="#decisions">Decisions</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap">
+        <p class="eyebrow">Research lead readout · 3 September 2026</p>
+        <h1>What the completed runs actually support</h1>
+        <p class="lede">The banked experiment phase is closed. Evidence validation is not. The strongest result is a measurement story: administration, scorer design, and judge choice shape what appears to be model behavior.</p>
+
+        <div class="decision-banner">
+          <strong>Release decision</strong>
+          Publish the canonical audit and the measurement design. Hold the poster numerical comparisons until their source package can be recovered and replayed.
+        </div>
+
+        <div class="stat-line" aria-label="Key status summary">
+          <div class="stat">
+            <span class="stat-value">143</span>
+            <span class="stat-label">cells in the current canonical audit</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">4 / 4</span>
+            <span class="stat-label">poster source packages missing</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">0</span>
+            <span class="stat-label">exact paper replications</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">Pending</span>
+            <span class="stat-label">Gate M human validation</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="readout">
+      <div class="wrap">
+        <p class="eyebrow">Executive readout</p>
+        <h2>Four facts change the release</h2>
+        <p class="section-intro">Each statement below is tied to a distinct evidence layer. The layers must not be merged.</p>
+
+        <table class="takeaway-table">
+          <thead>
+            <tr>
+              <th>Finding</th>
+              <th>What it means</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Finding"><span class="plain-status status-current">Current</span><br>Canonical audit accounting is stable.</td>
+              <td data-label="What it means">78 primary text, 26 sensitivity text, 9 multimodal extension, and 30 excluded cells sum to 143.</td>
+              <td data-label="Decision">Use these classes and denominators in the release. Do not reuse the old “84 valid” page.</td>
+            </tr>
+            <tr>
+              <td data-label="Finding"><span class="plain-status status-hold">Hold numbers</span><br>The poster evidence chain is broken.</td>
+              <td data-label="What it means">The cited commit, seal, row-level judge and coder records, and poster generators are absent from the pinned checkout.</td>
+              <td data-label="Decision">Keep design lessons. Label every poster number as legacy and unverified until the packet is restored.</td>
+            </tr>
+            <tr>
+              <td data-label="Finding"><span class="plain-status status-context">Context only</span><br>The four papers are not direct numeric baselines.</td>
+              <td data-label="What it means">MoralBench and UniMoral are approximate matches. MoReBench and MoralLens local scores are proxies for different targets.</td>
+              <td data-label="Decision">Compare methods and interpretations, not scores.</td>
+            </tr>
+            <tr>
+              <td data-label="Finding"><span class="plain-status status-pending">Pending</span><br>Automated agreement is not validity.</td>
+              <td data-label="What it means">Two judges or coders can agree and both be wrong. No representative expert or human validation gate has passed.</td>
+              <td data-label="Decision">Run Gate M before any claim about correctness, moral understanding, or representative human values.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="evidence-lanes" aria-label="Evidence layers">
+          <div class="lane current">
+            <strong>Canonical audit</strong>
+            <p>Use for current status, task metrics, uncertainty, and claim boundaries.</p>
+          </div>
+          <div class="lane hold">
+            <strong>Poster study</strong>
+            <p>Use for design history only. Numerical source packages are absent.</p>
+          </div>
+          <div class="lane context">
+            <strong>Primary papers</strong>
+            <p>Use to explain methods and authors' claims. No exact performance match exists.</p>
+          </div>
+          <div class="lane pending">
+            <strong>Human validity</strong>
+            <p>Not yet available. Gate M remains the required path.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="evidence">
+      <div class="wrap">
+        <p class="eyebrow">Evidence map</p>
+        <h2>The total stayed 143. The meaning changed.</h2>
+        <p class="section-intro">The onboarding page used an older classification. The current audit separates operationally usable text evidence, sensitivity diagnostics, multimodal extensions, and exclusions.</p>
+
+        <div class="audit-compare">
+          <article class="snapshot">
+            <h3>Onboarding snapshot</h3>
+            <p>27 August · stale categories</p>
+            <div class="stacked" role="img" aria-label="Old snapshot: 84 valid, 19 needs review, 39 invalid, and 1 missing">
+              <span class="segment old-a" style="width:58.74%">84</span>
+              <span class="segment old-b" style="width:13.29%">19</span>
+              <span class="segment old-c" style="width:27.27%">39</span>
+              <span class="segment old-d tiny" style="width:.7%">1</span>
+            </div>
+            <div class="legend">
+              <span class="legend-item" style="--swatch:#6b7280">Valid 84</span>
+              <span class="legend-item" style="--swatch:#9ca3af">Review 19</span>
+              <span class="legend-item" style="--swatch:#4b5563">Invalid 39</span>
+              <span class="legend-item" style="--swatch:#c8cbd1">Missing 1</span>
+            </div>
+          </article>
+
+          <article class="snapshot">
+            <h3>Canonical audit</h3>
+            <p>1 September · current categories</p>
+            <div class="stacked" role="img" aria-label="Current audit: 78 primary text, 26 sensitivity text, 9 multimodal extension, and 30 excluded">
+              <span class="segment new-a" style="width:54.55%">78</span>
+              <span class="segment new-b" style="width:18.18%">26</span>
+              <span class="segment new-c" style="width:6.29%">9</span>
+              <span class="segment new-d" style="width:20.98%">30</span>
+            </div>
+            <div class="legend">
+              <span class="legend-item" style="--swatch:#13735b">Primary 78</span>
+              <span class="legend-item" style="--swatch:#a85a16">Sensitivity 26</span>
+              <span class="legend-item" style="--swatch:#7152a5">Extension 9</span>
+              <span class="legend-item" style="--swatch:#a53d35">Excluded 30</span>
+            </div>
+          </article>
+        </div>
+
+        <p class="chart-note">These rows are not a cell-by-cell transition chart. The category definitions changed, so the correct action is to replace the snapshot rather than infer a direct migration.</p>
+
+        <div class="source-links">
+          <a href="evidence/canonical-audit/index.html">Open the canonical visual explorer</a>
+          <a href="evidence/canonical-audit/EXECUTIVE_READOUT.md">Read the canonical executive readout</a>
+          <a href="docs/ONBOARDING_AUDIT.md">See the full onboarding completion audit</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="posters">
+      <div class="wrap">
+        <p class="eyebrow">Four-poster audit</p>
+        <h2>Keep the design. Quarantine the numbers.</h2>
+        <p class="section-intro">The PDFs are real artifacts, but the evidence state they cite cannot be resolved in the current source history. “Poster-reported” below means visible in the PDF and internally checked where possible, not independently reproduced.</p>
+
+        <div class="poster-list">
+          <article class="poster-card">
+            <figure class="poster-visual">
+              <a href="evidence/posters/FC_POSTER.pdf"><img src="assets/posters/family-c.webp" alt="Preview of the Family Competence poster"></a>
+              <figcaption class="poster-caption">Poster 1 · Family Competence · original PDF</figcaption>
+            </figure>
+            <div class="poster-copy">
+              <span class="plain-status status-hold">Unsupported · stale</span>
+              <h3>Family Competence</h3>
+              <p>The useful story is pipeline integrity, not model order. The poster itself reports that later instrument changes make its scores incomparable to the current seal.</p>
+
+              <div class="result-meaning">
+                <div>
+                  <strong>Result worth keeping</strong>
+                  <p>A missing debrief channel can be mistaken for a substantive low score unless completeness is checked before judging.</p>
+                </div>
+                <div>
+                  <strong>Release limit</strong>
+                  <p>The raw traces and repair code are absent, so this remains a design lesson rather than verified experiment history.</p>
+                </div>
+              </div>
+
+              <div class="legacy-box">
+                <p class="legacy-title">Poster-reported geometry · unverified</p>
+                <div class="mini-grid">
+                  <div class="mini-value"><b>13</b><span>models; roster exists</span></div>
+                  <div class="mini-value"><b>1,326</b><span>judged cells claimed</span></div>
+                  <div class="mini-value"><b>2,142</b><span>verdicts scheduled</span></div>
+                </div>
+              </div>
+
+              <p><strong>Correction:</strong> the poster visually favors several B3 consistency measures but omits the one measure that moves the other way: within .25 is `.850` for B2 and `.839` for B3. Show the complete table or choose one primary measure before seeing results.</p>
+              <div class="source-links"><a href="docs/POSTER_AUDIT.md#poster-1--family-competence">Claim audit</a><a href="data/poster_claims.csv">Machine-readable ledger</a></div>
+            </div>
+          </article>
+
+          <article class="poster-card">
+            <figure class="poster-visual">
+              <a href="evidence/posters/FP_POSTER.pdf"><img src="assets/posters/family-p.webp" alt="Preview of the Family Profile poster"></a>
+              <figcaption class="poster-caption">Poster 2 · Family Profile · original PDF</figcaption>
+            </figure>
+            <div class="poster-copy">
+              <span class="plain-status status-hold">Unsupported · stale</span>
+              <h3>Family Profile</h3>
+              <p>The safe principle is simple: a profile has no better or worse direction and must never become a model ranking. The numerical MFT and Kohlberg profiles cannot be regenerated here.</p>
+
+              <div class="result-meaning">
+                <div>
+                  <strong>Result worth keeping</strong>
+                  <p>No reproducible Schwartz profile is available. Missing the minimum sample requirement is itself a measurement result.</p>
+                </div>
+                <div>
+                  <strong>Release limit</strong>
+                  <p>Coder records, per-item assignments, and the Stage-11 source are absent.</p>
+                </div>
+              </div>
+
+              <div class="legacy-box">
+                <p class="legacy-title">Poster-reported channel agreement · unverified</p>
+                <div class="mini-grid">
+                  <div class="mini-value"><b>.933</b><span>Kohlberg register</span></div>
+                  <div class="mini-value"><b>.648</b><span>Kohlberg secondary</span></div>
+                  <div class="mini-value"><b>.538</b><span>Kohlberg confidence</span></div>
+                </div>
+              </div>
+
+              <p><strong>Definite error:</strong> “six legs, 1,645 records per leg, 3,290 total” cannot be true. Six times 1,645 is 9,870. The intended unit must be confirmed from the missing receipts.</p>
+              <div class="source-links"><a href="docs/POSTER_AUDIT.md#poster-2--family-profile">Claim audit</a></div>
+            </div>
+          </article>
+
+          <article class="poster-card">
+            <figure class="poster-visual">
+              <a href="evidence/posters/20260810-BIALIGN_V2_POSTER.pdf"><img src="assets/posters/bialign.webp" alt="Preview of the Bidirectional Alignment poster"></a>
+              <figcaption class="poster-caption">Poster 3 · Bidirectional Alignment · original PDF</figcaption>
+            </figure>
+            <div class="poster-copy">
+              <span class="plain-status status-pending">Design valid · results stale</span>
+              <h3>Bidirectional Alignment</h3>
+              <p>This poster makes the clearest design argument: two automated judges agreeing with each other does not establish that either judge is correct.</p>
+
+              <div class="table-wrap legacy-box">
+                <p class="legacy-title">Complete poster-reported comparison · all values unverified</p>
+                <table class="compact-table">
+                  <thead><tr><th>Measure</th><th>First group</th><th>Second group</th></tr></thead>
+                  <tbody>
+                    <tr><td>Paired cells</td><td>306</td><td>510</td></tr>
+                    <tr><td>Mean absolute difference</td><td>.1618</td><td>.1476</td></tr>
+                    <tr><td>Exact agreement</td><td>.471</td><td>.537</td></tr>
+                    <tr><td>Within .10</td><td>.670</td><td>.749</td></tr>
+                    <tr><td>Within .25</td><td>.850</td><td>.839</td></tr>
+                    <tr><td>Signed mean, leg 2 − leg 1</td><td>+.0403</td><td>+.0599</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p><strong>Meaning:</strong> the direction of judge offset is a hypothesis about the judge pair, not a property of a model. Gate M remains pending.</p>
+              <div class="source-links"><a href="docs/POSTER_AUDIT.md#poster-3--bidirectional-alignment">Claim audit</a></div>
+            </div>
+          </article>
+
+          <article class="poster-card">
+            <figure class="poster-visual">
+              <a href="evidence/posters/20260810-COGALIGN_V2_POSTER.pdf"><img src="assets/posters/cogalign.webp" alt="Preview of the Administration poster"></a>
+              <figcaption class="poster-caption">Poster 4 · Administration · original PDF</figcaption>
+            </figure>
+            <div class="poster-copy">
+              <span class="plain-status status-hold">Historical only</span>
+              <h3>Administration is part of the construct</h3>
+              <p>The poster's 189 score cells predate the current instrument and have no recoverable item, output, judge, scorer, aggregation, or uncertainty package in this checkout.</p>
+
+              <div class="result-meaning">
+                <div>
+                  <strong>Result worth keeping</strong>
+                  <p>The number and construction of response bundles belong in the sample identity.</p>
+                </div>
+                <div>
+                  <strong>Release limit</strong>
+                  <p>Meeting a sample floor does not recover validity when the recovery criteria themselves are not implemented.</p>
+                </div>
+              </div>
+
+              <div class="legacy-box">
+                <p class="legacy-title">Original administration · poster-reported only</p>
+                <div class="sample-floor" role="img" aria-label="Three observed bundles out of a stated minimum of 30"><span class="observed"></span><span class="missing"></span></div>
+                <p>3 bundles observed against a stated minimum of 30. The poster reports 18 of 18 declines. A later five-model arm reached 30, but all five recovery outcomes remained indeterminate.</p>
+              </div>
+
+              <div class="source-links"><a href="docs/POSTER_AUDIT.md#poster-4--administration">Claim audit</a><a href="data/cogalign_legacy_scores.csv">189 legacy score cells</a></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="papers">
+      <div class="wrap">
+        <p class="eyebrow">Poster 1 · relevant benchmarks</p>
+        <h2>Four papers, four different measurement targets</h2>
+        <p class="section-intro">All four primary papers were obtained and reviewed. The original onboarding table flattened their methods into misleading metric labels.</p>
+
+        <div class="table-wrap">
+          <table class="paper-table">
+            <thead>
+              <tr>
+                <th>Paper</th>
+                <th>Paper target</th>
+                <th>Local target</th>
+                <th>Match</th>
+                <th>Research lead interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="Paper"><a href="https://arxiv.org/pdf/2406.04428">MoralBench</a></td>
+                <td data-label="Paper target">Human-score agreement and higher-rated forced choices, repeated at temperature .7.</td>
+                <td data-label="Local target">Normalized preference for agreement; accuracy for comparison; temperature 0.</td>
+                <td data-label="Match" class="match approx">Approximate</td>
+                <td data-label="Research lead interpretation">Same task family, different scale and administration. Do not compare values numerically.</td>
+              </tr>
+              <tr>
+                <td data-label="Paper"><a href="https://aclanthology.org/2025.acl-long.294/">UniMoral</a></td>
+                <td data-label="Paper target">Weighted F1 under moral, cultural, persona, and few-shot cues; generation similarity.</td>
+                <td data-label="Local target">No-cue accuracy plus METEOR and a separate offline BERTScore bridge.</td>
+                <td data-label="Match" class="match approx">Approximate</td>
+                <td data-label="Research lead interpretation">The local run does not test the paper's cue effect, personalized prediction, or language ordering.</td>
+              </tr>
+              <tr>
+                <td data-label="Paper"><a href="https://arxiv.org/pdf/2510.16380">MoReBench</a></td>
+                <td data-label="Paper target">Expert-weighted Regular and Hard scores over procedural reasoning criteria.</td>
+                <td data-label="Local target">Four generic keyword checks with think blocks removed.</td>
+                <td data-label="Match" class="match proxy">Proxy only</td>
+                <td data-label="Research lead interpretation">Local values detect generic reasoning words. They are not MoReBench scores.</td>
+              </tr>
+              <tr>
+                <td data-label="Paper"><a href="https://aclanthology.org/2025.emnlp-main.1563/">MoralLens</a></td>
+                <td data-label="Paper target">Sixteen-rationale judge, CDGAP, Utility, and pre-versus-post decision order effects.</td>
+                <td data-label="Local target">Keyword detectability and a binary expected-direction pattern.</td>
+                <td data-label="Match" class="match proxy">Proxy only</td>
+                <td data-label="Research lead interpretation">The local adapter cannot establish an ethical theory or reproduce the paper's order effect.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="decision-banner">
+          <strong>Shared implication</strong>
+          These benchmarks describe different coordinates: preference agreement, label prediction, procedural rubric fulfillment, and rationale classification. They must remain separate panels, not one “moral competence” score.
+        </div>
+
+        <div class="source-links">
+          <a href="docs/PAPER_REVIEW.md">Read the full paper and implementation audit</a>
+          <a href="data/paper_protocol_map.csv">Download the protocol map</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="decisions">
+      <div class="wrap">
+        <p class="eyebrow">Decision surface</p>
+        <h2>Three choices unlock the next credible release</h2>
+
+        <div class="decision-grid">
+          <article class="decision">
+            <span class="decision-number">Decision 1</span>
+            <h3>Choose the release type</h3>
+            <p>A methods and measurement release is supportable now. A numerical poster-results release is not.</p>
+          </article>
+          <article class="decision">
+            <span class="decision-number">Decision 2</span>
+            <h3>Assign evidence recovery</h3>
+            <p>One owner should restore the poster source packet and resolve the missing commit and seal.</p>
+          </article>
+          <article class="decision">
+            <span class="decision-number">Decision 3</span>
+            <h3>Approve the validity plan</h3>
+            <p>Design Gate M and a cross-family judge panel before adding more model rows.</p>
+          </article>
+        </div>
+
+        <div class="next-action">
+          <strong>Highest-value next action</strong>
+          <p>Recover one complete poster result from item input through final chart. Use it as the reference implementation for the other three posters and test whether the legacy number survives the current instrument.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="appendix">
+      <div class="wrap">
+        <p class="eyebrow">Evidence appendix</p>
+        <h2>Everything needed for handoff</h2>
+        <div class="appendix-links">
+          <a href="docs/RESEARCH_LEAD_BRIEF.md"><strong>Research lead brief</strong><span>Decision, findings, and next action</span></a>
+          <a href="docs/ONBOARDING_AUDIT.md"><strong>Onboarding audit</strong><span>Completion matrix and stale-page corrections</span></a>
+          <a href="docs/POSTER_AUDIT.md"><strong>Poster claim audit</strong><span>Result-by-result evidence review</span></a>
+          <a href="docs/PAPER_REVIEW.md"><strong>Paper review</strong><span>Methods, findings, and local implementation match</span></a>
+          <a href="evidence/internal-reports/20260828-mp2-unified-paper.pdf"><strong>Unified internal report</strong><span>Provisional methods and limitations</span></a>
+          <a href="evidence/internal-reports/20260829-mp2-cross-llm-school-comparison.pdf"><strong>Cross-model internal report</strong><span>Provisional school comparison</span></a>
+          <a href="evidence/canonical-audit/CLAIM_BOUNDARIES.md"><strong>Claim boundaries</strong><span>What the canonical audit allows and forbids</span></a>
+          <a href="evidence/canonical-audit/PAPER_REPO_EVIDENCE_LEDGER.csv"><strong>Canonical paper ledger</strong><span>37 paper-to-repository claim rows</span></a>
+          <a href="data/poster_claims.csv"><strong>Poster claim ledger</strong><span>One-to-one result, evidence, meaning, and action</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Prepared from a pinned clean source checkout and user-provided documents. No model evaluation or paid provider call was run. Poster absence means “not reproducible from this checkout,” not “never existed.”
+    </div>
+  </footer>
+</body>
+</html>

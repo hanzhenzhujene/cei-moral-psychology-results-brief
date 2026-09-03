@@ -1,0 +1,15 @@
+paper,surface,model_version,task_dataset,metric,protocol,overall
+UniMoral,AP personalized,partial,partial,mismatch,mismatch,approximate
+UniMoral,MTC,partial,partial,mismatch,mismatch,approximate
+UniMoral,FAA,partial,partial,mismatch,mismatch,approximate
+UniMoral,CG METEOR,partial,partial,partial,mismatch,approximate
+UniMoral,CG BERTScore,partial,partial,partial,mismatch,approximate
+UniMoral,cue effects,mismatch,partial,mismatch,mismatch,unavailable
+UniMoral,language ranking,mismatch,partial,mismatch,mismatch,unavailable
+ValuePrism,relevance accuracy,mismatch,partial,match,mismatch,approximate
+ValuePrism,valence accuracy,mismatch,partial,match,mismatch,approximate
+ValuePrism,generation PPL,unavailable,mismatch,mismatch,mismatch,unavailable
+ValuePrism,human list preference,unavailable,mismatch,mismatch,mismatch,unavailable
+ValuePrism,human relevance,mismatch,partial,mismatch,mismatch,proxy-only
+ValuePrism,transfer,mismatch,mismatch,mismatch,mismatch,proxy-only
+Cross-paper,saturation,unavailable,mismatch,mismatch,mismatch,unavailable

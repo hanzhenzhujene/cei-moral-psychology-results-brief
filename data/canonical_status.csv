@@ -1,0 +1,9 @@
+snapshot,class,count,evidence_status
+onboarding_2026-08-27,valid,84,stale_category
+onboarding_2026-08-27,needs_review,19,stale_category
+onboarding_2026-08-27,invalid,39,stale_category
+onboarding_2026-08-27,missing,1,stale_category
+canonical_2026-09-01,primary_text,78,current
+canonical_2026-09-01,sensitivity_text,26,current
+canonical_2026-09-01,multimodal_extension,9,current
+canonical_2026-09-01,excluded,30,current

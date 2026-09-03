@@ -1,0 +1,5 @@
+inclusion_class,cells,label,share_of_143,evidence_use
+primary,78,Primary text,0.5454545454545454,headline text evidence
+sensitivity_only,26,Sensitivity-only text,0.18181818181818182,diagnostics only
+multimodal_extension,9,Multimodal extension,0.06293706293706294,separate extension evidence
+excluded,30,Excluded,0.2097902097902098,no ability inference

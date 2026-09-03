@@ -1,0 +1,11 @@
+benchmark,claim_unit,paper_metric,local_metric,match_status,safe_interpretation
+MoralBench,agreement,raw summed human-score total,normalized preference proxy,approximate,"Same task family; different scale and administration. Do not compare values numerically."
+MoralBench,comparison,accuracy over higher-rated forced choice,accuracy over higher-rated forced choice,approximate,"Fresh deterministic evaluation; not a reproduction of the paper model ordering."
+UniMoral,AP MTC FAA,weighted F1 under cue conditions,accuracy in default no-cue mode,approximate,"Label agreement under a different protocol; not personalized moral prediction."
+UniMoral,consequence generation,BLEU METEOR multilingual BERTScore,best-reference METEOR plus offline BERTScore bridge,approximate,"Same metric families; scorer route and aggregation are not identical."
+UniMoral,cue language source claims,condition and source comparisons,no matched cue counterfactual,unavailable,"Current runs cannot confirm the paper cue effect or language/source patterns."
+MoReBench,scenario ingestion,"500 public rows; 293 advisor and 207 agent","500 rows with the same role counts; release fingerprint unpinned",approximate,"Scenario alignment is plausible but not revision-exact."
+MoReBench,performance,expert-weighted Regular and Hard scores,four-marker keyword-coverage proxy,proxy_only,"Local values are not MoReBench scores."
+MoReBench,Theory,150 examples across five theories,no evaluator or saved result,unavailable,"No local theory-specific result."
+MoralLens,dataset,"640 rows; 85 models; five samples","672 rows including 32 Species extensions; one sample",approximate,"Dataset overlap exists; administration differs materially."
+MoralLens,performance,CDGAP and Utility from 16-rationale judge,keyword detectability and binary expected-pattern match,proxy_only,"Cannot reproduce paper order effects or infer a model ethical theory."

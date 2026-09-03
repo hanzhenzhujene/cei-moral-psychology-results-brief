@@ -1,0 +1,22 @@
+poster,claim_id,poster_reported_result,repo_evidence,verification_status,research_lead_implication,release_action
+Family Competence,FC-01,"13 models; four run groups; 1,326 judged cells; 2,142 scheduled verdicts","13-model roster only",partial_roster_only,"The geometry is legacy context, not current verified coverage.",label_legacy
+Family Competence,FC-02,"21 model-leg rows by nine school-setting scores","Cross-poster table agrees; raw cells absent",unsupported,"Three-decimal precision is not evidence without the source rows.",move_to_historical_appendix
+Family Competence,FC-03,"B2 mean absolute judge difference .1618 over 306 pairs","No paired judge records",unsupported,"Judge variation may matter, but the magnitude cannot be recomputed.",hold_number
+Family Competence,FC-04,"B3 mean absolute judge difference .1476 over 510 pairs","No paired judge records",unsupported,"Do not imply the second run group is more reproducible.",hold_number
+Family Competence,FC-05,"Missing debrief created a false low-score headline and was corrected","Narrative only; raw traces and fix absent",unsupported_history,"Completeness must be checked before scoring.",keep_design_lesson_only
+Family Competence,FC-06,"Selected B3 consistency measures improve over B2","Within-.25 moves in the opposite direction",selective_emphasis_risk,"Choose a primary reliability statistic before results or show the full table.",show_full_table
+Family Profile,FP-01,"38 Kohlberg + 32 MFT + 204 Schwartz = 274 values per model","Arithmetic passes; source rows absent",unsupported,"The pipeline design can be explained without claiming model profiles.",label_legacy
+Family Profile,FP-02,"204 of 274 values are mechanical and never reach a coder","Arithmetic passes; administration records absent",unsupported,"Separate mechanical extraction from human-like coding channels.",keep_as_design_only
+Family Profile,FP-03,"MFT purity agreement .943; other channels .660-.785","No coder records",unsupported,"Reliability differs by channel and should not be averaged.",hold_number
+Family Profile,FP-04,"Kohlberg register .933; primary .827; secondary .648; confidence .538","No coder records",unsupported,"Confidence needs the strongest measurement review.",hold_number
+Family Profile,FP-05,"Six legs: 1,645 records per leg; 3,290 total","6 × 1,645 = 9,870",arithmetic_wording_error,"The unit definition is inconsistent.",correct_after_receipts
+Family Profile,FP-06,"No Schwartz profile passes the original sample floor","No Schwartz result artifact in current checkout",not_reproducible_here,"The missing profile is a measurement result, not a blank to impute.",state_absence
+Bidirectional Alignment,BA-01,"Gate M pending","Consistent across posters and reports",supported_design_status,"Automated reliability does not establish human validity.",keep
+Bidirectional Alignment,BA-02,"306 and 510 paired cells across two run groups","No paired records",unsupported,"Never pool or compare the groups without their item-level records.",hold_number
+Bidirectional Alignment,BA-03,"Signed judge offsets +.0403 and +.0599","No paired records",unsupported,"Direction is a hypothesis about judge behavior, not a model property.",hold_number
+Bidirectional Alignment,BA-04,"Profile channel agreements over n=512 or n=608","No coder census",unsupported,"Agreement belongs to the measurement channel, not the model.",hold_number
+Administration,CA-01,"189 score cells","No inputs outputs scorer aggregation or uncertainty",unsupported,"The table is a historical illustration only.",historical_appendix
+Administration,CA-02,"18 of 18 checks decline at three bundles versus a floor of 30","No bundle records or gate implementation",unsupported,"Administration size may change what is measured.",label_poster_reported
+Administration,CA-03,"Five later models reach 30 bundles and are permitted","No bundle records",unsupported,"Meeting a sample floor is not the same as recovering validity.",label_poster_reported
+Administration,CA-04,"Five recovery outcomes remain indeterminate because two criteria are unimplemented","No sealed recovery code",unsupported_but_material_limit,"The recovery claim cannot be completed from the current design.",keep_limit_with_label
+All Posters,ALL-01,"Evidence commit 3261ddd9 and seal be0a11a3a4d7","Neither resolves in the pinned checkout",provenance_failure,"No poster result is independently reproducible here.",recover_source_packet
