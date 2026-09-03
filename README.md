@@ -2,6 +2,8 @@
 
 This repository turns the Jenny onboarding page, four MP-v2 posters, two internal reports, and four benchmark papers into one evidence-aware readout for a research lead.
 
+![Preview of the research lead results brief](assets/readout-preview.png)
+
 ## Start here
 
 1. Open [`index.html`](index.html) for the visual readout.
