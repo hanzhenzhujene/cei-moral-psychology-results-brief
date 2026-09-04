@@ -8,13 +8,13 @@ Click any slide to open the 2560 × 1440 image.
 
 [![Slide 1: Publish task results. Do not rank the models.](rendered/slide-01.png)](rendered/slide-01.png)
 
-## 2. No model leads all eight tasks
+## 2. No model has the highest saved score on all eight tasks
 
-[![Slide 2: No model leads all eight tasks.](rendered/slide-02.png)](rendered/slide-02.png)
+[![Slide 2: No model has the highest saved score on all eight tasks.](rendered/slide-02.png)](rendered/slide-02.png)
 
-## 3. Two comparison tests cannot rank models yet
+## 3. Saved ranges overlap for every model pair in both tests
 
-[![Slide 3: Two comparison tests cannot rank models yet.](rendered/slide-03.png)](rendered/slide-03.png)
+[![Slide 3: Saved ranges overlap for every model pair in both tests.](rendered/slide-03.png)](rendered/slide-03.png)
 
 ## 4. Only 4 of 12 model-and-task cases rise twice
 

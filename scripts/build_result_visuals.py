@@ -257,18 +257,18 @@ def plot_precision(precision: pd.DataFrame) -> None:
         ax.text(value + 0.012, y, f"{value:.3f}", va="center", fontsize=10, fontweight="bold")
     ax.axvline(0.20, color=MUTED, linestyle="--", linewidth=1.3)
     ax.axvline(0.30, color=RED, linestyle=":", linewidth=1.5)
-    ax.text(0.20, 0.99, ".20 planning target", transform=ax.get_xaxis_transform(), ha="right", va="top", color=MUTED, fontsize=8.5)
-    ax.text(0.30, 0.91, ".30 audit warning", transform=ax.get_xaxis_transform(), ha="left", va="top", color=RED, fontsize=8.5)
+    ax.text(0.20, 0.99, ".20 internal planning target", transform=ax.get_xaxis_transform(), ha="right", va="top", color=MUTED, fontsize=8.5)
+    ax.text(0.30, 0.91, ".30 internal audit warning", transform=ax.get_xaxis_transform(), ha="left", va="top", color=RED, fontsize=8.5)
     ax.set_yticks(ypos)
     ax.set_yticklabels(ordered["task_label"])
     ax.set_xlim(0, 0.45)
     ax.set_xlabel("Median full width of the saved 95% interval")
     ax.grid(axis="x", color=GRID, linewidth=0.8)
-    ax.set_title("Available marginal intervals do not resolve a comparison-task model order", loc="left", fontsize=20, fontweight="bold", pad=28)
-    ax.text(0, 1.025, "All 18 intervals wider than .30 occur in MoralBench compare; every within-task pair overlaps marginally.", transform=ax.transAxes, color=MUTED, fontsize=11)
-    ax.text(0, -0.13, "Decision: recover paired item outcomes first; if the order remains unresolved, expand the independent item banks.", transform=ax.transAxes, fontsize=10.2, fontweight="bold")
-    ax.text(0, -0.18, "Narrow UniMoral intervals are nominal row-level precision; they do not establish construct validity or cluster-aware uncertainty.", transform=ax.transAxes, fontsize=9.3, color=MUTED)
-    fig.tight_layout(rect=(0.03, 0.08, 0.99, 0.95))
+    ax.set_title("Saved ranges overlap for every model pair on both comparison tests", loc="left", fontsize=20, fontweight="bold", pad=28)
+    ax.text(0, 1.025, "Each dot = one task median. Full panels: 8 MFQ and 10 vignette models. Saved ranges overlap for all 28 MFQ and 45 vignette model pairs.", transform=ax.transAxes, color=MUTED, fontsize=10.5)
+    fig.text(0.055, 0.065, "Decision: recover per-question outcomes, check scoring, compare models directly, and run human review.\nAdd independent items only if the order is still unclear.", fontsize=9.7, fontweight="bold")
+    fig.text(0.055, 0.018, "Narrow UniMoral intervals are nominal row-level precision; they do not establish construct validity or cluster-aware uncertainty.", fontsize=9.1, color=MUTED)
+    fig.tight_layout(rect=(0.03, 0.14, 0.99, 0.95))
     save_figure(fig, "02_precision_by_task")
 
 
@@ -1234,16 +1234,16 @@ def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame, release_
             },
             {
                 "research_question": "Where does sampling uncertainty block a model order?",
-                "answer": "All 18 intervals wider than .30 occur in the two MoralBench compare tasks.",
+                "answer": "Across all available primary models (8 MFQ compare; 10 vignette compare), all 18 intervals wider than .30 occur in these two tasks.",
                 "evidence_status": "current primary aggregate; tracked-artifact audit",
-                "decision": "Recover paired outcomes first; expand the item banks if the order remains unresolved.",
+                "decision": "Recover per-question outcomes and check scoring; compare models directly; run human review; add items only if the order is still unclear.",
                 "source": "evidence/canonical-audit/figures/data/primary_confidence_intervals.csv",
             },
             {
                 "research_question": "Across complete selected UniMoral paths, do scores rise at both size steps?",
                 "answer": "Only 4 of 12 UniMoral family-task paths rise at both steps; 7 change direction and 1 falls. Including ValuePrism, the full selected-grid count is 5 of 15 rising, 9 changing direction, and 1 falling.",
                 "evidence_status": "exploratory aggregate; no CI or raw-log replay",
-                "decision": "Treat size effects as family- and task-specific hypotheses.",
+                "decision": "Treat size patterns as family- and task-specific hypotheses.",
                 "source": "evidence/source-results/result_summary.csv",
             },
             {

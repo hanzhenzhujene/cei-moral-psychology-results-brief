@@ -28,13 +28,13 @@
   <main id="main">
     <section class="hero" id="top">
       <div class="wrap">
-        <p class="eyebrow">Research lead readout · 3 September 2026</p>
+        <p class="eyebrow">Detailed evidence view · 4 September 2026</p>
         <h1>What the benchmark results actually say</h1>
         <p class="lede">Two findings are ready to act on: point-estimate leaders change by task, and the two comparison tasks are the clear precision bottleneck. Size and release patterns are useful hypotheses, but they do not support a general scaling or progress claim.</p>
 
         <div class="decision-banner">
-          <strong>Bottom line</strong>
-          Publish the current task aggregates with their saved uncertainty and tracked-artifact limits. Treat size and release-period views as exploratory. The separate MP-v2 poster numbers remain on hold because their replay packets—not the benchmark result tables—are missing.
+          <strong>Decision</strong>
+          Publish each task result with its limits. Do not rank the models overall. For the short version, open the <a href="docs/ONE_MINUTE_READOUT.md">one-minute result</a> or <a href="slides/README.md">slide gallery</a>. This page keeps the detailed evidence and audit appendices.
         </div>
 
         <div class="stat-line" aria-label="Key status summary">
@@ -44,7 +44,7 @@
           </div>
           <div class="stat">
             <span class="stat-value">5 × 8</span>
-            <span class="stat-label">common-roster model × task results</span>
+            <span class="stat-label">common-roster subset: model × task</span>
           </div>
           <div class="stat">
             <span class="stat-value">18</span>
@@ -96,17 +96,17 @@
           </div>
           <span class="evidence-pill verified">Tracked-artifact audit</span>
         </div>
-        <p class="section-intro">The precision bottleneck is concentrated: every interval wider than .30 belongs to the two MoralBench comparison tasks.</p>
+        <p class="section-intro">This section uses all available primary models: 8 on MFQ compare and 10 on vignette compare, not the five-model common roster above. Every interval wider than .30 belongs to these two tasks.</p>
 
         <figure class="result-figure wide-chart">
           <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-          <a href="assets/results/02_precision_by_task.png"><img src="assets/results/02_precision_by_task.png" width="2940" height="1361" loading="lazy" decoding="async" alt="Horizontal bars of median confidence interval width by task, showing MoralBench comparison tasks near point four and all UniMoral tasks below point zero four"></a>
-          <figcaption>Median full 95% interval width by task. The dashed line marks a planning target of .20; the dotted line marks the audit's wide-interval warning at .30.</figcaption>
+          <a href="assets/results/02_precision_by_task.png"><img src="assets/results/02_precision_by_task.png" width="2827" height="1552" loading="lazy" decoding="async" alt="Horizontal bars across all available primary models, showing median uncertainty width near point four for the two MoralBench comparison tasks and below point zero four for all UniMoral tasks"></a>
+          <figcaption>Median full 95% interval width by task. The dashed line is the internal .20 planning target; the dotted line is the internal .30 audit warning.</figcaption>
         </figure>
 
         <div class="answer-grid">
           <div><strong>Result</strong><span>MFQ compare: .395. Vignette compare: .370. All other medians are .220 or below.</span></div>
-          <div><strong>Implication</strong><span>Recover paired item outcomes first; if the order remains unresolved, add independent items before ranking.</span></div>
+          <div><strong>Implication</strong><span>Recover per-question outcomes and check scoring. Compare models directly, then run human review. Add items only if the order is still unclear.</span></div>
           <div><strong>Limit</strong><span>Narrow row-level intervals are precision, not construct validity.</span></div>
         </div>
         <div class="source-links"><a href="data/results/task_precision.csv">Task precision table</a></div>
@@ -133,7 +133,7 @@
               <figcaption>Each dot is one saved aggregate accuracy for the named Gemma model and task shown on the axes. Across all complete UniMoral paths, most do not rise at both size steps.</figcaption>
               <p class="matrix-file-link">Open full size: <a href="assets/results/03_size_paths.png">PNG</a> · <a href="assets/results/03_size_paths.svg">SVG</a></p>
             </figure>
-            <div class="decision-strip"><strong>Interpretation</strong><span>The same size increase can move different tasks in opposite directions. Treat size as a task-specific hypothesis, not a general law.</span></div>
+            <div class="decision-strip"><strong>Interpretation</strong><span>Across the same named model tiers, one task score rises while another falls. Treat size as a task-specific hypothesis, not a general law.</span></div>
             <details class="audit-details exact-table">
               <summary>Open the exact six-task path table, including ValuePrism</summary>
               <div class="result-figure flush insight-matrix">
@@ -280,30 +280,35 @@
 
     <section class="section" id="decisions">
       <div class="wrap">
-        <p class="eyebrow">Decision surface</p>
-        <h2>Three choices unlock the next credible release</h2>
+        <p class="eyebrow">Next steps</p>
+        <h2>Four steps before another ranking claim</h2>
 
         <div class="decision-grid">
           <article class="decision">
-            <span class="decision-number">Decision 1</span>
-            <h3>Release the current task panels</h3>
-            <p>The 78-cell primary aggregate supports a task-level results release with saved uncertainty and explicit tracked-artifact limits.</p>
+            <span class="decision-number">Step 1 · Now</span>
+            <h3>Share each task result</h3>
+            <p>Show its saved uncertainty and limits. Do not combine the tasks into one model ranking.</p>
           </article>
           <article class="decision">
-            <span class="decision-number">Decision 2</span>
-            <h3>Repair the saved evidence</h3>
-            <p>Recover raw archives and paired outcomes, adjudicate parser flags, and audit UniMoral duplicate-label disagreement.</p>
+            <span class="decision-number">Step 2 · Next</span>
+            <h3>Recover each question's result</h3>
+            <p>Check that answers were read, scored, and labeled correctly. Then compare models directly.</p>
           </article>
           <article class="decision">
-            <span class="decision-number">Decision 3</span>
-            <h3>Approve Gate M</h3>
-            <p>Run representative human validation before adding model rows or treating automated agreement as correctness.</p>
+            <span class="decision-number">Step 3 · Then</span>
+            <h3>Have people review the test</h3>
+            <p>Check whether the questions and automated scoring match the judgment the test is meant to measure.</p>
+          </article>
+          <article class="decision">
+            <span class="decision-number">Step 4 · Only if unclear</span>
+            <h3>Add comparison questions</h3>
+            <p>Add items only after the direct comparison and human review still leave the order unclear.</p>
           </article>
         </div>
 
         <div class="next-action">
-          <strong>Highest-value next action</strong>
-          <p>Repair the existing measurement evidence, then run Gate M human validation. Expand the comparison item banks only after the construct and paired analysis are stable.</p>
+          <strong>Best next move</strong>
+          <p>Recover each question's result and check the scoring. The current task panels can be shared now with their limits.</p>
         </div>
       </div>
     </section>
@@ -341,7 +346,7 @@
             <tr>
               <td data-label="Finding"><span class="plain-status status-pending">Pending</span><br>Automated agreement is not validity.</td>
               <td data-label="What it means">Two judges or coders can agree and both be wrong. No representative expert or human validation gate has passed.</td>
-              <td data-label="Decision">Run Gate M before any claim about correctness, moral understanding, or representative human values.</td>
+              <td data-label="Decision">Run human review (Gate M) before any claim about correctness, moral understanding, or representative human values.</td>
             </tr>
           </tbody>
         </table>
@@ -361,7 +366,7 @@
           </div>
           <div class="lane pending">
             <strong>Human validity</strong>
-            <p>Not yet available. Gate M remains the required path.</p>
+            <p>Not yet available. Human review (Gate M) remains required.</p>
           </div>
         </div>
       </div>
@@ -521,7 +526,7 @@
                 </table>
               </div>
 
-              <p><strong>Meaning:</strong> the direction of judge offset is a hypothesis about the judge pair, not a property of a model. Gate M remains pending.</p>
+              <p><strong>Meaning:</strong> the direction of judge offset is a hypothesis about the judge pair, not a property of a model. Human review (Gate M) remains pending.</p>
               <div class="source-links"><a href="docs/POSTER_AUDIT.md#poster-3--bidirectional-alignment">Claim audit</a></div>
             </div>
           </article>

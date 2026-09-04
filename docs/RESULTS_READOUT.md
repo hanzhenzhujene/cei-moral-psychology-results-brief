@@ -5,7 +5,7 @@
 | Research question | Answer | Implication |
 |---|---|---|
 | Is there one stable model order? | No. The point-estimate leader changes across tasks. | Keep the eight task results separate. |
-| Where is precision weakest? | The two MoralBench comparison tasks. | Recover paired outcomes first; expand the item banks only if the order remains unresolved. |
+| Where is precision weakest? | The two MoralBench comparison tasks. | Recover per-question outcomes and check scoring. Compare models directly, then run human review. Add items only if the order is still unclear. |
 | Across complete selected UniMoral paths, do scores rise at both size steps? | No. Only 4 of 12 rise twice; 7 change direction and 1 falls twice. | Treat size patterns as family- and task-specific. |
 | Do later named-model endpoints move every UniMoral task higher? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. | Release quarter is model metadata, not a longitudinal progress trend. |
 
@@ -41,6 +41,8 @@ Source: [`common_roster_primary.csv`](../data/results/common_roster_primary.csv)
 
 ![Median confidence interval width by task](../assets/results/02_precision_by_task.png)
 
+This section uses all available primary models: 8 for MFQ compare and 10 for vignette compare. It does not reuse the five-model common roster from the chart above.
+
 | Task | Median full 95% interval width | Read |
 |---|---:|---|
 | MFQ compare | `.395` | Too wide to resolve a model order |
@@ -52,7 +54,7 @@ Source: [`common_roster_primary.csv`](../data/results/common_roster_primary.csv)
 | UniMoral action | `.020` | Nominal row-level precision |
 | UniMoral consequence | `.012` | Nominal saved-standard-error precision |
 
-All 18 individual intervals wider than `.30` occur in the two comparison tasks. This is a measurement-design finding: recover the paired outcomes first, then expand the item banks only if the order remains unresolved.
+All 18 individual intervals wider than `.30` occur in the two comparison tasks. Recover the per-question outcomes, check scoring, compare models directly, and run human review. Add independent items only if the order is still unclear.
 
 Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task medians; [`primary_confidence_intervals.csv`](../evidence/canonical-audit/figures/data/primary_confidence_intervals.csv) for the 18 individual wide intervals.
 
@@ -90,7 +92,7 @@ Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv), [`siz
 
 The zero line gives the answer immediately: points on both sides mean later named models do not move every task in one direction. Exact chronological paths remain in two landscape audit figures: [UniMoral classification](../assets/results/04_release_period_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/04_release_period_paths_detail_b.svg). All 35 audit points name the model and published B count.
 
-Release quarter is descriptive metadata, not an intervention or progress timeline. Generation, route, architecture, and parameter count change together. DeepSeek relevance ends at V3.2 because the V4 route was cancelled; Gemma has no valid newer comparison. DeepSeek V4 rows record 1,171,189 reasoning tokens despite control attempts, and the saved metadata does not retain the served endpoint, quantization, or exact evaluated checkpoint revision.
+Release quarter is descriptive metadata, not an intervention or progress timeline. Generation, route, architecture, and parameter count change together. For ValuePrism relevance only, the DeepSeek path ends at V3.2 because the V4 route was cancelled; Gemma has no valid newer comparison. DeepSeek V4 UniMoral rows record 1,171,189 reasoning tokens despite control attempts, and the saved metadata does not retain the served endpoint, quantization, or exact evaluated checkpoint revision.
 
 Sources: [`release_path_summary.csv`](../data/results/release_path_summary.csv), [`release_period_task_points.csv`](../data/results/release_period_task_points.csv), and [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
 

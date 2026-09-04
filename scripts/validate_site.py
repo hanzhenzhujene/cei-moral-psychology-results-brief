@@ -922,7 +922,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             frozenset({"Claude Haiku 4.5", "Qwen3 8B"}): "Haiku + Qwen tie†",
             frozenset({"Claude Haiku 4.5", "GPT-5.4"}): "Haiku + GPT-5.4 tie†",
         }
-        expected_leaders = [["Task", "Highest stored result", "Score type", "Model"]]
+        expected_leaders = [["Task", "Highest saved score", "Score type", "Model"]]
         for task in task_order:
             rows = common[common["task"] == task]
             check(len(rows) == 5, f"slide 2 source roster drift for {task}")
@@ -948,6 +948,16 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             "values": [float(f"{value:.3f}") for value in precision["median_ci_width"]],
         }]
         check_chart_equal(chart_series[3], precision_expected, "slide 3 precision chart")
+        slide_3_text = " ".join(node.text or "" for node in slide_roots[3].iter(f"{A_NS}t"))
+        for phrase in (
+            "Saved ranges overlap for every model pair in both tests",
+            "MFQ = 8 models × 20 questions",
+            "Vignette = 10 × 24",
+            "Each bar = the median full width of saved 95% intervals across available models",
+            "saved ranges overlap for all 28 MFQ and all 45 Vignette model pairs",
+            "run human review, and add questions only if still unclear",
+        ):
+            check(phrase in slide_3_text, f"slide 3 hides the full-primary denominator or claim boundary: {phrase}")
 
         size_summary = pd.read_csv(RESULT_DATA / "size_path_summary.csv")
         unimoral_size = size_summary[size_summary["task"].isin(list(SCALING_TASK_LABELS)[:4])]
@@ -1238,7 +1248,7 @@ def validate_site_and_links() -> None:
 def validate_visuals() -> None:
     expected = {
         "01_common_roster_task_results": ("No model is the point-estimate leader on every task", {"Haiku", "Opus", "GPT-5.4", "Mini", "Qwen"}),
-        "02_precision_by_task": ("Available marginal intervals do not resolve a comparison-task model order", {".20 planning target", ".30 audit warning"}),
+        "02_precision_by_task": ("Saved ranges overlap for every model pair on both comparison tests", {".20 internal planning target", ".30 internal audit warning"}),
         "03_size_paths": ("Bigger models do not score higher consistently on UniMoral", {"4 of 12", "7 of 12", "1 of 12", "Gemma 3-4B-IT", "4B total", "Gemma 3-27B-IT", "27B total"}),
         "03_size_paths_detail_a": ("How model size relates to UniMoral classification scores", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
         "03_size_paths_detail_b": ("How model size relates to consequence and ValuePrism scores", {"Qwen3-8B", "235B total / 22B active", "ValuePrism relevance", "ValuePrism valence"}),

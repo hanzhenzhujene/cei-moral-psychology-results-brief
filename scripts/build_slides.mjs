@@ -186,7 +186,7 @@ function setNotes(slide, lines) {
     left: 92, top: 382, width: 760, height: 34,
   }, { fontSize: 18, color: C.muted });
   addRule(slide, 92, 474, 720, C.grid, 2);
-  addText(slide, "Why: the top model changes by task, and two comparison tests still cannot give a reliable order.", {
+  addText(slide, "Why: the highest saved score changes by task, and saved ranges overlap on both comparison tests.", {
     left: 92, top: 500, width: 965, height: 72,
   }, { fontSize: 24, color: C.ink, autoFit: "shrinkText" });
   addText(slide, "Share the task results with their limits. Size and release slides are early clues, not final answers.", {
@@ -204,12 +204,12 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "No model leads all eight tasks",
-    "Highest stored result for each task, using the same five models",
+    "No model has the highest saved score on all eight tasks",
+    "Highest saved score for each task, using the same five models",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
   const values = [
-    ["Task", "Highest stored result", "Score type", "Model"],
+    ["Task", "Highest saved score", "Score type", "Model"],
     ["MFQ agreement", ".884", "Agreement score", "GPT-5.4 mini"],
     ["Vignette agreement", ".920", "Agreement score", "GPT-5.4"],
     ["MFQ compare", ".550", "Accuracy", "Haiku + Qwen tie†"],
@@ -262,10 +262,13 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Two comparison tests cannot rank models yet",
-    "Wider bar = less sure. MFQ has 20 questions per model; Vignette has 24.",
+    "Saved ranges overlap for every model pair in both tests",
+    "Full primary panels: MFQ = 8 models × 20 questions; Vignette = 10 × 24.",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
+  addText(slide, "Each bar = the median full width of saved 95% intervals across available models.", {
+    left: 120, top: 149, width: 1030, height: 22,
+  }, { fontSize: 15, color: C.muted });
   const categories = [
     "MFQ compare",
     "Vignette compare",
@@ -278,8 +281,8 @@ function setNotes(slide, lines) {
   ];
   const values = [0.395, 0.370, 0.220, 0.124, 0.033, 0.032, 0.020, 0.012];
   const chart = slide.charts.add("bar", {
-    position: { left: 120, top: 170, width: 1030, height: 405 },
-    title: "How wide is the uncertainty range? Wider means less sure.",
+    position: { left: 120, top: 177, width: 1030, height: 337 },
+    title: "Median width of saved 95% ranges — wider means less sure",
     titlePlacement: "none",
     categories,
     series: [{
@@ -297,7 +300,7 @@ function setNotes(slide, lines) {
     hasLegend: false,
     xAxis: {
       visible: true,
-      title: "Width of the uncertainty range",
+      title: "Median full width of saved 95% interval",
       min: 0,
       max: 0.42,
       majorUnit: 0.10,
@@ -321,15 +324,19 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "Action: recover each question's result, then compare models question by question.", {
-    left: 120, top: 596, width: 980, height: 34,
-  }, { fontSize: 22, bold: true, color: C.coral });
-  addText(slide, "If the order is still unclear, add more comparison questions.", {
-    left: 120, top: 632, width: 860, height: 28,
+  addText(slide, "Direct evidence: saved ranges overlap for all 28 MFQ and all 45 Vignette model pairs.", {
+    left: 120, top: 526, width: 1030, height: 30,
+  }, { fontSize: 18, bold: true, color: C.coral });
+  addText(slide, "Action: recover per-question outcomes and check scoring.", {
+    left: 120, top: 580, width: 980, height: 32,
+  }, { fontSize: 21, bold: true, color: C.ink });
+  addText(slide, "Then compare models, run human review, and add questions only if still unclear.", {
+    left: 120, top: 616, width: 1000, height: 28,
   }, { fontSize: 17, color: C.muted });
   setNotes(slide, [
     "Source: data/results/task_precision.csv.",
     "All 18 individual intervals wider than .30 occur in the two MoralBench comparison tasks.",
+    "Denominator: all available primary models—8 on MFQ compare and 10 on vignette compare—not the five-model common roster.",
     "Within each comparison task, every model pair has overlapping marginal intervals: 28 of 28 MFQ pairs and 45 of 45 vignette pairs.",
     "This is not a paired model-difference test. The narrow UniMoral intervals are nominal row-level estimates and do not establish cluster-aware uncertainty or human validity.",
   ]);

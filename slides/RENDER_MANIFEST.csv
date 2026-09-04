@@ -1,8 +1,8 @@
 path,kind,bytes,sha256,width_px,height_px,pages
-slides/cei-moral-psychology-results-deck.pdf,pdf,1505358,d667cfebb5bf2a43b2123e1db87413a45574628c6297603fc47741dadc62e2ea,,,8
-slides/rendered/slide-01.png,png,140659,3281511a7fdd2ed2e4e708ad35a01e3d8872326cb4de20916a1e1d247d70546f,2560,1440,1
-slides/rendered/slide-02.png,png,250402,6c939cabfaf7c0cf08489575b45c4bf43d182f28d8e867ce6eda2f2213d613ac,2560,1440,1
-slides/rendered/slide-03.png,png,192087,31176e9197570bd79e585519012692d984f774cdf9e692dbc31ef95f84fccc20,2560,1440,1
+slides/cei-moral-psychology-results-deck.pdf,pdf,1556650,a9ebfcc9355eab9f779f892f3747922c87f7338bca739a0ef709cb5a674bb670,,,8
+slides/rendered/slide-01.png,png,145855,0e477a09d6bf73cded7cd36c613ff6902fcdc1054e198b358ed041e69d6b5e5b,2560,1440,1
+slides/rendered/slide-02.png,png,262243,95ad07bbc9569e62f97ccb1828920d471a9c97ff028fee5ec83accad8fd0febf,2560,1440,1
+slides/rendered/slide-03.png,png,228989,d891257f4a24f65c6a22ba8dd423585f60fd486b93759cec0862ddbc9fa3a402,2560,1440,1
 slides/rendered/slide-04.png,png,152452,b1dfea678fcab13c87b42ad67aecee1fb5b23a0489ad4dac19cf41f4185bf2f3,2560,1440,1
 slides/rendered/slide-05.png,png,179790,7d298400a5f907dbad04b450d68a88a9eb7c446739205738e7d9521c24c59dea,2560,1440,1
 slides/rendered/slide-06.png,png,214531,7292a018bdbf728be94f07420d5708db93dbc8a0f0ed013cff9256fd4abea756,2560,1440,1

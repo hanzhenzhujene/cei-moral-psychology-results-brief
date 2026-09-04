@@ -17,7 +17,7 @@ This private repository turns the benchmark outputs into a visual readout for a 
 | Research question | Result | Implication | Evidence level |
 |---|---|---|---|
 | Do the consistently covered models form one stable order? | No. Across five models and eight text tasks, no model is the point-estimate leader on every task. | Report task results separately. Do not publish one moral leaderboard. | Current primary aggregate; tracked-artifact audit |
-| Where does sampling uncertainty block a model order? | Every interval wider than `.30` belongs to the two MoralBench comparison tasks. Their median widths are `.395` and `.370`. | Recover paired outcomes first; expand the item banks if the order remains unresolved. | Current primary aggregate; tracked-artifact audit |
+| Where does sampling uncertainty block a model order? | Across all available primary models—8 on MFQ compare and 10 on vignette compare—every interval wider than `.30` belongs to these two tasks. Their median widths are `.395` and `.370`. | Recover per-question outcomes and check scoring. Compare models directly, then run human review. Add items only if the order is still unclear. | Current primary aggregate; tracked-artifact audit |
 | Across complete selected UniMoral paths, do scores rise at both size steps? | Only 4 of 12 rise twice; 7 change direction and 1 falls twice. The full six-task extension, including ValuePrism, is 5 / 9 / 1 across 15 paths. | Treat size as a task-specific hypothesis, not a general result. | Exploratory selected grid |
 | Do later named-model endpoints move every UniMoral task higher? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. The six-task extension is 5 / 1 and 3 / 3. All were evaluated May 28–29, 2026. | Treat release quarter as model metadata, not a progress timeline. | Exploratory selected grid |
 
@@ -32,13 +32,13 @@ The first two answers come from the current 78-cell primary text partition. The 
 | Four MP-v2 posters | Four static PDFs | Design history and poster-reported observations; the replay packets are absent |
 | Four external papers | Primary papers reviewed; 0 exact local replications | Method and interpretation context, not direct score baselines |
 
-The repository contains substantial benchmark result data. What is missing is different: canonical raw archives, the separate poster replay packets, clustered uncertainty, and representative human validation. Agreement among automated judges is not proof of moral correctness.
+The repository has aggregate benchmark results, but it lacks canonical raw archives, the separate poster replay packets, clustered uncertainty, and representative human validation. Agreement among automated judges is not proof of moral correctness.
 
 ## Repository map
 
 | Location | Purpose |
 |---|---|
-| `index.html` | Responsive visual result brief |
+| `index.html` | Detailed visual evidence and audit appendices |
 | `slides/` | Editable PowerPoint, view-only PDF, and eight 2560 × 1440 slide images |
 | `assets/results/` | Four headline charts plus four landscape audit-detail charts in PNG and SVG |
 | `data/results/` | Exact plotted rows, direction summaries, and research-question tables |
