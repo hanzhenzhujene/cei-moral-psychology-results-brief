@@ -117,18 +117,26 @@
       <div class="wrap">
         <p class="eyebrow">Research questions 3–4 · exploratory</p>
         <h2>Size and release metadata are not shortcuts</h2>
-        <p class="section-intro">These views use a separate selected-grid snapshot with no saved confidence intervals or raw-log replay. The matrices answer the research questions in one screen; directly labeled model paths remain available as audit detail.</p>
+        <p class="section-intro">These views use a separate selected-grid snapshot with no saved confidence intervals or raw-log replay. The main charts ask local follow-up questions using only the four UniMoral task families; the full six-task tables and every named-model path remain available as audit detail.</p>
 
         <div class="visual-stack">
           <article class="visual-card">
             <div class="question-head compact">
               <div>
-                <h3>Does bigger reliably score better?</h3>
-                <p>No. Of 15 complete family × task paths, 5 rise at every step, 9 change direction, and 1 falls.</p>
+                <h3>Across selected UniMoral paths, do scores rise at both size steps?</h3>
+                <p>No. Only 4 of 12 complete paths rise twice; 7 change direction and 1 falls twice.</p>
               </div>
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
-            <figure class="result-figure flush insight-matrix">
+            <figure class="result-figure flush insight-chart responsive-insight-chart">
+              <a href="assets/results/03_size_paths.svg"><picture><source media="(max-width: 640px)" srcset="assets/results/03_size_paths_mobile.png" width="1320" height="2376"><img src="assets/results/03_size_paths.png" width="3017" height="2170" loading="lazy" decoding="async" alt="Bar chart showing four of twelve UniMoral size paths rising at both steps, seven changing direction, and one falling, followed by a line chart where the same Gemma 4B, 12B, and 27B models rise on factor accuracy but fall on typology accuracy"></picture></a>
+              <figcaption>Each dot is one saved aggregate accuracy for the named Gemma model and task shown on the axes. Across all complete UniMoral paths, most do not rise at both size steps.</figcaption>
+              <p class="matrix-file-link">Open full size: <a href="assets/results/03_size_paths.png">PNG</a> · <a href="assets/results/03_size_paths.svg">SVG</a></p>
+            </figure>
+            <div class="decision-strip"><strong>Interpretation</strong><span>The same size increase can move different tasks in opposite directions. Treat size as a task-specific hypothesis, not a general law.</span></div>
+            <details class="audit-details exact-table">
+              <summary>Open the exact six-task path table, including ValuePrism</summary>
+              <div class="result-figure flush insight-matrix">
               <table class="insight-table size-insight-table" data-matrix="size" aria-label="Direction of 15 complete model-size paths by task and family">
                 <thead>
                   <tr>
@@ -177,10 +185,9 @@
                   </tr>
                 </tbody>
               </table>
-              <figcaption>Each cell stays within one family, task, and metric. The clearest same-generation counterexample is Gemma: factor accuracy rises from .578 to .613 while typology falls from .597 to .570. The matrix is an exploratory pattern summary, not a causal estimate.</figcaption>
-              <p class="matrix-file-link">Static figure: <a href="assets/results/03_size_paths.png">PNG</a> · <a href="assets/results/03_size_paths.svg">SVG</a></p>
-            </figure>
-            <div class="decision-strip"><strong>Implication</strong><span>Treat size effects as family- and task-specific hypotheses, not a general law.</span></div>
+              <figcaption>Across all six selected tasks, including ValuePrism, 5 of 15 complete paths rise at both steps, 9 change direction, and 1 falls. Missing rows are not zeros.</figcaption>
+              </div>
+            </details>
             <details class="audit-details">
               <summary>Open directly labeled model + B path figures</summary>
               <div class="detail-link-grid">
@@ -193,12 +200,20 @@
           <article class="visual-card">
             <div class="question-head compact">
               <div>
-                <h3>Does a later release quarter imply a higher score?</h3>
-                <p>No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints.</p>
+                <h3>Do later named-model endpoints move every UniMoral task higher?</h3>
+                <p>No. Qwen has 3 higher and 1 lower UniMoral endpoint; DeepSeek splits 2 higher and 2 lower.</p>
               </div>
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
-            <figure class="result-figure flush insight-matrix">
+            <figure class="result-figure flush insight-chart responsive-insight-chart">
+              <a href="assets/results/04_release_period_paths.svg"><picture><source media="(max-width: 640px)" srcset="assets/results/04_release_period_paths_mobile.png" width="1320" height="3036"><img src="assets/results/04_release_period_paths.png" width="3049" height="2153" loading="lazy" decoding="async" alt="Zero-centered endpoint-change dot plots showing Qwen and DeepSeek moving different UniMoral tasks in different directions, with accuracy and METEOR kept on separate scales"></picture></a>
+              <figcaption>Each point is the later-minus-earlier aggregate for the named model path printed above the chart. All scores were evaluated May 28–29, 2026; release quarter describes the model, not the evaluation date.</figcaption>
+              <p class="matrix-file-link">Open full size: <a href="assets/results/04_release_period_paths.png">PNG</a> · <a href="assets/results/04_release_period_paths.svg">SVG</a></p>
+            </figure>
+            <div class="decision-strip"><strong>Interpretation</strong><span>A newer release is not a universal progress signal. Several changes are tiny, and intermediate DeepSeek checkpoints often change direction.</span></div>
+            <details class="audit-details exact-table">
+              <summary>Open the exact six-task endpoint table, including ValuePrism</summary>
+              <div class="result-figure flush insight-matrix">
               <table class="insight-table release-insight-table" data-matrix="release" aria-label="Endpoint direction for twelve model-release paths by task and family">
                 <thead>
                   <tr>
@@ -240,10 +255,9 @@
                   </tr>
                 </tbody>
               </table>
-              <figcaption>All plotted evaluations ran on May 28–29, 2026. The x metadata describes model release quarter—not evaluation time—and changes generation, route, size, and architecture together. Several endpoint changes are tiny, including Qwen factor +.002 and DeepSeek typology −.003.</figcaption>
-              <p class="matrix-file-link">Static figure: <a href="assets/results/04_release_period_paths.png">PNG</a> · <a href="assets/results/04_release_period_paths.svg">SVG</a></p>
-            </figure>
-            <div class="decision-strip"><strong>Implication</strong><span>Do not present model release quarter as a longitudinal progress curve.</span></div>
+              <figcaption>Across all six selected tasks, including ValuePrism, Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower. Endpoint direction does not mean improvement.</figcaption>
+              </div>
+            </details>
             <details class="audit-details">
               <summary>Open directly labeled model + B path figures</summary>
               <div class="detail-link-grid">
@@ -557,8 +571,8 @@
             <thead>
               <tr>
                 <th>Paper</th>
-                <th>Paper target</th>
-                <th>Local target</th>
+                <th>What the paper asks</th>
+                <th>What our current run can answer</th>
                 <th>Match</th>
                 <th>Research lead interpretation</th>
               </tr>
@@ -566,29 +580,29 @@
             <tbody>
               <tr>
                 <td data-label="Paper"><a href="https://arxiv.org/pdf/2406.04428">MoralBench</a></td>
-                <td data-label="Paper target">Human-score agreement and higher-rated forced choices, repeated at temperature .7.</td>
-                <td data-label="Local target">Normalized preference for agreement; accuracy for comparison; temperature 0.</td>
+                <td data-label="What the paper asks">Do model choices track human ratings, and can a model choose the statement people rated higher?</td>
+                <td data-label="What our current run can answer">Fresh agreement and forced-choice results, with saved intervals, under a different administration.</td>
                 <td data-label="Match" class="match approx">Approximate</td>
                 <td data-label="Research lead interpretation">Same task family, different scale and administration. Do not compare values numerically.</td>
               </tr>
               <tr>
                 <td data-label="Paper"><a href="https://aclanthology.org/2025.acl-long.294/">UniMoral</a></td>
-                <td data-label="Paper target">Weighted F1 under moral, cultural, persona, and few-shot cues; generation similarity.</td>
-                <td data-label="Local target">No-cue accuracy plus METEOR and a separate offline BERTScore bridge.</td>
+                <td data-label="What the paper asks">Can a model predict actions, moral frameworks, influencing factors, and plausible consequences? Do cues change the result?</td>
+                <td data-label="What our current run can answer">No-cue label accuracy for three tasks and consequence METEOR. It cannot answer the cue question.</td>
                 <td data-label="Match" class="match approx">Approximate</td>
                 <td data-label="Research lead interpretation">The local run does not test the paper's cue effect, personalized prediction, or language ordering.</td>
               </tr>
               <tr>
                 <td data-label="Paper"><a href="https://arxiv.org/pdf/2510.16380">MoReBench</a></td>
-                <td data-label="Paper target">Expert-weighted Regular and Hard scores over procedural reasoning criteria.</td>
-                <td data-label="Local target">Four generic keyword checks with think blocks removed.</td>
+                <td data-label="What the paper asks">Does the reasoning process cover expert-defined considerations, trade-offs, logic, and outcomes?</td>
+                <td data-label="What our current run can answer">Only whether four generic reasoning-word groups appear.</td>
                 <td data-label="Match" class="match proxy">Proxy only</td>
                 <td data-label="Research lead interpretation">Local values detect generic reasoning words. They are not MoReBench scores.</td>
               </tr>
               <tr>
                 <td data-label="Paper"><a href="https://aclanthology.org/2025.emnlp-main.1563/">MoralLens</a></td>
-                <td data-label="Paper target">Sixteen-rationale judge, CDGAP, Utility, and pre-versus-post decision order effects.</td>
-                <td data-label="Local target">Keyword detectability and a binary expected-direction pattern.</td>
+                <td data-label="What the paper asks">Which rationales appear, and do they change when reasoning comes before versus after the decision?</td>
+                <td data-label="What our current run can answer">Only keyword detectability and a binary expected-direction check.</td>
                 <td data-label="Match" class="match proxy">Proxy only</td>
                 <td data-label="Research lead interpretation">The local adapter cannot establish an ethical theory or reproduce the paper's order effect.</td>
               </tr>

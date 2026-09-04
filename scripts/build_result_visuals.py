@@ -15,7 +15,6 @@ mpl.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.patches import Rectangle
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -128,18 +127,19 @@ def configure_style() -> None:
     )
 
 
-def save_figure(fig: plt.Figure, stem: str) -> None:
+def save_figure(fig: plt.Figure, stem: str, *, tight: bool = True) -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
+    bbox_inches = "tight" if tight else None
     fig.savefig(
         FIGURES / f"{stem}.png",
         dpi=220,
-        bbox_inches="tight",
+        bbox_inches=bbox_inches,
         facecolor=PAPER,
         metadata={"Software": "CEI result visual builder", "Creation Time": "2026-09-03"},
     )
     fig.savefig(
         FIGURES / f"{stem}.svg",
-        bbox_inches="tight",
+        bbox_inches=bbox_inches,
         facecolor=PAPER,
         metadata={"Creator": "CEI result visual builder", "Date": "2026-09-03"},
     )
@@ -481,111 +481,254 @@ def compact_parameter_label(value: str) -> str:
     return value.replace(" main model", " main").replace(" total", "")
 
 
-def plot_size_matrix(points: pd.DataFrame, summary: pd.DataFrame) -> None:
-    """Create the one-screen answer; exact point paths remain in split detail figures."""
-    families = ["Qwen", "Gemma", "Llama"]
-    status_style = {
-        "rising": ("Rises", GREEN, SOFT_GREEN),
-        "mixed": ("Mixed", AMBER, SOFT_AMBER),
-        "falling": ("Falls", RED, SOFT_RED),
-    }
-    fig, ax = plt.subplots(figsize=(16, 11))
-    ax.set_xlim(0, 11.0)
-    ax.set_ylim(0, 7.45)
-    ax.axis("off")
-    fig.suptitle("Model size is not a reliable shortcut", x=0.045, y=0.982, ha="left", fontsize=22, fontweight="bold")
+def plot_size_answer(points: pd.DataFrame, summary: pd.DataFrame) -> None:
+    """Answer the UniMoral size question with one overview and one concrete path."""
+    unimoral_tasks = SIX_TASKS[:4]
+    unimoral = summary[summary["task"].isin(unimoral_tasks)].copy()
+    counts = unimoral["direction"].value_counts().to_dict()
+    assert len(unimoral) == 12
+    assert counts == {"mixed": 7, "rising": 4, "falling": 1}
+
+    fig = plt.figure(figsize=(14, 10))
+    grid = fig.add_gridspec(2, 1, height_ratios=[0.72, 1.45], hspace=0.48)
+    count_ax = fig.add_subplot(grid[0])
+    path_ax = fig.add_subplot(grid[1])
+    fig.suptitle(
+        "Bigger models do not score higher consistently on UniMoral",
+        x=0.055,
+        y=0.982,
+        ha="left",
+        fontsize=22,
+        fontweight="bold",
+    )
     fig.text(
-        0.045,
-        0.947,
-        "Each cell follows one family from its small to medium to large named model; scores stay within their task and metric.",
+        0.055,
+        0.944,
+        "Question: within a named family, do saved task scores rise at both size steps?  Answer: only 4 of 12 complete UniMoral paths do.",
         color=MUTED,
         fontsize=11.5,
     )
 
-    x_positions = {family: 2.35 + index * 2.82 for index, family in enumerate(families)}
-    cell_width = 2.62
-    row_height = 0.86
-    row_gap = 0.12
-    header_y = 7.02
-    for family in families:
-        family_points = points[points["family"] == family].drop_duplicates("tier").copy()
-        family_points["tier_order"] = family_points["tier"].map({"S": 0, "M": 1, "L": 2})
-        family_points = family_points.sort_values("tier_order")
-        assert len(family_points) == 3
-        parameter_path = " → ".join(compact_parameter_label(value) for value in family_points["parameter_label"])
-        ax.text(
-            x_positions[family] + cell_width / 2,
-            header_y,
-            family,
-            ha="center",
+    direction_order = ["rising", "mixed", "falling"]
+    direction_labels = ["Rises at both steps", "Changes direction", "Falls at both steps"]
+    direction_colors = [BLUE, AMBER, PURPLE]
+    values = [counts[key] for key in direction_order]
+    bars = count_ax.barh(direction_labels, values, color=direction_colors, height=0.55)
+    count_ax.invert_yaxis()
+    count_ax.set_xlim(0, 12)
+    count_ax.set_xticks([0, 3, 6, 9, 12])
+    count_ax.set_xlabel("Complete family × task paths (n = 12)")
+    count_ax.set_title("Across Qwen, Gemma, and Llama on the four UniMoral tasks", loc="left", fontweight="bold", pad=10)
+    count_ax.grid(axis="x", color=GRID, linewidth=0.8)
+    count_ax.spines["left"].set_visible(False)
+    count_ax.spines["bottom"].set_color(GRID)
+    count_ax.tick_params(axis="y", length=0)
+    for bar, value in zip(bars, values):
+        count_ax.text(
+            value + 0.18,
+            bar.get_y() + bar.get_height() / 2,
+            f"{value} of 12",
             va="center",
-            fontsize=14,
+            ha="left",
+            fontsize=12,
             fontweight="bold",
-            color=FAMILY_COLORS[family],
-        )
-        ax.text(
-            x_positions[family] + cell_width / 2,
-            header_y - 0.29,
-            parameter_path,
-            ha="center",
-            va="center",
-            fontsize=12.2,
-            color=MUTED,
         )
 
-    for row_index, task in enumerate(SIX_TASKS):
-        y = 5.98 - row_index * (row_height + row_gap)
-        task_label, metric, _, _ = TASKS[task]
-        ax.text(0.05, y + row_height * 0.62, task_label, ha="left", va="center", fontsize=13.0, fontweight="bold")
-        ax.text(0.05, y + row_height * 0.29, metric, ha="left", va="center", fontsize=12.0, color=MUTED)
-        for family in families:
-            x = x_positions[family]
-            match = summary[(summary["family"] == family) & (summary["task"] == task)]
-            if match.empty:
-                ax.add_patch(Rectangle((x, y), cell_width, row_height, facecolor=SOFT_GRAY, edgecolor=PAPER, linewidth=3))
-                cell = ax.text(
-                    x + cell_width / 2,
-                    y + row_height / 2,
-                    "Not complete",
-                    ha="center",
-                    va="center",
-                    fontsize=14.2,
-                    color=MUTED,
-                )
-                cell.set_gid(point_label_gid("size-matrix", task, family))
-                continue
-            row = match.iloc[0]
-            status, status_color, fill = status_style[str(row.direction)]
-            task_points = points[(points["family"] == family) & (points["task"] == task)].copy()
-            task_points["tier_order"] = task_points["tier"].map({"S": 0, "M": 1, "L": 2})
-            task_points = task_points.sort_values("tier_order")
-            assert len(task_points) == 3
-            score_path = " → ".join(compact_score(value) for value in task_points["score"])
-            ax.add_patch(Rectangle((x, y), cell_width, row_height, facecolor=fill, edgecolor=PAPER, linewidth=3))
-            ax.text(x + 0.12, y + row_height * 0.68, status.upper(), ha="left", va="center", fontsize=12.2, fontweight="bold", color=status_color)
-            cell = ax.text(
-                x + 0.12,
-                y + row_height * 0.31,
-                score_path,
-                ha="left",
-                va="center",
-                fontsize=14.2,
-                fontweight="bold",
-                color=INK,
+    gemma = points[
+        (points["family"] == "Gemma")
+        & (points["task"].isin(["unimoral_factor_attribution", "unimoral_moral_typology"]))
+    ].copy()
+    gemma["tier_order"] = gemma["tier"].map({"S": 0, "M": 1, "L": 2})
+    task_styles = {
+        "unimoral_factor_attribution": ("Factor attribution", BLUE, "o", "-"),
+        "unimoral_moral_typology": ("Moral typology", PURPLE, "s", "--"),
+    }
+    for task, (label, color, marker, linestyle) in task_styles.items():
+        ordered = gemma[gemma["task"] == task].sort_values("tier_order")
+        assert len(ordered) == 3
+        path_ax.plot(
+            ordered["tier_order"],
+            ordered["score"],
+            color=color,
+            marker=marker,
+            linestyle=linestyle,
+            linewidth=2.8,
+            markersize=8.5,
+            label=label,
+            zorder=3,
+        )
+        for row in ordered.itertuples(index=False):
+            label_offset = (
+                {0: -18, 1: 12, 2: 12}[int(row.tier_order)]
+                if task == "unimoral_factor_attribution"
+                else {0: 12, 1: -18, 2: -18}[int(row.tier_order)]
             )
-            cell.set_gid(point_label_gid("size-matrix", task, family))
+            value_label = path_ax.annotate(
+                f"{float(row.score):.3f}".removeprefix("0"),
+                (float(row.tier_order), float(row.score)),
+                xytext=(0, label_offset),
+                textcoords="offset points",
+                ha="center",
+                va="bottom" if label_offset > 0 else "top",
+                fontsize=11.5,
+                fontweight="bold",
+                color=color,
+                annotation_clip=False,
+            )
+            value_label.set_gid(point_label_gid("size-answer", task, row.model))
 
-    counts = summary["direction"].value_counts().to_dict()
-    fig.text(0.045, 0.055, f"15 complete paths  ·  {counts['rising']} rising  ·  {counts['mixed']} mixed  ·  {counts['falling']} falling", fontsize=12.2, fontweight="bold")
+    model_ticks = (
+        gemma[gemma["task"] == "unimoral_factor_attribution"]
+        .sort_values("tier_order")
+        .drop_duplicates("tier_order")
+    )
+    path_ax.set_xticks(
+        model_ticks["tier_order"],
+        [f"{row.model_display}\n{row.parameter_label}" for row in model_ticks.itertuples(index=False)],
+    )
+    path_ax.set_xlim(-0.12, 2.42)
+    path_ax.set_ylim(0.50, 0.65)
+    path_ax.set_ylabel("Accuracy")
+    path_ax.set_xlabel("Published model size within the same Gemma 3 generation")
+    path_ax.set_title("Concrete counterexample: the same three Gemma models move two tasks in opposite directions", loc="left", fontweight="bold", pad=10)
+    path_ax.grid(axis="y", color=GRID, linewidth=0.8)
+    path_ax.spines["left"].set_color(GRID)
+    path_ax.spines["bottom"].set_color(GRID)
+    path_ax.legend(loc="upper left", frameon=False, ncol=2)
+    path_ax.text(2.08, 0.617, "Factor  +.034", color=BLUE, fontsize=11.5, fontweight="bold", ha="left")
+    path_ax.text(2.08, 0.566, "Typology  −.027", color=PURPLE, fontsize=11.5, fontweight="bold", ha="left")
+
     fig.text(
-        0.045,
-        0.025,
-        "Exploratory aggregate only: no saved intervals or raw-log replay. Parameter order is not inference compute; served endpoint, quantization, and checkpoint revision are not retained.",
-        fontsize=10.6,
+        0.055,
+        0.018,
+        "Each dot is one saved aggregate accuracy for one named model on one task; lines only join the selected variants. Exploratory: no saved intervals or raw-log replay, and B is not a controlled intervention.",
+        fontsize=9.6,
         color=MUTED,
     )
-    fig.subplots_adjust(left=0.035, right=0.99, top=0.89, bottom=0.105)
+    fig.subplots_adjust(left=0.16, right=0.965, top=0.89, bottom=0.09)
     save_figure(fig, "03_size_paths")
+
+
+def plot_size_answer_mobile(points: pd.DataFrame, summary: pd.DataFrame) -> None:
+    """Render the same size answer with mobile-readable type and stacking."""
+    unimoral = summary[summary["task"].isin(SIX_TASKS[:4])].copy()
+    counts = unimoral["direction"].value_counts().to_dict()
+    assert counts == {"mixed": 7, "rising": 4, "falling": 1}
+
+    fig = plt.figure(figsize=(6, 10.8))
+    grid = fig.add_gridspec(2, 1, height_ratios=[0.72, 1.4], hspace=0.5)
+    count_ax = fig.add_subplot(grid[0])
+    path_ax = fig.add_subplot(grid[1])
+    fig.suptitle(
+        "Bigger models do not score\nhigher consistently",
+        x=0.07,
+        y=0.995,
+        ha="left",
+        fontsize=20,
+        fontweight="bold",
+    )
+    fig.text(
+        0.07,
+        0.885,
+        "UniMoral-only local follow-up · 4 of 12 complete paths rise at both size steps",
+        color=MUTED,
+        fontsize=16,
+        wrap=True,
+    )
+
+    labels = ["Rises twice", "Changes\ndirection", "Falls twice"]
+    values = [counts["rising"], counts["mixed"], counts["falling"]]
+    bars = count_ax.barh(labels, values, color=[BLUE, AMBER, PURPLE], height=0.56)
+    count_ax.invert_yaxis()
+    count_ax.set_xlim(0, 12)
+    count_ax.set_xticks([0, 4, 8, 12])
+    count_ax.tick_params(axis="both", labelsize=16)
+    count_ax.set_xlabel("Complete family × task paths", fontsize=16)
+    count_ax.set_title("What happens across\nall 12 paths?", loc="left", fontweight="bold", fontsize=18, pad=10)
+    count_ax.grid(axis="x", color=GRID, linewidth=0.8)
+    count_ax.spines["left"].set_visible(False)
+    count_ax.spines["bottom"].set_color(GRID)
+    count_ax.tick_params(axis="y", length=0)
+    for bar, value in zip(bars, values):
+        count_ax.text(
+            value + 0.2,
+            bar.get_y() + bar.get_height() / 2,
+            f"{value} of 12",
+            va="center",
+            fontsize=17,
+            fontweight="bold",
+        )
+
+    gemma = points[
+        (points["family"] == "Gemma")
+        & (points["task"].isin(["unimoral_factor_attribution", "unimoral_moral_typology"]))
+    ].copy()
+    gemma["tier_order"] = gemma["tier"].map({"S": 0, "M": 1, "L": 2})
+    styles = {
+        "unimoral_factor_attribution": ("Factor", BLUE, "o", "-"),
+        "unimoral_moral_typology": ("Typology", PURPLE, "s", "--"),
+    }
+    for task, (label, color, marker, linestyle) in styles.items():
+        ordered = gemma[gemma["task"] == task].sort_values("tier_order")
+        path_ax.plot(
+            ordered["tier_order"],
+            ordered["score"],
+            color=color,
+            marker=marker,
+            linestyle=linestyle,
+            linewidth=3.0,
+            markersize=9,
+            label=label,
+            zorder=3,
+        )
+        for row in ordered.itertuples(index=False):
+            offset = (
+                {0: -20, 1: 13, 2: 13}[int(row.tier_order)]
+                if task == "unimoral_factor_attribution"
+                else {0: 13, 1: -20, 2: -20}[int(row.tier_order)]
+            )
+            annotation = path_ax.annotate(
+                f"{float(row.score):.3f}".removeprefix("0"),
+                (float(row.tier_order), float(row.score)),
+                xytext=(0, offset),
+                textcoords="offset points",
+                ha="center",
+                va="bottom" if offset > 0 else "top",
+                fontsize=17,
+                fontweight="bold",
+                color=color,
+                annotation_clip=False,
+            )
+            annotation.set_gid(point_label_gid("size-mobile-answer", task, row.model))
+
+    ticks = gemma[gemma["task"] == "unimoral_factor_attribution"].sort_values("tier_order")
+    path_ax.set_xticks(
+        ticks["tier_order"],
+        [f"Gemma 3\n{row.model_display.removeprefix('Gemma 3-')}\n{row.parameter_label}" for row in ticks.itertuples(index=False)],
+    )
+    edge_tick_labels = path_ax.get_xticklabels()
+    edge_tick_labels[0].set_ha("left")
+    edge_tick_labels[-1].set_ha("right")
+    path_ax.tick_params(axis="both", labelsize=16)
+    path_ax.set_xlim(-0.12, 2.12)
+    path_ax.set_ylim(0.50, 0.65)
+    path_ax.set_ylabel("Accuracy", fontsize=16)
+    path_ax.set_title("Same models,\nopposite task paths", loc="left", fontweight="bold", fontsize=18, pad=10)
+    path_ax.grid(axis="y", color=GRID, linewidth=0.8)
+    path_ax.spines["left"].set_color(GRID)
+    path_ax.spines["bottom"].set_color(GRID)
+    path_ax.legend(loc="upper center", frameon=False, ncol=2, fontsize=16)
+
+    fig.text(
+        0.07,
+        0.018,
+        "Each dot = one saved aggregate\nfor one named model + task.\nExploratory: no saved intervals.\nB is not a controlled intervention.",
+        fontsize=15.5,
+        color=MUTED,
+        linespacing=1.35,
+    )
+    fig.subplots_adjust(left=0.24, right=0.95, top=0.79, bottom=0.21)
+    save_figure(fig, "03_size_paths_mobile", tight=False)
 
 
 def plot_size_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: str) -> None:
@@ -595,7 +738,7 @@ def plot_size_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: s
     fig.text(
         0.055,
         0.956,
-        "Audit detail · every observed point names the model and published B count · categorical total-B order",
+        "Each point is one saved task score for a named model; each line joins that family's small, medium, and large variants. Published-B spacing is ordinal, not proportional.",
         color=MUTED,
         fontsize=11.2,
     )
@@ -645,7 +788,7 @@ def plot_size_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: s
             ax.text(0.02, 0.03, "Incomplete: " + ", ".join(incomplete), transform=ax.transAxes, color=MUTED, fontsize=8)
     for ax in axes[:-1]:
         ax.tick_params(axis="x", labelbottom=False)
-    axes[-1].set_xlabel("Published total B, ordered categories — horizontal gaps are not to scale")
+    axes[-1].set_xlabel("Published total B categories — ordered only; horizontal gaps are not to scale")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle=FAMILY_LINESTYLES[f], linewidth=2.4, label=f)
         for f in ["Qwen", "Gemma", "Llama"]
@@ -741,97 +884,262 @@ def quarter_label(value: int) -> str:
     return f"{year}\nQ{quarter}"
 
 
-def plot_release_matrix(summary: pd.DataFrame) -> None:
-    families = ["Qwen", "DeepSeek"]
-    status_style = {
-        "higher": ("Higher endpoint", GREEN, SOFT_GREEN),
-        "lower": ("Lower endpoint", RED, SOFT_RED),
-        "unchanged": ("Unchanged endpoint", MUTED, SOFT_GRAY),
+def plot_release_answer(summary: pd.DataFrame) -> None:
+    """Show UniMoral endpoint changes without treating release quarter as evaluation time."""
+    unimoral = summary[summary["task"].isin(SIX_TASKS[:4])].copy()
+    counts = unimoral.groupby(["family", "endpoint_direction"]).size().to_dict()
+    assert len(unimoral) == 8
+    assert counts == {
+        ("DeepSeek", "higher"): 2,
+        ("DeepSeek", "lower"): 2,
+        ("Qwen", "higher"): 3,
+        ("Qwen", "lower"): 1,
     }
-    fig, ax = plt.subplots(figsize=(16, 11))
-    ax.set_xlim(0, 11.0)
-    ax.set_ylim(0, 7.45)
-    ax.axis("off")
-    fig.suptitle("Model release quarter is not a progress curve", x=0.045, y=0.982, ha="left", fontsize=22, fontweight="bold")
+
+    fig = plt.figure(figsize=(14, 10))
+    grid = fig.add_gridspec(2, 1, height_ratios=[1.55, 0.72], hspace=0.55)
+    accuracy_ax = fig.add_subplot(grid[0])
+    meteor_ax = fig.add_subplot(grid[1])
+    fig.suptitle(
+        "Newer named releases do not move every UniMoral task up",
+        x=0.055,
+        y=0.982,
+        ha="left",
+        fontsize=22,
+        fontweight="bold",
+    )
     fig.text(
-        0.045,
-        0.947,
-        "All plotted evaluations ran May 28–29, 2026; the recorded release quarter changes model generation, route, size and architecture together.",
+        0.055,
+        0.944,
+        "Qwen endpoints: 3 higher, 1 lower.  DeepSeek endpoints: 2 higher, 2 lower.  All scores were evaluated May 28–29, 2026.",
         color=MUTED,
-        fontsize=11.2,
+        fontsize=11.5,
+    )
+    fig.text(
+        0.055,
+        0.902,
+        "Qwen  ●  Qwen2.5-7B Instruct (7.61B total)  →  Qwen3.5-9B (9B total)",
+        color=FAMILY_COLORS["Qwen"],
+        fontsize=10.5,
+        fontweight="bold",
+    )
+    fig.text(
+        0.055,
+        0.875,
+        "DeepSeek  ◆  V3-0324 (671B main / 37B active)  →  V4 Flash (284B main / 13B active)",
+        color=FAMILY_COLORS["DeepSeek"],
+        fontsize=10.5,
+        fontweight="bold",
     )
 
-    x_positions = {"Qwen": 2.35, "DeepSeek": 6.65}
-    cell_width = 4.05
-    row_height = 0.86
-    row_gap = 0.12
-    header_y = 7.04
-    family_metadata = {
-        "Qwen": "Qwen2.5-7B · 7.61B  →  Qwen3.5-9B · 9B",
-        "DeepSeek": (
-            "V3-0324 · 671B main / 37B active  →  V4 Flash · 284B main / 13B active\n"
-            "relevance ends at V3.2 · 671B main / 37B active"
-        ),
-    }
-    for family in families:
-        ax.text(
-            x_positions[family] + cell_width / 2,
-            header_y,
-            family,
-            ha="center",
-            va="center",
-            fontsize=14,
-            fontweight="bold",
-            color=FAMILY_COLORS[family],
-        )
-        ax.text(
-            x_positions[family] + cell_width / 2,
-            header_y - 0.34,
-            family_metadata[family],
-            ha="center",
-            va="center",
-            fontsize=12.0,
-            color=MUTED,
-            linespacing=1.25,
-        )
+    family_offsets = {"Qwen": 0.13, "DeepSeek": -0.13}
+    family_markers = {"Qwen": "o", "DeepSeek": "D"}
 
-    for row_index, task in enumerate(SIX_TASKS):
-        y = 5.55 - row_index * (row_height + row_gap)
-        task_label, metric, _, _ = TASKS[task]
-        ax.text(0.05, y + row_height * 0.62, task_label, ha="left", va="center", fontsize=13.0, fontweight="bold")
-        ax.text(0.05, y + row_height * 0.29, metric, ha="left", va="center", fontsize=12.0, color=MUTED)
-        for family in families:
-            row = summary[(summary["family"] == family) & (summary["task"] == task)].iloc[0]
-            status, status_color, fill = status_style[str(row.endpoint_direction)]
-            x = x_positions[family]
-            ax.add_patch(Rectangle((x, y), cell_width, row_height, facecolor=fill, edgecolor=PAPER, linewidth=3))
-            reversal = " · path bends" if bool(row.internal_reversal) else ""
-            ax.text(x + 0.12, y + row_height * 0.76, (status + reversal).upper(), ha="left", va="center", fontsize=12.0, fontweight="bold", color=status_color)
-            score_path = f"{compact_score(float(row.first_score))} → {compact_score(float(row.last_score))}  ({float(row.endpoint_delta):+.3f})"
-            cell = ax.text(
-                x + 0.12,
-                y + row_height * 0.47,
-                score_path,
-                ha="left",
-                va="center",
-                fontsize=14.2,
-                fontweight="bold",
-                color=INK,
+    def draw_delta_panel(ax: plt.Axes, rows: pd.DataFrame, tasks: list[str], limit: float, metric: str) -> None:
+        y_positions = {task: len(tasks) - index - 1 for index, task in enumerate(tasks)}
+        ax.axvline(0, color=INK, linewidth=1.2, zorder=1)
+        for row in rows.itertuples(index=False):
+            y = y_positions[row.task] + family_offsets[row.family]
+            delta = float(row.endpoint_delta)
+            point = ax.scatter(
+                delta,
+                y,
+                s=78,
+                marker=family_markers[row.family],
+                color=FAMILY_COLORS[row.family],
+                zorder=3,
             )
-            cell.set_gid(point_label_gid("release-matrix", task, family))
-            period_path = f"{str(row.first_period).replace('-', ' ')}  →  {str(row.last_period).replace('-', ' ')}"
-            ax.text(x + 0.12, y + row_height * 0.17, period_path, ha="left", va="center", fontsize=12.0, color=MUTED)
+            reversal = "  †" if bool(row.internal_reversal) else ""
+            delta_text = f"{delta:+.3f}".replace("-", "−")
+            point_label = ax.annotate(
+                f"{row.family} {delta_text}{reversal}",
+                (delta, y),
+                xytext=(8 if delta >= 0 else -8, 0),
+                textcoords="offset points",
+                ha="left" if delta >= 0 else "right",
+                va="center",
+                fontsize=10.5,
+                fontweight="bold",
+                color=FAMILY_COLORS[row.family],
+                annotation_clip=False,
+            )
+            point_label.set_gid(point_label_gid("release-answer", row.task, row.family))
+        ax.set_xlim(-limit, limit)
+        ax.set_yticks([y_positions[task] for task in tasks], [TASKS[task][0] for task in tasks])
+        ax.set_ylim(-0.55, len(tasks) - 0.45)
+        ax.set_xlabel(f"Endpoint change in {metric}  (later named model − earlier named model)")
+        ax.grid(axis="x", color=GRID, linewidth=0.8)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_color(GRID)
+        ax.tick_params(axis="y", length=0)
 
-    fig.text(0.045, 0.055, "12 family × task paths  ·  Qwen 5 higher / 1 lower  ·  DeepSeek 3 higher / 3 lower", fontsize=12.2, fontweight="bold")
+    accuracy_tasks = SIX_TASKS[:3]
+    draw_delta_panel(
+        accuracy_ax,
+        unimoral[unimoral["task"].isin(accuracy_tasks)],
+        accuracy_tasks,
+        0.22,
+        "accuracy",
+    )
+    accuracy_ax.set_title("Classification tasks — zero means no endpoint change", loc="left", fontweight="bold", pad=10)
+    draw_delta_panel(
+        meteor_ax,
+        unimoral[unimoral["task"] == "unimoral_consequence_generation"],
+        ["unimoral_consequence_generation"],
+        0.035,
+        "METEOR",
+    )
+    meteor_ax.set_title("Consequence generation — separate metric and scale", loc="left", fontweight="bold", pad=10)
+
     fig.text(
-        0.045,
-        0.025,
-        "Exploratory aggregate only: endpoint direction is not improvement, several changes are tiny, and no saved intervals or raw-log replay are available.",
-        fontsize=10.6,
+        0.055,
+        0.052,
+        "Each point is one later-minus-earlier aggregate for the named model path above. † The saved intermediate DeepSeek path changes direction; see the full path figures for every checkpoint.",
+        fontsize=9.6,
         color=MUTED,
     )
-    fig.subplots_adjust(left=0.035, right=0.99, top=0.89, bottom=0.105)
+    fig.text(
+        0.055,
+        0.026,
+        "Exploratory: no saved intervals or raw-log replay. Release quarter is model metadata, not evaluation time; generation, route, architecture, and parameter count change together.",
+        fontsize=9.6,
+        color=MUTED,
+    )
+    fig.subplots_adjust(left=0.19, right=0.965, top=0.82, bottom=0.11)
     save_figure(fig, "04_release_period_paths")
+
+
+def plot_release_answer_mobile(summary: pd.DataFrame) -> None:
+    """Render the release answer as a mobile-readable pair of delta panels."""
+    unimoral = summary[summary["task"].isin(SIX_TASKS[:4])].copy()
+    counts = unimoral.groupby(["family", "endpoint_direction"]).size().to_dict()
+    assert counts == {
+        ("DeepSeek", "higher"): 2,
+        ("DeepSeek", "lower"): 2,
+        ("Qwen", "higher"): 3,
+        ("Qwen", "lower"): 1,
+    }
+
+    fig = plt.figure(figsize=(6, 13.8))
+    grid = fig.add_gridspec(2, 1, height_ratios=[1.45, 0.68], hspace=0.62)
+    accuracy_ax = fig.add_subplot(grid[0])
+    meteor_ax = fig.add_subplot(grid[1])
+    fig.suptitle(
+        "Newer named releases do not\nmove every UniMoral task up",
+        x=0.07,
+        y=0.99,
+        ha="left",
+        fontsize=19.5,
+        fontweight="bold",
+    )
+    fig.text(
+        0.07,
+        0.920,
+        "Qwen: 3 higher, 1 lower\nDeepSeek: 2 higher, 2 lower",
+        color=MUTED,
+        fontsize=16,
+    )
+    fig.text(
+        0.07,
+        0.855,
+        "Qwen ●  Qwen2.5-7B Instruct\n7.61B total\n→ Qwen3.5-9B · 9B total",
+        color=FAMILY_COLORS["Qwen"],
+        fontsize=15.5,
+        fontweight="bold",
+        linespacing=1.25,
+    )
+    fig.text(
+        0.07,
+        0.770,
+        "DeepSeek ◆  V3-0324\n671B main / 37B active\n→ V4 Flash\n284B main / 13B active",
+        color=FAMILY_COLORS["DeepSeek"],
+        fontsize=15.5,
+        fontweight="bold",
+        linespacing=1.25,
+    )
+
+    offsets = {"Qwen": 0.22, "DeepSeek": -0.22}
+    markers = {"Qwen": "o", "DeepSeek": "D"}
+
+    def draw_panel(ax: plt.Axes, rows: pd.DataFrame, tasks: list[str], limit: float, metric: str) -> None:
+        positions = {task: len(tasks) - index - 1 for index, task in enumerate(tasks)}
+        ax.axvline(0, color=INK, linewidth=1.3, zorder=1)
+        for row in rows.itertuples(index=False):
+            delta = float(row.endpoint_delta)
+            y = positions[row.task] + offsets[row.family]
+            ax.scatter(
+                delta,
+                y,
+                s=92,
+                marker=markers[row.family],
+                color=FAMILY_COLORS[row.family],
+                zorder=3,
+            )
+            reversal = "†" if bool(row.internal_reversal) else ""
+            value = f"{delta:+.3f}".replace("-", "−")
+            point_text = f"{row.family} {value}{reversal}"
+            if row.family == "DeepSeek" and delta < 0:
+                x_offset, align = 10, "left"
+                point_text = f"{row.family}\n{value}{reversal}"
+            elif delta > limit * 0.45:
+                x_offset, align = -10, "right"
+            elif delta < -limit * 0.45:
+                x_offset, align = 10, "left"
+            elif delta >= 0:
+                x_offset, align = 9, "left"
+            else:
+                x_offset, align = -9, "right"
+            label = ax.annotate(
+                point_text,
+                (delta, y),
+                xytext=(x_offset, 0),
+                textcoords="offset points",
+                ha=align,
+                va="center",
+                fontsize=17,
+                fontweight="bold",
+                color=FAMILY_COLORS[row.family],
+                annotation_clip=False,
+            )
+            label.set_gid(point_label_gid("release-mobile-answer", row.task, row.family))
+        ax.set_xlim(-limit, limit)
+        ax.set_yticks([positions[task] for task in tasks], [TASKS[task][0].replace("UniMoral ", "") for task in tasks])
+        ax.set_ylim(-0.55, len(tasks) - 0.45)
+        ax.tick_params(axis="both", labelsize=16)
+        ax.set_xlabel(f"Later − earlier {metric}", fontsize=17)
+        ax.grid(axis="x", color=GRID, linewidth=0.8)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_color(GRID)
+        ax.tick_params(axis="y", length=0)
+
+    accuracy_tasks = SIX_TASKS[:3]
+    draw_panel(
+        accuracy_ax,
+        unimoral[unimoral["task"].isin(accuracy_tasks)],
+        accuracy_tasks,
+        0.22,
+        "accuracy",
+    )
+    accuracy_ax.set_title("Classification tasks\nZero = no endpoint change", loc="left", fontsize=18, fontweight="bold", pad=10)
+    draw_panel(
+        meteor_ax,
+        unimoral[unimoral["task"] == "unimoral_consequence_generation"],
+        ["unimoral_consequence_generation"],
+        0.035,
+        "METEOR",
+    )
+    meteor_ax.set_title("Consequence\nSeparate METEOR scale", loc="left", fontsize=18, fontweight="bold", pad=10)
+
+    fig.text(
+        0.07,
+        0.033,
+        "Each point = one later-minus-earlier aggregate\nfor the named path above.\n† Intermediate DeepSeek checkpoints\nchange direction.\nAll scores ran May 28–29, 2026.",
+        fontsize=15.5,
+        color=MUTED,
+        linespacing=1.35,
+    )
+    fig.subplots_adjust(left=0.27, right=0.95, top=0.62, bottom=0.19)
+    save_figure(fig, "04_release_period_paths_mobile", tight=False)
 
 
 def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: str) -> None:
@@ -846,7 +1154,7 @@ def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title
     fig.text(
         0.055,
         0.956,
-        "Audit detail · every observed point names the model and published B count · lines only connect observations",
+        "Each point is one saved task score for a different named model; lines join models within a family. All scores were evaluated May 28–29, 2026.",
         color=MUTED,
         fontsize=11.2,
     )
@@ -896,7 +1204,7 @@ def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title
         ax.spines["bottom"].set_color(GRID)
     for ax in axes[:-1]:
         ax.tick_params(axis="x", labelbottom=False)
-    axes[-1].set_xlabel("Saved release period")
+    axes[-1].set_xlabel("Named model release quarter — metadata, not evaluation time")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle="--" if f == "Qwen" else ":", linewidth=2.4, label=f)
         for f in ["Qwen", "DeepSeek"]
@@ -932,15 +1240,15 @@ def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame, release_
                 "source": "evidence/canonical-audit/figures/data/primary_confidence_intervals.csv",
             },
             {
-                "research_question": "Does bigger reliably score better?",
-                "answer": f"Only {(size_summary['direction'] == 'rising').sum()} of {len(size_summary)} complete paths rise monotonically; 9 are mixed and 1 falls.",
+                "research_question": "Across complete selected UniMoral paths, do scores rise at both size steps?",
+                "answer": "Only 4 of 12 UniMoral family-task paths rise at both steps; 7 change direction and 1 falls. Including ValuePrism, the full selected-grid count is 5 of 15 rising, 9 changing direction, and 1 falling.",
                 "evidence_status": "exploratory aggregate; no CI or raw-log replay",
                 "decision": "Treat size effects as family- and task-specific hypotheses.",
                 "source": "evidence/source-results/result_summary.csv",
             },
             {
-                "research_question": "Do later named-route endpoints all move higher?",
-                "answer": "No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints. All plotted evaluations ran May 28–29, 2026.",
+                "research_question": "Do later named-model endpoints move every UniMoral task higher?",
+                "answer": "No. On UniMoral, Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. Including ValuePrism, the full selected-grid counts are 5/1 and 3/3. All plotted evaluations ran May 28–29, 2026.",
                 "evidence_status": "exploratory aggregate; no CI or raw-log replay",
                 "decision": "Treat release quarter as model metadata, not a longitudinal progress trend.",
                 "source": "evidence/source-results/result_summary.csv",
@@ -987,33 +1295,35 @@ def main() -> None:
 
     plot_common_roster(common)
     plot_precision(precision)
-    plot_size_matrix(size_points, size_summary)
+    plot_size_answer(size_points, size_summary)
+    plot_size_answer_mobile(size_points, size_summary)
     plot_size_detail(
         size_points,
         SIX_TASKS[:3],
         "03_size_paths_detail_a",
-        "Size detail · UniMoral classification",
+        "How model size relates to UniMoral classification scores",
     )
     plot_size_detail(
         size_points,
         SIX_TASKS[3:],
         "03_size_paths_detail_b",
-        "Size detail · consequence and ValuePrism",
+        "How model size relates to consequence and ValuePrism scores",
     )
-    plot_release_matrix(release_summary)
+    plot_release_answer(release_summary)
+    plot_release_answer_mobile(release_summary)
     plot_release_detail(
         release_points,
         SIX_TASKS[:3],
         "04_release_period_paths_detail_a",
-        "Release-quarter detail · UniMoral classification",
+        "How named model releases move across UniMoral classification tasks",
     )
     plot_release_detail(
         release_points,
         SIX_TASKS[3:],
         "04_release_period_paths_detail_b",
-        "Release-quarter detail · consequence and ValuePrism",
+        "How named model releases move on consequence and ValuePrism",
     )
-    print("Built 8 result figures and 7 machine-readable result tables.")
+    print("Built 10 result figures and 7 machine-readable result tables.")
 
 
 if __name__ == "__main__":

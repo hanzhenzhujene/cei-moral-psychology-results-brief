@@ -11,6 +11,17 @@ The four primary papers were downloaded and reviewed for methods, results, autho
 | MoReBench | Chiu et al., ICLR 2026. [arXiv PDF](https://arxiv.org/pdf/2510.16380) · [OpenReview](https://openreview.net/pdf?id=RMwJXp5Kb1) | [Repository](https://github.com/morebench/morebench) · [Dataset](https://huggingface.co/datasets/morebench/morebench) | Main paper and all relevant methods, scoring, validation, results, and caveat appendices reviewed. |
 | MoralLens | Samway et al., EMNLP 2025 Main. [Paper](https://aclanthology.org/2025.emnlp-main.1563/) · [PDF](https://aclanthology.org/2025.emnlp-main.1563.pdf) | [Repository](https://github.com/keenansamway/moral-lens) | Full main paper, experiment details, validation, robustness, and limitations reviewed. |
 
+## The four paper questions in plain language
+
+| Paper | What the paper is trying to answer | What the current local evidence can answer | Match |
+|---|---|---|---|
+| MoralBench | Do model choices track human ratings on moral-foundation statements and vignettes? Can a model choose the statement people rated higher? | Fresh agreement and forced-choice results with saved intervals, under a different model roster and administration. | Approximate |
+| UniMoral | Can a model predict an annotator's action, moral framework, and influencing factors, and generate plausible consequences? How do cues, language, and scenario source affect those results? | No-cue label accuracy for action, typology, and factor tasks, plus consequence METEOR. It cannot test the paper's cue, language, or source claims. | Approximate for task families; unavailable for cue claims |
+| MoReBench | Does the reasoning process cover expert-defined considerations, trade-offs, logical steps, and outcomes? Do scale and general capability predict this? | The local evaluator only checks whether four generic reasoning-word groups appear. That is not the paper's expert-weighted score. | Proxy only for performance |
+| MoralLens | Which consequentialist or deontological rationales appear? Do they change when reasoning comes before versus after the decision? | The local adapter checks keyword detectability and one binary expected-direction pattern. It cannot reproduce the paper's rationale judge or order effect. | Proxy only for performance |
+
+The size and release-period charts in the results brief are local follow-up questions. They are not claims that the four papers asked or answered those questions. The headline views use only the four UniMoral task families; ValuePrism remains in the full audit tables.
+
 ## Replication verdict
 
 | Exact | Approximate | Proxy-only | Unavailable |

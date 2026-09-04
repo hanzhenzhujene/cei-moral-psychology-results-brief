@@ -784,7 +784,7 @@ z
      </g>
     </g>
     <g id="text_25">
-     <text style="fill: #17212b; font: 9.5px 'DejaVu Sans'; text-anchor: middle" x="562.73" y="870.963062" transform="rotate(-0 562.73 870.963062)">Saved release period</text>
+     <text style="fill: #17212b; font: 9.5px 'DejaVu Sans'; text-anchor: middle" x="562.73" y="870.963062" transform="rotate(-0 562.73 870.963062)">Named model release quarter — metadata, not evaluation time</text>
     </g>
    </g>
    <g id="matplotlib.axis_6">
@@ -1051,10 +1051,10 @@ z
    </g>
   </g>
   <g id="text_34">
-   <text style="fill: #17212b; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="12.82" y="23.156719" transform="rotate(-0 12.82 23.156719)">Release-quarter detail · consequence and ValuePrism</text>
+   <text style="fill: #17212b; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="12.82" y="23.156719" transform="rotate(-0 12.82 23.156719)">How named model releases move on consequence and ValuePrism</text>
   </g>
   <g id="text_35">
-   <text style="fill: #66717c; font: 11.2px 'DejaVu Sans'; text-anchor: start" x="12.82" y="34.344" transform="rotate(-0 12.82 34.344)">Audit detail · every observed point names the model and published B count · lines only connect observations</text>
+   <text style="fill: #66717c; font: 11.2px 'DejaVu Sans'; text-anchor: start" x="12.82" y="34.344" transform="rotate(-0 12.82 34.344)">Each point is one saved task score for a different named model; lines join models within a family. All scores were evaluated May 28–29, 2026.</text>
   </g>
   <g id="text_36">
    <text style="fill: #66717c; font: 9.1px 'DejaVu Sans'; text-anchor: start" x="12.82" y="912.312" transform="rotate(-0 12.82 912.312)">Release quarter is model metadata, not evaluation time. DeepSeek counts exclude auxiliary/MTP weights; no saved intervals or raw-log replay.</text>

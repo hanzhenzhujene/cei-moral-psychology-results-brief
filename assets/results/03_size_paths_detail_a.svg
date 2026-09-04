@@ -995,7 +995,7 @@ z
      </g>
     </g>
     <g id="text_26">
-     <text style="fill: #17212b; font: 9.5px 'DejaVu Sans'; text-anchor: middle" x="559.019428" y="872.244922" transform="rotate(-0 559.019428 872.244922)">Published total B, ordered categories — horizontal gaps are not to scale</text>
+     <text style="fill: #17212b; font: 9.5px 'DejaVu Sans'; text-anchor: middle" x="559.019428" y="872.244922" transform="rotate(-0 559.019428 872.244922)">Published total B categories — ordered only; horizontal gaps are not to scale</text>
     </g>
    </g>
    <g id="matplotlib.axis_6">
@@ -1339,10 +1339,10 @@ z
    </g>
   </g>
   <g id="text_35">
-   <text style="fill: #17212b; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="12.811875" y="23.156719" transform="rotate(-0 12.811875 23.156719)">Size detail · UniMoral classification</text>
+   <text style="fill: #17212b; font: 700 21px 'DejaVu Sans'; text-anchor: start" x="12.811875" y="23.156719" transform="rotate(-0 12.811875 23.156719)">How model size relates to UniMoral classification scores</text>
   </g>
   <g id="text_36">
-   <text style="fill: #66717c; font: 11.2px 'DejaVu Sans'; text-anchor: start" x="12.811875" y="34.344" transform="rotate(-0 12.811875 34.344)">Audit detail · every observed point names the model and published B count · categorical total-B order</text>
+   <text style="fill: #66717c; font: 11.2px 'DejaVu Sans'; text-anchor: start" x="12.811875" y="34.344" transform="rotate(-0 12.811875 34.344)">Each point is one saved task score for a named model; each line joins that family's small, medium, and large variants. Published-B spacing is ordinal, not proportional.</text>
   </g>
   <g id="text_37">
    <text style="fill: #66717c; font: 9.1px 'DejaVu Sans'; text-anchor: start" x="12.811875" y="912.312" transform="rotate(-0 12.811875 912.312)">Named-model specifications only; no saved intervals or raw-log replay. METEOR remains separate from accuracy.</text>

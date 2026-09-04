@@ -291,12 +291,13 @@ h3 {
 }
 
 .result-figure img {
+  display: block;
   width: 100%;
   height: auto;
 }
 
-.swipe-hint {
-  display: none;
+.responsive-insight-chart picture {
+  display: block;
 }
 
 .result-figure figcaption {
@@ -533,6 +534,10 @@ h3 {
   cursor: pointer;
   color: var(--blue);
   font-weight: 720;
+}
+
+.exact-table[open] summary {
+  margin-bottom: 0.9rem;
 }
 
 .detail-link-grid {
@@ -1015,6 +1020,10 @@ footer {
 }
 
 @media (max-width: 640px) {
+  .topbar {
+    position: static;
+  }
+
   .topbar-inner {
     align-items: flex-start;
     flex-direction: column;
@@ -1074,20 +1083,6 @@ footer {
   .wide-chart img {
     width: 820px;
     max-width: none;
-  }
-
-  .swipe-hint {
-    position: sticky;
-    left: 0;
-    display: block;
-    width: max-content;
-    margin: 0 0 0.55rem;
-    padding: 0.25rem 0.5rem;
-    color: var(--blue);
-    background: var(--blue-soft);
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 750;
   }
 
   .decision-strip {

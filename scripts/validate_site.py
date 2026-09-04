@@ -524,7 +524,17 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
         "wide-interval claim must cite the cell-level primary interval table",
     )
     joined_answers = " ".join(takeaways["answer"])
-    for phrase in ("18 intervals", "5 of 15", "9 are mixed", "1 falls", "5 higher and 1 lower", "3 higher and 3 lower", "May 28–29, 2026"):
+    for phrase in (
+        "18 intervals",
+        "4 of 12",
+        "7 change direction",
+        "5 of 15 rising",
+        "9 changing direction",
+        "Qwen has 3 higher and 1 lower",
+        "DeepSeek has 2 higher and 2 lower",
+        "full selected-grid counts are 5/1 and 3/3",
+        "May 28–29, 2026",
+    ):
         check(phrase in joined_answers, f"takeaway table is missing expected result: {phrase}")
     passed("derived results: 40 common cells; 28/28 and 45/45 compare overlaps; all 80 plotted rows and 12 release summaries match source and parameter metadata")
 
@@ -591,10 +601,27 @@ def validate_site_and_links() -> None:
             if path is not None:
                 local_refs += 1
                 check(path.exists(), f"missing local HTML target: {value}")
+
+    mobile_sources = soup.select('figure.responsive-insight-chart picture source[media="(max-width: 640px)"][srcset]')
+    check(len(mobile_sources) == 2, "size and release charts must each provide one dedicated mobile source")
+    expected_mobile_sources = {
+        "assets/results/03_size_paths_mobile.png",
+        "assets/results/04_release_period_paths_mobile.png",
+    }
+    observed_mobile_sources = {str(source["srcset"]) for source in mobile_sources}
+    check(observed_mobile_sources == expected_mobile_sources, "responsive chart mobile sources drift")
+    for source in mobile_sources:
+        value = str(source["srcset"])
+        path = ROOT / value
+        local_refs += 1
+        check(path.is_file(), f"missing responsive chart source: {value}")
+        check(source.has_attr("width") and source.has_attr("height"), f"responsive chart source lacks intrinsic dimensions: {value}")
+        with Image.open(path) as decoded:
+            check(int(source["width"]) == decoded.width and int(source["height"]) == decoded.height, f"responsive source dimensions drift for {value}")
     check(local_refs >= 40, f"unexpectedly few local HTML references: {local_refs}")
 
     images = soup.find_all("img")
-    check(len(images) == 6, f"expected 6 site images, found {len(images)}")
+    check(len(images) == 8, f"expected 8 site images, found {len(images)}")
     for index, image in enumerate(images):
         check(str(image.get("alt", "")).strip() != "", f"image {index + 1} has no alt text")
         check(image.has_attr("width") and image.has_attr("height"), f"image {index + 1} lacks intrinsic dimensions")
@@ -606,8 +633,11 @@ def validate_site_and_links() -> None:
         if index > 0:
             check(image.get("loading") == "lazy", f"below-fold image is not lazy loaded: {image['src']}")
     check(len(soup.select("figure.wide-chart")) == 2, "only the two dense primary charts should use the mobile scroll container")
-    check(len(soup.select("figure.insight-matrix")) == 2, "size and release must use compact insight matrices")
-    check(not soup.select("figure.insight-matrix img"), "primary insight matrices must reflow as HTML instead of shrinking a fixed image")
+    check(len(soup.select("figure.insight-chart")) == 2, "size and release must each expose one primary insight chart")
+    check(len(soup.select("figure.responsive-insight-chart picture")) == 2, "size and release insight charts need responsive desktop/mobile picture sources")
+    check(len(soup.select("details.exact-table")) == 2, "the two exact six-task tables must be collapsed by default")
+    check(not any(node.has_attr("open") for node in soup.select("details.exact-table")), "exact six-task tables must not open by default")
+    check(len(soup.select("details.exact-table .insight-matrix")) == 2, "collapsed audit tables lost their responsive matrix containers")
     matrix_tables = soup.select("table.insight-table")
     check(len(matrix_tables) == 2, "expected two semantic responsive insight tables")
 
@@ -650,7 +680,7 @@ def validate_site_and_links() -> None:
         all(cell.select_one(".matrix-cell-family") and cell.select_one(".matrix-cell-meta") for cell in soup.select('table[data-matrix="release"] td.matrix-cell')),
         "responsive release cells must retain family, model, period, and B context",
     )
-    check(len(soup.select("details.audit-details")) == 2, "size and release audit detail must be collapsed by default")
+    check(len(soup.select("details.audit-details")) == 4, "size and release exact tables and path figures must be collapsed by default")
     detail_links = [link for link in soup.select("details.audit-details a") if "_detail_" in str(link.get("href", ""))]
     check(len(detail_links) == 4, "expected four split landscape audit-detail links")
     check("labeled-point-chart" not in html, "dense point-label composites must not remain inline")
@@ -665,19 +695,19 @@ def validate_site_and_links() -> None:
             if path is not None:
                 markdown_links += 1
                 check(path.exists(), f"missing Markdown target in {md_path.relative_to(ROOT)}: {match.group(1)}")
-    passed(f"site structure: {local_refs} local HTML references, {markdown_links} local Markdown references, 6 dimensioned images, responsive matrices and collapsed detail links resolved")
+    passed(f"site structure: {local_refs} local HTML references, {markdown_links} local Markdown references, 8 dimensioned images plus 2 mobile sources, primary charts plus collapsed responsive audit tables resolved")
 
 
 def validate_visuals() -> None:
     expected = {
         "01_common_roster_task_results": ("No model is the point-estimate leader on every task", {"Haiku", "Opus", "GPT-5.4", "Mini", "Qwen"}),
         "02_precision_by_task": ("Available marginal intervals do not resolve a comparison-task model order", {".20 planning target", ".30 audit warning"}),
-        "03_size_paths": ("Model size is not a reliable shortcut", {"15 complete paths", "5 rising", "9 mixed", "1 falling", "235B / 22B active"}),
-        "03_size_paths_detail_a": ("Size detail · UniMoral classification", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
-        "03_size_paths_detail_b": ("Size detail · consequence and ValuePrism", {"Qwen3-8B", "235B total / 22B active", "ValuePrism relevance", "ValuePrism valence"}),
-        "04_release_period_paths": ("Model release quarter is not a progress curve", {"May 28–29, 2026", "Qwen 5 higher / 1 lower", "DeepSeek 3 higher / 3 lower", "671B main / 37B active"}),
-        "04_release_period_paths_detail_a": ("Release-quarter detail · UniMoral classification", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
-        "04_release_period_paths_detail_b": ("Release-quarter detail · consequence and ValuePrism", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "03_size_paths": ("Bigger models do not score higher consistently on UniMoral", {"4 of 12", "7 of 12", "1 of 12", "Gemma 3-4B-IT", "4B total", "Gemma 3-27B-IT", "27B total"}),
+        "03_size_paths_detail_a": ("How model size relates to UniMoral classification scores", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
+        "03_size_paths_detail_b": ("How model size relates to consequence and ValuePrism scores", {"Qwen3-8B", "235B total / 22B active", "ValuePrism relevance", "ValuePrism valence"}),
+        "04_release_period_paths": ("Newer named releases do not move every UniMoral task up", {"May 28–29, 2026", "Qwen endpoints: 3 higher, 1 lower", "DeepSeek endpoints: 2 higher, 2 lower", "671B main / 37B active"}),
+        "04_release_period_paths_detail_a": ("How named model releases move across UniMoral classification tasks", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "04_release_period_paths_detail_b": ("How named model releases move on consequence and ValuePrism", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
     }
     for stem, (title, labels) in expected.items():
         png = ROOT / "assets" / "results" / f"{stem}.png"
@@ -703,6 +733,34 @@ def validate_visuals() -> None:
                 if key.endswith("href"):
                     check(not str(value).startswith(("http://", "https://", "//")), f"external SVG resource: {stem}")
 
+    mobile_expected = {
+        "03_size_paths_mobile": ("Bigger models do not score higher consistently", {"4 of 12", "7 of 12", "1 of 12", "Gemma 3", "4B-IT", "4B total", "27B-IT", "27B total"}),
+        "04_release_period_paths_mobile": ("Newer named releases do not move every UniMoral task up", {"Qwen: 3 higher, 1 lower", "DeepSeek: 2 higher, 2 lower", "Qwen2.5-7B Instruct", "7.61B total", "Qwen3.5-9B", "9B total", "671B main / 37B active", "284B main / 13B active"}),
+    }
+    for stem, (title, labels) in mobile_expected.items():
+        png = ROOT / "assets" / "results" / f"{stem}.png"
+        svg = ROOT / "assets" / "results" / f"{stem}.svg"
+        check(png.is_file() and svg.is_file(), f"missing mobile visual pair: {stem}")
+        with Image.open(png) as image:
+            image.verify()
+        with Image.open(png) as image:
+            check(image.width >= 1200 and image.height >= 2000, f"mobile result PNG is unexpectedly small: {stem}")
+            check(image.width / image.height <= 0.80, f"mobile result figure is not a readable portrait layout: {stem}")
+            stats = ImageStat.Stat(image.convert("L").resize((200, 200)))
+            check(stats.var[0] > 25, f"mobile result PNG appears blank: {stem}")
+        tree = ET.parse(svg)
+        root = tree.getroot()
+        svg_text = " ".join("".join(root.itertext()).split())
+        check(title in svg_text, f"mobile SVG title drift: {stem}")
+        for label in labels:
+            check(label in svg_text, f"mobile SVG missing expected label {label!r}: {stem}")
+        raw = svg.read_text(errors="replace")
+        check("<script" not in raw.lower() and "foreignObject" not in raw, f"unsafe active mobile SVG content: {stem}")
+        for element in root.iter():
+            for key, value in element.attrib.items():
+                if key.endswith("href"):
+                    check(not str(value).startswith(("http://", "https://", "//")), f"external mobile SVG resource: {stem}")
+
     label_contracts = {
         "size": (["03_size_paths_detail_a", "03_size_paths_detail_b"], "size_task_points.csv", 45),
         "release": (["04_release_period_paths_detail_a", "04_release_period_paths_detail_b"], "release_period_task_points.csv", 35),
@@ -725,55 +783,77 @@ def validate_visuals() -> None:
         check(len(points) == expected_count and len(expected_map) == expected_count, f"{layer} expected point-label identities are not unique")
         check(len(groups) == expected_count and observed_map == expected_map, f"{layer} model+B label is not attached to its exact task-model point across split detail figures")
 
-    size_summary = pd.read_csv(RESULT_DATA / "size_path_summary.csv")
-    observed_size_matrix: dict[str, str] = {}
+    size_points = pd.read_csv(RESULT_DATA / "size_task_points.csv")
     size_root = ET.parse(ROOT / "assets" / "results" / "03_size_paths.svg").getroot()
-    for element in size_root.iter():
-        if element.attrib.get("id", "").startswith("size-matrix-point-label-"):
-            observed_size_matrix[element.attrib["id"]] = " ".join("".join(element.itertext()).split())
-            font_sizes = [
-                float(match.group(1))
-                for child in element.iter()
-                if (match := re.search(r"font:\s+(?:\d+\s+)?([0-9.]+)px", str(child.attrib.get("style", ""))))
-            ]
-            check(font_sizes and min(font_sizes) >= 14.0, "static size matrix score text fell below the readability floor")
-    expected_size_matrix: dict[str, str] = {}
-    for task in SCALING_TASK_LABELS:
-        for family in ("Qwen", "Gemma", "Llama"):
-            key = point_label_gid("size-matrix", task, family)
-            match = size_summary[(size_summary["family"] == family) & (size_summary["task"] == task)]
-            expected_size_matrix[key] = (
-                "Not complete"
-                if match.empty
-                else " → ".join(f"{float(value):.3f}".removeprefix("0") for value in match.iloc[0][["small", "medium", "large"]])
-            )
-    check(len(observed_size_matrix) == 18 and observed_size_matrix == expected_size_matrix, "size matrix cell values or identities drift from the 15-path summary")
+    observed_size_answer = {
+        element.attrib["id"]: " ".join("".join(element.itertext()).split())
+        for element in size_root.iter()
+        if element.attrib.get("id", "").startswith("size-answer-point-label-")
+    }
+    size_answer_points = size_points[
+        (size_points["family"] == "Gemma")
+        & (size_points["task"].isin(["unimoral_factor_attribution", "unimoral_moral_typology"]))
+    ]
+    expected_size_answer = {
+        point_label_gid("size-answer", row.task, row.model): f"{float(row.score):.3f}".removeprefix("0")
+        for row in size_answer_points.itertuples(index=False)
+    }
+    check(len(observed_size_answer) == 6 and observed_size_answer == expected_size_answer, "size answer point labels drift from the six exact Gemma task points")
+    size_mobile_root = ET.parse(ROOT / "assets" / "results" / "03_size_paths_mobile.svg").getroot()
+    observed_size_mobile_answer = {
+        element.attrib["id"]: " ".join("".join(element.itertext()).split())
+        for element in size_mobile_root.iter()
+        if element.attrib.get("id", "").startswith("size-mobile-answer-point-label-")
+    }
+    expected_size_mobile_answer = {
+        point_label_gid("size-mobile-answer", row.task, row.model): f"{float(row.score):.3f}".removeprefix("0")
+        for row in size_answer_points.itertuples(index=False)
+    }
+    check(len(observed_size_mobile_answer) == 6 and observed_size_mobile_answer == expected_size_mobile_answer, "mobile size answer labels drift from the six exact Gemma task points")
+
+    size_summary = pd.read_csv(RESULT_DATA / "size_path_summary.csv")
+    unimoral_task_ids = list(SCALING_TASK_LABELS)[:4]
+    unimoral_size = size_summary[size_summary["task"].isin(unimoral_task_ids)]
+    check(
+        unimoral_size["direction"].value_counts().to_dict() == {"mixed": 7, "rising": 4, "falling": 1},
+        "UniMoral size answer counts drift from the 12 complete paths",
+    )
 
     release_summary = pd.read_csv(RESULT_DATA / "release_path_summary.csv")
     release_root = ET.parse(ROOT / "assets" / "results" / "04_release_period_paths.svg").getroot()
-    observed_release_matrix = {
+    observed_release_answer = {
         element.attrib["id"]: " ".join("".join(element.itertext()).split())
         for element in release_root.iter()
-        if element.attrib.get("id", "").startswith("release-matrix-point-label-")
+        if element.attrib.get("id", "").startswith("release-answer-point-label-")
     }
-    for element in release_root.iter():
-        if element.attrib.get("id", "").startswith("release-matrix-point-label-"):
-            font_sizes = [
-                float(match.group(1))
-                for child in element.iter()
-                if (match := re.search(r"font:\s+(?:\d+\s+)?([0-9.]+)px", str(child.attrib.get("style", ""))))
-            ]
-            check(font_sizes and min(font_sizes) >= 14.0, "static release matrix score text fell below the readability floor")
-    expected_release_matrix = {
-        point_label_gid("release-matrix", row.task, row.family): (
-            f"{float(row.first_score):.3f}".removeprefix("0")
-            + " → "
-            + f"{float(row.last_score):.3f}".removeprefix("0")
-            + f" ({float(row.endpoint_delta):+.3f})"
+    unimoral_release = release_summary[release_summary["task"].isin(unimoral_task_ids)]
+    expected_release_answer = {
+        point_label_gid("release-answer", row.task, row.family): (
+            f"{row.family} {float(row.endpoint_delta):+.3f}".replace("-", "−")
+            + (" †" if bool(row.internal_reversal) else "")
         )
-        for row in release_summary.itertuples(index=False)
+        for row in unimoral_release.itertuples(index=False)
     }
-    check(len(observed_release_matrix) == 12 and observed_release_matrix == expected_release_matrix, "release matrix cell values or identities drift from the 12-path summary")
+    check(len(observed_release_answer) == 8 and observed_release_answer == expected_release_answer, "release answer labels drift from the eight UniMoral endpoint deltas")
+    release_mobile_root = ET.parse(ROOT / "assets" / "results" / "04_release_period_paths_mobile.svg").getroot()
+    observed_release_mobile_answer = {
+        element.attrib["id"]: " ".join("".join(element.itertext()).split())
+        for element in release_mobile_root.iter()
+        if element.attrib.get("id", "").startswith("release-mobile-answer-point-label-")
+    }
+    expected_release_mobile_answer = {
+        point_label_gid("release-mobile-answer", row.task, row.family): (
+            f"{row.family} {float(row.endpoint_delta):+.3f}".replace("-", "−")
+            + ("†" if bool(row.internal_reversal) else "")
+        )
+        for row in unimoral_release.itertuples(index=False)
+    }
+    check(len(observed_release_mobile_answer) == 8 and observed_release_mobile_answer == expected_release_mobile_answer, "mobile release answer labels drift from the eight UniMoral endpoint deltas")
+    check(
+        unimoral_release.groupby(["family", "endpoint_direction"]).size().to_dict()
+        == {("DeepSeek", "higher"): 2, ("DeepSeek", "lower"): 2, ("Qwen", "higher"): 3, ("Qwen", "lower"): 1},
+        "UniMoral release answer counts drift from the eight endpoint paths",
+    )
 
     builder = (ROOT / "scripts" / "build_result_visuals.py").read_text()
     check("MODEL_MARKERS" in builder and "FAMILY_LINESTYLES" in builder, "multi-series visuals lack non-color encodings")
@@ -781,7 +861,8 @@ def validate_visuals() -> None:
     check("size_plot_position" in builder and "horizontal gaps are not to scale" in builder, "size detail does not disclose its parameter-ordered categorical axis")
     check("assert_point_label_layout" in builder, "direct point labels lack build-time overlap and clipping checks")
     css = (ROOT / "assets" / "styles.css").read_text()
-    check(".wide-chart" in css and "overflow-x: auto" in css, "dense primary charts lack contained mobile overflow")
+    check(".wide-chart" in css and "overflow-x: auto" in css, "dense primary evidence charts lack contained mobile overflow")
+    check(".responsive-insight-chart" in css and ".mobile-scroll-chart" not in css and ".swipe-hint" not in css, "headline insight charts are not using dedicated responsive mobile figures")
     check(
         ".detail-link-grid" in css
         and ".insight-table" in css
@@ -811,7 +892,7 @@ def validate_visuals() -> None:
         for task, group in frame.groupby("task"):
             lower, upper = (0.05, 0.18) if task == "unimoral_consequence_generation" else (0.30, 0.80)
             check(group["score"].between(lower, upper).all(), f"{filename} axis would clip {task}")
-    passed("visuals: 8 landscape PNG/SVG pairs decode; 18/12 matrix cells and all 45/35 detail labels bind to exact evidence identities")
+    passed("visuals: 8 landscape and 2 portrait mobile PNG/SVG pairs decode; desktop/mobile 6/8 answer labels, 18/12 audit-table cells, and all 45/35 detail labels bind to exact evidence identities")
 
 
 def validate_pdf_hashes() -> None:
@@ -827,7 +908,7 @@ def validate_pdf_hashes() -> None:
 
 
 def validate_language_and_hygiene() -> None:
-    authored = [ROOT / "README.md", ROOT / "index.html", ROOT / "docs" / "RESULTS_READOUT.md", ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md"]
+    authored = [ROOT / "README.md", ROOT / "index.html", ROOT / "docs" / "RESULTS_READOUT.md", ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md", ROOT / "docs" / "VERIFICATION.md"]
     combined = "\n".join(path.read_text(errors="replace") for path in authored)
     forbidden_claims = {
         "underpowered": "untested power language",

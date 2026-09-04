@@ -6,8 +6,19 @@
 |---|---|---|
 | Is there one stable model order? | No. The point-estimate leader changes across tasks. | Keep the eight task results separate. |
 | Where is precision weakest? | The two MoralBench comparison tasks. | Recover paired outcomes first; expand the item banks only if the order remains unresolved. |
-| Does bigger reliably perform better? | No. Only 5 of 15 complete paths rise from small to medium to large. | Treat size patterns as family- and task-specific. |
-| Do later named-route endpoints all move higher? | No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints. | Release quarter is model metadata, not a longitudinal progress trend. |
+| Across complete selected UniMoral paths, do scores rise at both size steps? | No. Only 4 of 12 rise twice; 7 change direction and 1 falls twice. | Treat size patterns as family- and task-specific. |
+| Do later named-model endpoints move every UniMoral task higher? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. | Release quarter is model metadata, not a longitudinal progress trend. |
+
+## What the benchmark papers actually ask
+
+| Paper | Human-readable research question | Local reach |
+|---|---|---|
+| MoralBench | Do model choices track human ratings, and can a model choose the statement people rated higher? | Approximate task-family match. |
+| UniMoral | Can a model predict actions, moral frameworks, influencing factors, and plausible consequences? Do cues change the result? | Approximate for the four task families; cue claims unavailable. |
+| MoReBench | Does model reasoning cover expert-defined considerations, trade-offs, logic, and outcomes? | Local performance score is proxy-only. |
+| MoralLens | Which rationales appear, and do they change when reasoning comes before versus after a decision? | Local performance score is proxy-only. |
+
+There are **0 exact local replications**. The size and release views below are local follow-up questions, not restatements of the papers' main claims.
 
 ## 1. Common-roster task results
 
@@ -47,16 +58,17 @@ Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task
 
 ## 3. Model size paths
 
-![Direction matrix for complete model-size paths](../assets/results/03_size_paths.png)
+![Bar and line charts showing that larger UniMoral model variants do not move every task upward](../assets/results/03_size_paths.png)
 
 | Concrete read | Exact result |
 |---|---|
-| Overall direction | Of 15 complete family × task paths, 5 rise at every step, 9 change direction, and 1 falls. |
+| UniMoral-only local follow-up | Of 12 complete family × UniMoral task paths, 4 rise at both steps, 7 change direction, and 1 falls at both steps. |
 | Cleanest same-generation counterexample | Gemma factor accuracy rises `.578 → .601 → .613`, while Gemma typology falls `.597 → .579 → .570`. |
-| Memorable bend | Qwen action moves `.649 → .479 → .634`; the largest named model does not exceed the smallest endpoint. |
-| Coverage limit | Qwen has no complete ValuePrism path, and Gemma has no complete valence path. Missing rows are not zeros. |
+| What each point means | One saved aggregate for one named model on one task. The Gemma x-axis names all three models and their published `4B → 12B → 27B` counts. |
+| Full selected-grid extension | Adding the three complete ValuePrism paths gives 5 rising, 9 changing direction, and 1 falling across 15 complete paths. |
+| Coverage limit | Qwen has no complete ValuePrism path, and Gemma has no complete valence path. Missing routes are not zeros. |
 
-The matrix is the executive view. Exact point paths remain in two landscape audit figures: [UniMoral classification](../assets/results/03_size_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/03_size_paths_detail_b.svg). All 45 plotted points name the model and published B count.
+The bar chart answers the denominator question; the paired Gemma lines make the implication concrete. Exact paths remain in two landscape audit figures: [UniMoral classification](../assets/results/03_size_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/03_size_paths_detail_b.svg). All 45 audit points name the model and published B count.
 
 This is exploratory aggregate evidence. It has no saved confidence intervals or raw-log replay. Qwen and Llama tiers also change model generation or release period, and Qwen’s largest tier changes from dense to a 235B-total / 22B-active MoE architecture. Published total B is therefore neither a controlled size intervention nor inference compute. Provider metadata also records 107,375 reasoning tokens across Qwen3-32B rows despite control attempts.
 
@@ -64,16 +76,19 @@ Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv), [`siz
 
 ## 4. Release-period paths
 
-![Endpoint direction matrix by recorded model release quarter](../assets/results/04_release_period_paths.png)
+![Zero-centered dot plots of UniMoral endpoint changes for Qwen and DeepSeek](../assets/results/04_release_period_paths.png)
 
 | Concrete read | Exact result |
 |---|---|
-| Qwen endpoints | 5 are higher and 1 is lower. Consequence METEOR moves `.124 → .097`; factor changes only `+.002`. |
-| DeepSeek endpoints | 3 are higher and 3 are lower. Action moves `.453 → .639`; factor moves `.629 → .592`; typology changes only `−.003`. |
+| UniMoral-only local follow-up | Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. |
+| Accuracy panel | Qwen changes are `+.018`, `+.042`, and `+.002`; DeepSeek changes are `+.187`, `−.003`, and `−.038`. |
+| Separate consequence panel | Qwen METEOR changes `−.027`; DeepSeek changes `+.019`. It is not plotted on the accuracy scale. |
+| What each point means | One later-minus-earlier aggregate for the named Qwen or DeepSeek model path printed above the chart. A dagger marks a DeepSeek path that changes direction at an intermediate checkpoint. |
+| Full selected-grid extension | Adding ValuePrism gives Qwen 5 higher and 1 lower endpoint; DeepSeek 3 higher and 3 lower. |
 | Evaluation window | Every plotted row was evaluated on May 28–29, 2026. The quarter field describes the named model release, not evaluation time. |
 | Same-B releases | DeepSeek V3-0324, V3.1, and V3.2 all carry 671B-main / 37B-active specifications, yet their task point estimates differ. Parameter count alone is not a model identity. |
 
-The matrix is the executive view. Exact point paths remain in two landscape audit figures: [UniMoral classification](../assets/results/04_release_period_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/04_release_period_paths_detail_b.svg). All 35 plotted points name the model and published B count.
+The zero line gives the answer immediately: points on both sides mean later named models do not move every task in one direction. Exact chronological paths remain in two landscape audit figures: [UniMoral classification](../assets/results/04_release_period_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/04_release_period_paths_detail_b.svg). All 35 audit points name the model and published B count.
 
 Release quarter is descriptive metadata, not an intervention or progress timeline. Generation, route, architecture, and parameter count change together. DeepSeek relevance ends at V3.2 because the V4 route was cancelled; Gemma has no valid newer comparison. DeepSeek V4 rows record 1,171,189 reasoning tokens despite control attempts, and the saved metadata does not retain the served endpoint, quantization, or exact evaluated checkpoint revision.
 
