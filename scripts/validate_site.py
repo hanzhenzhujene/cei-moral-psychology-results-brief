@@ -56,6 +56,16 @@ SCORE_METRICS = {
     "unimoral_factor_attribution": "accuracy",
     "unimoral_consequence_generation": "meteor",
 }
+SLIDE_TASK_EXPLANATIONS = {
+    "moralbench_mfq_agreement": "Track benchmark human ratings of value statements",
+    "moralbench_vignette_agreement": "Track benchmark human ratings of moral stories",
+    "moralbench_mfq_compare": "Pick the higher-rated value statement",
+    "moralbench_vignette_compare": "Pick the higher-rated moral story",
+    "unimoral_action_prediction": "Match one recorded human choice",
+    "unimoral_moral_typology": "Classify the recorded choice into one of four types",
+    "unimoral_factor_attribution": "Pick a top-rated factor for the recorded choice",
+    "unimoral_consequence_generation": "Write what could happen next",
+}
 SCALING_TASK_LABELS = {
     "unimoral_action_prediction": ("UniMoral action", "Accuracy"),
     "unimoral_moral_typology": ("UniMoral typology", "Accuracy"),
@@ -721,6 +731,12 @@ def package_relationships(archive: ZipFile, source_part: str) -> list[dict[str, 
 
 
 def cell_text(cell: ET.Element) -> str:
+    paragraphs = [
+        "".join(node.text or "" for node in paragraph.iter(f"{A_NS}t"))
+        for paragraph in cell.iter(f"{A_NS}p")
+    ]
+    if paragraphs:
+        return "\n".join(paragraphs)
     return "".join(node.text or "" for node in cell.iter(f"{A_NS}t"))
 
 
@@ -1000,7 +1016,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
                 check(leaders in tie_names, f"slide 2 contains an unexpected leader tie for {task}: {sorted(leaders)}")
                 leader_text = tie_names[leaders]
             expected_leaders.append([
-                str(rows.iloc[0]["task_label"]),
+                f'{rows.iloc[0]["task_label"]}\n{SLIDE_TASK_EXPLANATIONS[task]}',
                 f"{top:.3f}".removeprefix("0"),
                 metric_names[str(rows.iloc[0]["metric_semantics"])],
                 leader_text,
@@ -1166,6 +1182,12 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         }
         for slide_number, phrase in required_caveats.items():
             check(phrase.lower() in combined_by_slide[slide_number].lower(), f"slide {slide_number} evidence boundary drift: {phrase}")
+        check(
+            "annotator-specific labels under no-persona prompts" in combined_by_slide[2].lower()
+            and "generated text to saved human references" in combined_by_slide[2].lower()
+            and "none infers a person's stable moral identity" in combined_by_slide[2].lower(),
+            "slide 2 drops the no-persona and annotator-specific task boundary",
+        )
         combined = "\n".join(release_text)
         check_text_hygiene(combined, "slide and speaker-note text")
 
@@ -1530,7 +1552,7 @@ def validate_visuals() -> None:
 
 def validate_slide_exports() -> None:
     manifest = pd.read_csv(SLIDE_EXPORT_MANIFEST, keep_default_na=False)
-    expected_columns = ["path", "kind", "bytes", "sha256", "width_px", "height_px", "pages"]
+    expected_columns = ["path", "kind", "bytes", "sha256", "width_px", "height_px", "pages", "source_pptx_sha256"]
     check(list(manifest.columns) == expected_columns, "slide export manifest schema drift")
     expected_pngs = {
         f"slides/rendered/slide-{index:02d}.png"
@@ -1539,6 +1561,12 @@ def validate_slide_exports() -> None:
     expected_paths = {"slides/cei-moral-psychology-results-deck.pdf", *expected_pngs}
     check(len(manifest) == 9 and manifest["path"].is_unique, "slide export manifest must contain nine unique files")
     check(set(manifest["path"]) == expected_paths, "slide export manifest file set drift")
+    source_pptx_sha256 = sha256(SLIDE_DECK)
+    check(
+        manifest["source_pptx_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
+        and set(manifest["source_pptx_sha256"]) == {source_pptx_sha256},
+        "slide exports are not bound to the current PPTX SHA-256",
+    )
 
     for row in manifest.itertuples(index=False):
         relative = Path(row.path)
@@ -1566,7 +1594,7 @@ def validate_slide_exports() -> None:
         else:
             check(False, f"unsupported slide export kind: {row.kind}")
 
-    passed("slide share exports: manifested 8-page 16:9 PDF plus eight 2560x1440 PNGs decode and match SHA-256")
+    passed("slide share exports: manifested 8-page 16:9 PDF plus eight 2560x1440 PNGs decode, match SHA-256, and bind to the current PPTX")
 
 
 def validate_pdf_hashes() -> None:

@@ -74,6 +74,7 @@ The README preview shows the main task-by-task result. The site keeps the size a
 | Check | Outcome |
 |---|---|
 | Story | 8 slides; one claim per slide; task results, precision, size, release, paper fit, and action remain separate |
+| Task labels | Slide 2 keeps all eight formal task names and adds a plain-language explanation of what each task tests |
 | Native objects | 4 editable charts and 3 editable tables |
 | Evidence labels | Main results, exploratory, paper-review, and decision claims are visibly separated |
 | Metrics | Accuracy, normalized preference, and METEOR are not combined into one score or axis |
@@ -82,7 +83,7 @@ The README preview shows the main task-by-task result. The site keeps the size a
 | Source-to-slide validation | The public repo validator independently opens the PPTX and recomputes the slide 2–6 table and chart values from CSV evidence |
 | Repeat build | The semantic validator runs before an atomic rename replaces the stable deck. The PPTX container SHA can change with generated package metadata, so the content contract is rechecked after every build |
 | Visual inspection | All 8 share slides were rendered at 2560 × 1440 and inspected at full resolution; no observed overlap, clipping, or compressed screenshots |
-| Share copies | The repo includes an 8-page view-only PDF and eight 2560 × 1440 PNGs. Every page was rendered again and inspected at full resolution |
+| Share copies | The repo includes an 8-page view-only PDF and eight 2560 × 1440 PNGs. Every manifest row records the current PPTX SHA-256; every page was rendered again and inspected at full resolution |
 | Portability | The PDF and PNGs use the verified slide render, so layout does not depend on the viewer's fonts or PowerPoint renderer |
 
 The editable deck is `slides/cei-moral-psychology-results-deck.pptx`. The share copies are `slides/cei-moral-psychology-results-deck.pdf` and `slides/rendered/`. The source is `scripts/build_slides.mjs`; technical caveats and citations are retained in speaker notes.

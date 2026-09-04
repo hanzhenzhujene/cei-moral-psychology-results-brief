@@ -210,14 +210,14 @@ function setNotes(slide, lines) {
   );
   const values = [
     ["Task", "Highest saved score", "Score type", "Model"],
-    ["MFQ agreement", ".884", "Agreement score", "GPT-5.4 mini"],
-    ["Vignette agreement", ".920", "Agreement score", "GPT-5.4"],
-    ["MFQ compare", ".550", "Accuracy", "Haiku + Qwen tie†"],
-    ["Vignette compare", ".625", "Accuracy", "Haiku + GPT-5.4 tie†"],
-    ["UniMoral action", ".668", "Accuracy", "Claude Haiku 4.5"],
-    ["UniMoral typology", ".651", "Accuracy", "Claude Opus 4.8"],
-    ["UniMoral factor", ".609", "Accuracy", "Claude Haiku 4.5"],
-    ["UniMoral consequence", ".152", "Text-match score", "Claude Opus 4.8"],
+    ["MFQ agreement\nTrack benchmark human ratings of value statements", ".884", "Agreement score", "GPT-5.4 mini"],
+    ["Vignette agreement\nTrack benchmark human ratings of moral stories", ".920", "Agreement score", "GPT-5.4"],
+    ["MFQ compare\nPick the higher-rated value statement", ".550", "Accuracy", "Haiku + Qwen tie†"],
+    ["Vignette compare\nPick the higher-rated moral story", ".625", "Accuracy", "Haiku + GPT-5.4 tie†"],
+    ["UniMoral action\nMatch one recorded human choice", ".668", "Accuracy", "Claude Haiku 4.5"],
+    ["UniMoral typology\nClassify the recorded choice into one of four types", ".651", "Accuracy", "Claude Opus 4.8"],
+    ["UniMoral factor\nPick a top-rated factor for the recorded choice", ".609", "Accuracy", "Claude Haiku 4.5"],
+    ["UniMoral consequence\nWrite what could happen next", ".152", "Text-match score", "Claude Opus 4.8"],
   ];
   const table = slide.tables.add({
     rows: values.length,
@@ -226,10 +226,14 @@ function setNotes(slide, lines) {
     top: 170,
     width: 1088,
     height: 430,
-    columnWidths: [330, 190, 225, 343],
+    columnWidths: [400, 190, 210, 288],
     values,
   });
   styleTable(table, values.length, 4, { bodySize: 17, headerSize: 16 });
+  table.cells.block({ row: 1, column: 0, rowCount: 8, columnCount: 1 }).assign({
+    textStyle: { typeface: family, fontSize: 13, color: C.ink },
+    margins: { left: 12, right: 12, top: 4, bottom: 4 },
+  });
   table.cells.block({ row: 1, column: 3, rowCount: 2, columnCount: 1 }).assign({
     fill: C.tealSoft,
     textStyle: { typeface: family, fontSize: 17, color: C.teal, bold: true },
@@ -250,8 +254,10 @@ function setNotes(slide, lines) {
   }, { fontSize: 15, color: C.muted });
   setNotes(slide, [
     "Each row shows the highest saved point estimate for that task among Claude Haiku 4.5, Claude Opus 4.8, GPT-5.4, GPT-5.4 mini, and Qwen3 8B.",
-    "Sources: data/results/common_roster_primary.csv; docs/RESULTS_READOUT.md section 1.",
+    "Sources: data/results/common_roster_primary.csv; docs/RESULTS_READOUT.md section 1; docs/PAPER_REVIEW.md protocol comparison; evidence/canonical-audit/CLAIM_BOUNDARIES.md.",
     "The MFQ compare top value is shared by Claude Haiku 4.5 and Qwen3 8B. The vignette compare top value is shared by Claude Haiku 4.5 and GPT-5.4.",
+    "Each task cell keeps the formal task name on the first line and explains what it tests on the second.",
+    "The UniMoral action, typology, and factor rows match saved annotator-specific labels under no-persona prompts; the consequence row matches generated text to saved human references. None infers a person's stable moral identity.",
     "Values belong to different metrics. The visible labels translate normalized preference and METEOR into plain language.",
     "Do not average preference, accuracy, and METEOR or treat this table as a moral leaderboard.",
   ]);
