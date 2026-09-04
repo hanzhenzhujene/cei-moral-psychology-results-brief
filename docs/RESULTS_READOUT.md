@@ -47,7 +47,7 @@ Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task
 
 ## 3. Model size paths
 
-![Task-specific small, medium, and large model paths](../assets/results/03_size_paths.png)
+![Task-specific size paths with every point labeled by model and published parameter count](../assets/results/03_size_paths.png)
 
 | Family | Complete task paths | Rising | Mixed | Falling | Example counterpattern |
 |---|---:|---:|---:|---:|---|
@@ -56,15 +56,17 @@ Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task
 | Qwen | 4 | 1 | 3 | 0 | Action falls from `.649` to `.479`, then recovers to `.634`. |
 | **Total** | **15** | **5** | **9** | **1** | A universal “bigger is better” claim is not supported. |
 
+Every marker names the model and its published parameter count. The x-axis orders models by total parameters, but uses equal categorical spacing; distance on the axis is not a numeric size difference. MoE labels show both total and active parameters. Qwen’s 32.8B dense-to-235B/22B MoE step raises total capacity while lowering active parameters per token, so the chart is not an inference-compute comparison. These named-model specifications do not retain the served provider endpoint, quantization, or checkpoint revision.
+
 This selected-grid view is exploratory. It has no saved confidence intervals; Qwen and Llama tiers also change release period, and incomplete task paths are omitted rather than drawn as zero.
 
 Provider metadata records 107,375 reasoning tokens across Qwen3-32B rows despite control attempts. That protocol-budget drift is another reason not to interpret the size lines causally.
 
-Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv) and [`size_task_points.csv`](../data/results/size_task_points.csv).
+Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv), [`size_task_points.csv`](../data/results/size_task_points.csv), and the official model-card ledger in [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
 
 ## 4. Release-period paths
 
-![Task-specific release-period paths](../assets/results/04_release_period_paths.png)
+![Task-specific release-period paths with every point labeled by model and published parameter count](../assets/results/04_release_period_paths.png)
 
 | Family | First to latest available point | Endpoint rises | Endpoint falls or little movement |
 |---|---|---|---|
@@ -72,11 +74,13 @@ Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv) and [`
 | DeepSeek | 2025-Q1 to 2026-Q2, except relevance ending 2025-Q4 | Action and consequence point estimates rise; relevance rises through its latest available point | Factor, typology, and valence point estimates fall at the endpoints |
 | Gemma | No comparable newer scored route | None claimable | The newer route is blocked, so missingness is not a zero score |
 
+Every observed point names its model and published parameter count. DeepSeek MoE labels show the vendor-published main-model and active counts; auxiliary/MTP weights are excluded. These are named-model specifications from revision-pinned official model cards. The saved run metadata does not retain the served provider endpoint, quantization, or checkpoint revision.
+
 Release period is metadata, not an intervention. Route, architecture, and sometimes parameter count move with quarter, so this chart cannot isolate a pure time effect.
 
 DeepSeek V4 rows record 1,171,189 reasoning tokens in total despite control attempts, including the cancelled relevance route and excluded CCD row. Together with the missing raw logs, this makes the latest-route comparison exploratory only.
 
-Source: [`release_period_task_points.csv`](../data/results/release_period_task_points.csv).
+Sources: [`release_period_task_points.csv`](../data/results/release_period_task_points.csv) and [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
 
 ## Evidence ladder
 

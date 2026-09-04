@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import re
 from pathlib import Path
 
 import matplotlib as mpl
@@ -19,6 +20,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = ROOT / "evidence" / "canonical-audit" / "figures" / "data"
 SELECTED = ROOT / "evidence" / "source-results"
+PARAMETERS = ROOT / "evidence" / "model-parameter-sources.csv"
 DATA = ROOT / "data" / "results"
 FIGURES = ROOT / "assets" / "results"
 
@@ -275,6 +277,155 @@ def load_selected_grid() -> tuple[pd.DataFrame, pd.DataFrame]:
     return grid, results
 
 
+def load_model_parameters() -> pd.DataFrame:
+    parameters = pd.read_csv(PARAMETERS, keep_default_na=False)
+    required = {
+        "model",
+        "model_display",
+        "total_parameters_b",
+        "activated_parameters_b",
+        "parameter_label",
+        "architecture",
+        "source_url",
+        "source_revision",
+        "parameter_basis",
+        "run_identity_scope",
+        "checked_on",
+    }
+    assert set(parameters.columns) == required
+    assert len(parameters) == 15
+    assert parameters["model"].is_unique
+    assert parameters["model_display"].ne("").all()
+    assert parameters["parameter_label"].str.contains("B").all()
+    assert parameters["source_url"].str.startswith("https://").all()
+    assert parameters["source_revision"].str.fullmatch(r"[0-9a-f]{40}").all()
+    assert parameters["parameter_basis"].ne("").all()
+    assert (
+        parameters["run_identity_scope"]
+        == "named-model specification only; served provider endpoint, quantization, and checkpoint revision not retained"
+    ).all()
+    parameters["total_parameters_b"] = pd.to_numeric(parameters["total_parameters_b"], errors="raise")
+    parameters["activated_parameters_b"] = pd.to_numeric(
+        parameters["activated_parameters_b"].replace("", np.nan), errors="raise"
+    )
+    moe = parameters["architecture"] == "MoE"
+    assert parameters.loc[moe, "activated_parameters_b"].notna().all()
+    assert parameters.loc[~moe, "activated_parameters_b"].isna().all()
+    assert (
+        parameters.loc[parameters["model"] == "qwen/qwen3-235b-a22b-2507", "parameter_label"].iloc[0]
+        == "235B total / 22B active"
+    )
+    return parameters
+
+
+def attach_model_parameters(points: pd.DataFrame, parameters: pd.DataFrame) -> pd.DataFrame:
+    merged = points.merge(parameters, on="model", how="left", validate="many_to_one")
+    assert merged["model_display"].notna().all()
+    assert merged["total_parameters_b"].notna().all()
+    assert merged["parameter_label"].notna().all()
+    merged["point_label"] = merged["model_display"] + "\n" + merged["parameter_label"]
+    return merged
+
+
+def add_size_plot_positions(points: pd.DataFrame) -> pd.DataFrame:
+    model_order = (
+        points[["model", "total_parameters_b"]]
+        .drop_duplicates()
+        .sort_values(["total_parameters_b", "model"], kind="stable")
+        .reset_index(drop=True)
+    )
+    assert len(model_order) == 9
+    positions = {model: index for index, model in enumerate(model_order["model"])}
+    ordered = points.copy()
+    ordered["size_plot_position"] = ordered["model"].map(positions)
+    assert ordered["size_plot_position"].notna().all()
+    return ordered
+
+
+def point_label_gid(layer: str, task: str, model: str) -> str:
+    def clean(value: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+
+    return f"{clean(layer)}-point-label-{clean(task)}--{clean(model)}"
+
+
+def add_point_annotation(
+    ax: plt.Axes,
+    x: float,
+    y: float,
+    label: str,
+    offset: tuple[float, float],
+    gid: str,
+) -> mpl.text.Annotation:
+    horizontal = "left" if offset[0] >= 0 else "right"
+    annotation = ax.annotate(
+        label,
+        xy=(x, y),
+        xytext=offset,
+        textcoords="offset points",
+        ha=horizontal,
+        va="center",
+        fontsize=10.5,
+        linespacing=1.08,
+        color=INK,
+        bbox={"boxstyle": "round,pad=0.18", "facecolor": PAPER, "edgecolor": GRID, "linewidth": 0.55, "alpha": 0.94},
+        arrowprops={"arrowstyle": "-", "color": MUTED, "linewidth": 0.65, "shrinkA": 2, "shrinkB": 3},
+        annotation_clip=False,
+        zorder=6,
+    )
+    annotation.set_gid(gid)
+    return annotation
+
+
+def add_laned_point_annotation(
+    ax: plt.Axes,
+    x: float,
+    y: float,
+    label: str,
+    lane: float,
+    gid: str,
+) -> mpl.text.Annotation:
+    annotation = ax.annotate(
+        label,
+        xy=(x, y),
+        xytext=(x, lane),
+        textcoords=ax.get_xaxis_transform(),
+        ha="center",
+        va="center",
+        fontsize=10.5,
+        linespacing=1.08,
+        color=INK,
+        bbox={"boxstyle": "round,pad=0.18", "facecolor": PAPER, "edgecolor": GRID, "linewidth": 0.55, "alpha": 0.94},
+        arrowprops={"arrowstyle": "-", "color": MUTED, "linewidth": 0.65, "shrinkA": 2, "shrinkB": 3},
+        annotation_clip=False,
+        zorder=6,
+    )
+    annotation.set_gid(gid)
+    return annotation
+
+
+def assert_point_label_layout(fig: plt.Figure, annotations: list[mpl.text.Annotation], expected: int) -> None:
+    assert len(annotations) == expected
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    figure_box = fig.bbox
+    by_axes: dict[plt.Axes, list[tuple[mpl.text.Annotation, object]]] = {}
+    for annotation in annotations:
+        patch = annotation.get_bbox_patch()
+        assert patch is not None
+        box = patch.get_window_extent(renderer=renderer)
+        assert box.x0 >= figure_box.x0 and box.y0 >= figure_box.y0
+        assert box.x1 <= figure_box.x1 and box.y1 <= figure_box.y1
+        by_axes.setdefault(annotation.axes, []).append((annotation, box.expanded(1.01, 1.06)))
+    for labels in by_axes.values():
+        for index, (left_label, left) in enumerate(labels):
+            for right_label, right in labels[index + 1 :]:
+                assert not left.overlaps(right), (
+                    f"direct point labels overlap: {left_label.get_gid()} {tuple(round(v, 1) for v in left.bounds)} "
+                    f"and {right_label.get_gid()} {tuple(round(v, 1) for v in right.bounds)}"
+                )
+
+
 def build_size_paths(results: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     rows = results[
         (results["grid"] == "within-family scaling")
@@ -318,44 +469,80 @@ def build_size_paths(results: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]
 
 
 def plot_size_paths(points: pd.DataFrame, summary: pd.DataFrame) -> None:
-    fig, axes = plt.subplots(2, 3, figsize=(15.5, 9.2))
+    fig, axes = plt.subplots(6, 1, figsize=(16, 21), sharex=True)
     fig.suptitle("Bigger is not reliably better", x=0.055, y=0.985, ha="left", fontsize=22, fontweight="bold")
-    fig.text(0.055, 0.944, "Exploratory selected grid · 15 complete family × task paths: 5 rise · 9 mixed · 1 falls", color=MUTED, fontsize=11.5)
-    for ax, task in zip(axes.flat, SIX_TASKS):
+    fig.text(
+        0.055,
+        0.964,
+        "Models ordered by published total parameters (categorical spacing) · every observed point names the model and B count · MoE labels also show active B",
+        color=MUTED,
+        fontsize=11.5,
+    )
+    annotations: list[mpl.text.Annotation] = []
+    label_lanes = {0: 0.84, 1: 0.16, 2: 0.66, 3: 0.34, 4: 0.88, 5: 0.12, 6: 0.68, 7: 0.32, 8: 0.84}
+    for ax, task in zip(axes, SIX_TASKS):
         task_rows = points[points["task"] == task]
         for family, family_rows in task_rows.groupby("family"):
             if set(family_rows["tier"]) != {"S", "M", "L"}:
                 continue
-            ordered = family_rows.set_index("tier").loc[["S", "M", "L"]]
+            ordered = family_rows.sort_values("size_plot_position")
             ax.plot(
-                [0, 1, 2],
+                ordered["size_plot_position"],
                 ordered["score"],
                 marker=FAMILY_MARKERS[family],
                 linestyle=FAMILY_LINESTYLES[family],
                 linewidth=2.4,
-                markersize=6.5,
+                markersize=7.5,
                 color=FAMILY_COLORS[family],
                 label=family,
+                zorder=3,
             )
+            for row in ordered.itertuples(index=False):
+                annotations.append(
+                    add_laned_point_annotation(
+                        ax,
+                        float(row.size_plot_position),
+                        float(row.score),
+                        row.point_label,
+                        label_lanes[int(row.size_plot_position)],
+                        point_label_gid("size", task, row.model),
+                    )
+                )
         label, metric, _, _ = TASKS[task]
         ax.set_title(label, loc="left", fontweight="bold")
         ax.set_ylabel(metric)
         ax.set_ylim(*SCALING_LIMITS[task])
-        ax.set_xticks([0, 1, 2], ["Small", "Medium", "Large"])
+        axis_models = (
+            points[["model", "size_plot_position", "total_parameters_b"]]
+            .drop_duplicates()
+            .sort_values("size_plot_position")
+        )
+        axis_labels = [f"{value:g}B" for value in axis_models["total_parameters_b"]]
+        ax.set_xlim(-0.7, 8.7)
+        ax.set_xticks(axis_models["size_plot_position"], axis_labels)
+        ax.tick_params(axis="x", which="both", labelbottom=True)
         ax.grid(axis="y", color=GRID, linewidth=0.8)
         ax.spines["left"].set_color(GRID)
         ax.spines["bottom"].set_color(GRID)
         incomplete = [family for family in ["Qwen", "Gemma", "Llama"] if set(task_rows.loc[task_rows["family"] == family, "tier"]) != {"S", "M", "L"}]
         if incomplete:
             ax.text(0.02, 0.03, "Incomplete: " + ", ".join(incomplete), transform=ax.transAxes, color=MUTED, fontsize=8)
+    axes[-1].set_xlabel("Published total B, ordered categories — horizontal gaps are not to scale")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle=FAMILY_LINESTYLES[f], linewidth=2.4, label=f)
         for f in ["Qwen", "Gemma", "Llama"]
     ]
-    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.965), ncol=3, frameon=False)
-    fig.text(0.055, 0.035, "Result: point-estimate direction changes by task and family. A larger tier can move upward on one task and downward on another.", fontsize=10.2, fontweight="bold")
-    fig.text(0.055, 0.013, "Accuracy panels share one scale; METEOR is separate. No intervals are saved; Qwen/Llama tiers also differ in period. ValuePrism predicts synthetic/GPT-4 labels.", fontsize=8.9, color=MUTED)
-    fig.tight_layout(rect=(0.04, 0.07, 0.99, 0.90), w_pad=1.4, h_pad=2.0)
+    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.985), ncol=3, frameon=False)
+    fig.text(0.055, 0.027, "Result: point-estimate direction changes by task and family. More total parameters do not produce one shared direction.", fontsize=10.2, fontweight="bold")
+    fig.text(
+        0.055,
+        0.011,
+        "Published named-model specs only; served provider, quantization, and checkpoint revision are not retained. Total-B order is not inference compute. No intervals; METEOR is separate.",
+        fontsize=8.9,
+        color=MUTED,
+    )
+    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.945), h_pad=1.45)
+    assert_point_label_layout(fig, annotations, expected=45)
     save_figure(fig, "03_size_paths")
 
 
@@ -396,10 +583,25 @@ def plot_release_paths(points: pd.DataFrame) -> None:
     last_period = int(period_keys.max())
     quarter_ticks = list(range(first_period, last_period + 1))
     xpos = {period: quarter_key(period) - first_period for period in points["release_period"].unique()}
-    fig, axes = plt.subplots(2, 3, figsize=(15.5, 9.2))
+    fig, axes = plt.subplots(6, 1, figsize=(16, 21), sharex=True)
     fig.suptitle("Newer-route point estimates move in both directions", x=0.055, y=0.985, ha="left", fontsize=22, fontweight="bold")
-    fig.text(0.055, 0.944, "Exploratory release-period view · markers are observed points; lines only connect them · route, architecture, and size can change", color=MUTED, fontsize=11.0)
-    for ax, task in zip(axes.flat, SIX_TASKS):
+    fig.text(
+        0.055,
+        0.964,
+        "Saved release period on the x-axis · every observed point names the model and published B count · lines only connect observations",
+        color=MUTED,
+        fontsize=11.0,
+    )
+    annotations: list[mpl.text.Annotation] = []
+    release_offsets = {
+        "qwen/qwen-2.5-7b-instruct": (9, 25),
+        "deepseek/deepseek-chat-v3-0324": (9, -28),
+        "deepseek/deepseek-chat-v3.1": (9, 25),
+        "deepseek/deepseek-v3.2": (-9, -28),
+        "qwen/qwen3.5-9b": (-9, 55),
+        "deepseek/deepseek-v4-flash": (-9, -45),
+    }
+    for ax, task in zip(axes, SIX_TASKS):
         task_rows = points[points["task"] == task]
         for family, family_rows in task_rows.groupby("family"):
             ordered = family_rows.sort_values("release_period", key=lambda s: s.map(quarter_key))
@@ -409,26 +611,48 @@ def plot_release_paths(points: pd.DataFrame) -> None:
                 marker=FAMILY_MARKERS[family],
                 linestyle="--" if family == "Qwen" else ":",
                 linewidth=2.4,
-                markersize=6.5,
+                markersize=7.5,
                 color=FAMILY_COLORS[family],
                 label=family,
+                zorder=3,
             )
+            for row in ordered.itertuples(index=False):
+                annotations.append(
+                    add_point_annotation(
+                        ax,
+                        float(xpos[row.release_period]),
+                        float(row.score),
+                        row.point_label,
+                        release_offsets[row.model],
+                        point_label_gid("release", task, row.model),
+                    )
+                )
         label, metric, _, _ = TASKS[task]
         ax.set_title(label, loc="left", fontweight="bold")
         ax.set_ylabel(metric)
         ax.set_ylim(*SCALING_LIMITS[task])
         ax.set_xticks([value - first_period for value in quarter_ticks], [quarter_label(value) for value in quarter_ticks])
+        ax.set_xlim(-0.35, last_period - first_period + 0.35)
+        ax.tick_params(axis="x", labelbottom=True)
         ax.grid(axis="y", color=GRID, linewidth=0.8)
         ax.spines["left"].set_color(GRID)
         ax.spines["bottom"].set_color(GRID)
+    axes[-1].set_xlabel("Saved release period")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle="--" if f == "Qwen" else ":", linewidth=2.4, label=f)
         for f in ["Qwen", "DeepSeek"]
     ]
-    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.965), ncol=2, frameon=False)
-    fig.text(0.055, 0.035, "Result: Qwen point estimates rise on five endpoints and fall on consequence METEOR; DeepSeek endpoint movement is also mixed.", fontsize=10.2, fontweight="bold")
-    fig.text(0.055, 0.013, "Accuracy panels share one scale; METEOR is separate. Gemma is blocked; DeepSeek relevance ends 2025 Q4. No intervals; ValuePrism predicts synthetic/GPT-4 labels.", fontsize=8.8, color=MUTED)
-    fig.tight_layout(rect=(0.04, 0.07, 0.99, 0.90), w_pad=1.4, h_pad=2.0)
+    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.985), ncol=2, frameon=False)
+    fig.text(0.055, 0.027, "Result: Qwen and DeepSeek endpoints move in both directions; release period does not isolate a model-size or architecture effect.", fontsize=10.2, fontweight="bold")
+    fig.text(
+        0.055,
+        0.011,
+        "DeepSeek B values are vendor-published main-model counts; auxiliary/MTP weights are excluded. Served provider, quantization, and checkpoint revision are not retained. No intervals.",
+        fontsize=8.8,
+        color=MUTED,
+    )
+    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.945), h_pad=1.45)
+    assert_point_label_layout(fig, annotations, expected=35)
     save_figure(fig, "04_release_period_paths")
 
 
@@ -479,8 +703,14 @@ def main() -> None:
     configure_style()
     common, precision, partition = load_verified_results()
     _, results = load_selected_grid()
+    parameters = load_model_parameters()
     size_points, size_summary = build_size_paths(results)
     release_points = build_release_paths(results)
+    plotted_models = set(size_points["model"]) | set(release_points["model"])
+    assert plotted_models == set(parameters["model"])
+    size_points = attach_model_parameters(size_points, parameters)
+    size_points = add_size_plot_positions(size_points)
+    release_points = attach_model_parameters(release_points, parameters)
 
     save_csv(common, "common_roster_primary.csv")
     save_csv(precision, "task_precision.csv")

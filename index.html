@@ -128,10 +128,10 @@
               </div>
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
-            <figure class="result-figure flush wide-chart">
+            <figure class="result-figure flush wide-chart labeled-point-chart">
               <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-              <a href="assets/results/03_size_paths.png"><img src="assets/results/03_size_paths.png" width="3213" height="2017" loading="lazy" decoding="async" alt="Six task-specific small-medium-large line charts for Qwen, Gemma, and Llama showing mostly mixed size paths"></a>
-              <figcaption>Missing paths are labeled incomplete and never drawn as zero. Accuracy panels share a scale; METEOR is separate. UniMoral uses the no-cue route. ValuePrism accuracy predicts synthetic or GPT-4 labels, not moral correctness.</figcaption>
+              <a href="assets/results/03_size_paths.png"><img src="assets/results/03_size_paths.png" width="3312" height="4549" loading="lazy" decoding="async" alt="Six task panels in which every size-path point names the Qwen, Gemma, or Llama model and its published parameter count in billions"></a>
+              <figcaption>Every marker names the model and its published B count. The x-axis orders models by total parameters with categorical spacing, so horizontal distance is not quantitative. MoE labels show total and active parameters; Qwen’s 32.8B dense-to-235B/22B MoE step raises total capacity while lowering active parameters per token, so “bigger” is not an inference-compute claim. These named-model specifications do not retain the served provider endpoint, quantization, or checkpoint revision. Missing paths are labeled incomplete and never drawn as zero. Accuracy panels share a scale; METEOR is separate.</figcaption>
             </figure>
             <div class="decision-strip"><strong>Implication</strong><span>Treat size effects as family- and task-specific hypotheses, not a general law.</span></div>
           </article>
@@ -144,10 +144,10 @@
               </div>
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
-            <figure class="result-figure flush wide-chart">
+            <figure class="result-figure flush wide-chart labeled-point-chart">
               <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-              <a href="assets/results/04_release_period_paths.png"><img src="assets/results/04_release_period_paths.png" width="3214" height="2017" loading="lazy" decoding="async" alt="Six task-specific release-quarter point-estimate charts for Qwen and DeepSeek showing mixed directions across tasks"></a>
-              <figcaption>Quarter positions use actual spacing; markers are observations and connecting lines are guides only. DeepSeek relevance ends at 2025-Q4. Route, architecture, and sometimes size change too, so this is not a causal time trend.</figcaption>
+              <a href="assets/results/04_release_period_paths.png"><img src="assets/results/04_release_period_paths.png" width="3319" height="4549" loading="lazy" decoding="async" alt="Six release-period panels in which every observed Qwen and DeepSeek point names the model and its published parameter count in billions; MoE labels also show active parameters"></a>
+              <figcaption>Every observed marker names the model and its published B count. For DeepSeek, the figure uses the vendor-published main-model count and active count; auxiliary/MTP weights are excluded. Quarter positions use actual spacing, while connecting lines are guides only. The saved run metadata does not retain the served provider endpoint, quantization, or checkpoint revision. DeepSeek relevance ends at 2025-Q4, and route, architecture, and size change with time, so this is not a causal trend.</figcaption>
             </figure>
             <div class="decision-strip"><strong>Implication</strong><span>Do not use release year as a shortcut for expected moral-benchmark point estimates.</span></div>
           </article>
@@ -156,6 +156,7 @@
         <div class="source-links">
           <a href="data/results/size_path_summary.csv">15 complete size paths</a>
           <a href="data/results/release_period_task_points.csv">Release-period points</a>
+          <a href="evidence/model-parameter-sources.csv">Model-parameter sources</a>
           <a href="evidence/source-results/SOURCE_MANIFEST.csv">Selected-grid source manifest</a>
         </div>
       </div>

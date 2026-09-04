@@ -12,8 +12,9 @@ Verified on 3 September 2026 for the results-first release.
 | Compare-task overlap | `28/28` MFQ pairs and `45/45` vignette pairs overlap marginally |
 | Common roster | 40 unique cells = 5 models × 8 tasks; values match the canonical table |
 | Selected-grid snapshot | Both CSVs match the pinned source byte for byte; statuses are `102 success / 13 error / 4 cancelled` |
-| Size view | 45 scored points; 15 complete paths = `5 rising / 9 mixed / 1 falling` |
-| Release-period view | 35 scored points across 12 Qwen or DeepSeek family-task paths |
+| Size view | 45 scored points; all `45/45` have a direct model + B label; 15 complete paths = `5 rising / 9 mixed / 1 falling` |
+| Release-period view | 35 scored points; all `35/35` have a direct model + B label across 12 Qwen or DeepSeek family-task paths |
+| Parameter labels | 15 unique named models match revision-pinned official model cards; MoE labels preserve the published basis and active B; DeepSeek uses main-model counts excluding auxiliary/MTP weights; served provider, quantization, and checkpoint revision remain unknown |
 | Missingness | No error, cancelled, or missing row is plotted as zero |
 | Protocol-budget drift | Qwen3-32B total `107,375` reasoning tokens; DeepSeek V4 total `1,171,189` confirmed from source metadata |
 
@@ -28,7 +29,7 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py \
   --source-repo /path/to/moral-psychology-benchmark
 ```
 
-It checked the canonical and selected-source manifests, derived result lineage, legacy firewalls, local links, image dimensions, SVG safety and semantics, chart axis bounds, PDF hashes, claim language, credentials, and private paths.
+It checked the canonical and selected-source manifests, all 80 derived point rows, the 15-model parameter ledger, and exact `GID → label` bindings for all `45/35` size and release points, plus legacy firewalls, local links, image dimensions, SVG safety and semantics, chart axis bounds, PDF hashes, claim language, credentials, and private paths.
 
 The outer canonical validator also passed:
 
@@ -42,14 +43,14 @@ Its report confirmed 31 manifested artifacts, 42 links, the `78/26/9/30` partiti
 
 | Surface | Outcome |
 |---|---|
-| Local references | 45 HTML and 44 Markdown references resolve |
+| Local references | 46 HTML and 47 Markdown references resolve |
 | Images | 8 of 8 have alt text and correct intrinsic dimensions; all load after scrolling |
-| Desktop | Checked at `1440 × 1000` and `1440 × 900`; no page-level horizontal overflow |
-| Mobile | Checked at `390 × 844` and `320 × 700`; no page-level horizontal overflow |
-| Mobile chart detail | Each chart scrolls inside its own `270–340 px` container with an `820 px` readable canvas; a swipe cue is visible |
+| Desktop | The unchanged site shell retains the earlier `1440 × 1000` and `1440 × 900` checks; both regenerated figures were inspected at full resolution and at the desktop content width |
+| Mobile | The two directly labeled figures were rendered and inspected at their actual `1,180 px` mobile canvas; all model + B callouts remain readable and the CSS keeps overflow inside each chart |
+| Mobile chart detail | Standard charts use an `820 px` canvas; the two directly labeled charts use a `1,180 px` canvas with a swipe cue |
 | Navigation | Decision anchor resolves, and the decision surface appears before the evidence appendices |
-| Console | No warnings or errors at the checked widths |
-| Original figures | All four PNGs inspected at full resolution; no clipping or illegible labels found |
+| Browser rerun | Automated Chrome launch ended in local `SIGABRT` before loading the page, so console and live viewport behavior were not re-certified in this update; no JavaScript changed |
+| Original figures | All four PNGs inspected at full resolution; the size and release figures contain `45/45` and `35/35` direct labels with no detected label-box overlap or clipping |
 | Accessibility | Model/family series use marker shapes and line styles in addition to color |
 
 The README preview was regenerated from the final results-first hero.

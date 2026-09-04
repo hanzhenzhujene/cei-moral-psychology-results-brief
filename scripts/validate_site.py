@@ -23,10 +23,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = ROOT / "evidence" / "canonical-audit"
 SELECTED = ROOT / "evidence" / "source-results"
 RESULT_DATA = ROOT / "data" / "results"
+PARAMETERS = ROOT / "evidence" / "model-parameter-sources.csv"
 
 SOURCE_HEAD = "b3a348684692f615d789392692ce34a1359192d3"
 CANONICAL_SHA = "276acecd603761e6ff61bd6e2685fbb87f0eaa47"
 UPSTREAM_BAD_SHA = CANONICAL_SHA + "d"
+RUN_IDENTITY_SCOPE = "named-model specification only; served provider endpoint, quantization, and checkpoint revision not retained"
 COMMON_MODELS = {
     "claude-haiku-4-5",
     "claude-opus-4-8",
@@ -44,6 +46,40 @@ SCORE_METRICS = {
     "unimoral_moral_typology": "accuracy",
     "unimoral_factor_attribution": "accuracy",
     "unimoral_consequence_generation": "meteor",
+}
+EXPECTED_PARAMETER_FACTS = {
+    "qwen/qwen3-8b": ("Qwen3-8B", 8.2, None, "8.2B total", "dense", "https://huggingface.co/Qwen/Qwen3-8B"),
+    "qwen/qwen3-32b": ("Qwen3-32B", 32.8, None, "32.8B total", "dense", "https://huggingface.co/Qwen/Qwen3-32B"),
+    "qwen/qwen3-235b-a22b-2507": ("Qwen3-235B-A22B (2507)", 235.0, 22.0, "235B total / 22B active", "MoE", "https://huggingface.co/Qwen/Qwen3-235B-A22B-Instruct-2507"),
+    "google/gemma-3-4b-it": ("Gemma 3-4B-IT", 4.0, None, "4B total", "dense", "https://huggingface.co/google/gemma-3-4b-it"),
+    "google/gemma-3-12b-it": ("Gemma 3-12B-IT", 12.0, None, "12B total", "dense", "https://huggingface.co/google/gemma-3-12b-it"),
+    "google/gemma-3-27b-it": ("Gemma 3-27B-IT", 27.0, None, "27B total", "dense", "https://huggingface.co/google/gemma-3-27b-it"),
+    "meta-llama/llama-3.2-3b-instruct": ("Llama 3.2-3B Instruct", 3.0, None, "3B total", "dense", "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"),
+    "meta-llama/llama-3.1-8b-instruct": ("Llama 3.1-8B Instruct", 8.0, None, "8B total", "dense", "https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct"),
+    "meta-llama/llama-3.3-70b-instruct": ("Llama 3.3-70B Instruct", 70.0, None, "70B total", "dense", "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct"),
+    "qwen/qwen-2.5-7b-instruct": ("Qwen2.5-7B Instruct", 7.61, None, "7.61B total", "dense", "https://huggingface.co/Qwen/Qwen2.5-7B-Instruct"),
+    "qwen/qwen3.5-9b": ("Qwen3.5-9B", 9.0, None, "9B total", "dense", "https://huggingface.co/Qwen/Qwen3.5-9B"),
+    "deepseek/deepseek-chat-v3-0324": ("DeepSeek V3-0324", 671.0, 37.0, "671B main model / 37B active", "MoE", "https://huggingface.co/deepseek-ai/DeepSeek-V3-0324"),
+    "deepseek/deepseek-chat-v3.1": ("DeepSeek V3.1", 671.0, 37.0, "671B main model / 37B active", "MoE", "https://huggingface.co/deepseek-ai/DeepSeek-V3.1"),
+    "deepseek/deepseek-v3.2": ("DeepSeek V3.2", 671.0, 37.0, "671B main model / 37B active", "MoE", "https://huggingface.co/deepseek-ai/DeepSeek-V3.2"),
+    "deepseek/deepseek-v4-flash": ("DeepSeek V4 Flash", 284.0, 13.0, "284B main model / 13B active", "MoE", "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash"),
+}
+EXPECTED_SOURCE_REVISIONS = {
+    "qwen/qwen3-8b": "b968826d9c46dd6066d109eabc6255188de91218",
+    "qwen/qwen3-32b": "9216db5781bf21249d130ec9da846c4624c16137",
+    "qwen/qwen3-235b-a22b-2507": "ac9c66cc9b46af7306746a9250f23d47083d689e",
+    "google/gemma-3-4b-it": "093f9f388b31de276ce2de164bdc2081324b9767",
+    "google/gemma-3-12b-it": "96b6f1eccf38110c56df3a15bffe176da04bfd80",
+    "google/gemma-3-27b-it": "005ad3404e59d6023443cb575daa05336842228a",
+    "meta-llama/llama-3.2-3b-instruct": "0cb88a4f764b7a12671c53f0838cd831a0843b95",
+    "meta-llama/llama-3.1-8b-instruct": "0e9e39f249a16976918f6564b8830bc894c89659",
+    "meta-llama/llama-3.3-70b-instruct": "6f6073b423013f6a7d4d9f39144961bfbfbc386b",
+    "qwen/qwen-2.5-7b-instruct": "a09a35458c702b33eeacc393d103063234e8bc28",
+    "qwen/qwen3.5-9b": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "deepseek/deepseek-chat-v3-0324": "e9b33add76883f293d6bf61f6bd89b497e80e335",
+    "deepseek/deepseek-chat-v3.1": "c0781d039fb7a1ba2abc4add0bdc293e92d2b8db",
+    "deepseek/deepseek-v3.2": "a7e62ac04ecb2c0a54d736dc46601c5606cf10a6",
+    "deepseek/deepseek-v4-flash": "60d8d70770c6776ff598c94bb586a859a38244f1",
 }
 
 
@@ -177,7 +213,72 @@ def intervals_all_overlap(frame: pd.DataFrame) -> tuple[int, int]:
     return overlapping, pairs
 
 
-def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame) -> None:
+def validate_parameter_metadata() -> pd.DataFrame:
+    parameters = pd.read_csv(PARAMETERS, keep_default_na=False)
+    expected_columns = [
+        "model",
+        "model_display",
+        "total_parameters_b",
+        "activated_parameters_b",
+        "parameter_label",
+        "architecture",
+        "source_url",
+        "source_revision",
+        "parameter_basis",
+        "run_identity_scope",
+        "checked_on",
+    ]
+    check(list(parameters.columns) == expected_columns, "model-parameter source schema drift")
+    check(len(parameters) == 15 and parameters["model"].is_unique, "model-parameter source must contain 15 unique models")
+    check(set(parameters["model"]) == set(EXPECTED_PARAMETER_FACTS), "model-parameter source model set drift")
+    check(parameters["source_url"].is_unique, "model-parameter source URLs must be unique")
+    check(parameters["source_revision"].str.fullmatch(r"[0-9a-f]{40}").all(), "model-card revision is not a 40-character commit SHA")
+    check(parameters["run_identity_scope"].eq(RUN_IDENTITY_SCOPE).all(), "served-model identity boundary drift")
+    check(parameters["checked_on"].str.fullmatch(r"\d{4}-\d{2}-\d{2}").all(), "parameter source check date is not ISO formatted")
+
+    for row in parameters.itertuples(index=False):
+        display, total, active, label, architecture, source_url = EXPECTED_PARAMETER_FACTS[row.model]
+        observed_active = None if row.activated_parameters_b == "" else float(row.activated_parameters_b)
+        check(row.model_display == display, f"model display drift for {row.model}")
+        check(np.isclose(float(row.total_parameters_b), total, rtol=0, atol=1e-12), f"total parameter count drift for {row.model}")
+        check(
+            (active is None and observed_active is None)
+            or (active is not None and observed_active is not None and np.isclose(observed_active, active, rtol=0, atol=1e-12)),
+            f"active parameter count drift for {row.model}",
+        )
+        check(row.parameter_label == label, f"parameter label drift for {row.model}")
+        check(row.architecture == architecture, f"architecture label drift for {row.model}")
+        check(row.source_url == source_url, f"official model-card URL drift for {row.model}")
+        check(row.source_revision == EXPECTED_SOURCE_REVISIONS[row.model], f"official model-card revision drift for {row.model}")
+        expected_basis = (
+            "vendor-published main-model count; auxiliary/MTP weights excluded"
+            if row.model.startswith("deepseek/")
+            else "published named-model count"
+        )
+        check(row.parameter_basis == expected_basis, f"parameter-count basis drift for {row.model}")
+        recomputed_label = (
+            f"{float(row.total_parameters_b):g}B main model / {observed_active:g}B active"
+            if row.model.startswith("deepseek/")
+            else f"{float(row.total_parameters_b):g}B total / {observed_active:g}B active"
+            if architecture == "MoE"
+            else f"{float(row.total_parameters_b):g}B total"
+        )
+        check(row.parameter_label == recomputed_label, f"parameter label does not recompute from numeric fields for {row.model}")
+
+    numeric = parameters.copy()
+    numeric["total_parameters_b"] = pd.to_numeric(numeric["total_parameters_b"], errors="raise")
+    numeric["activated_parameters_b"] = pd.to_numeric(
+        numeric["activated_parameters_b"].replace("", np.nan), errors="raise"
+    )
+    moe = numeric["architecture"] == "MoE"
+    check(numeric.loc[moe, "activated_parameters_b"].notna().all(), "a MoE model lacks its published active-parameter count")
+    check((numeric.loc[moe, "activated_parameters_b"] <= numeric.loc[moe, "total_parameters_b"]).all(), "a MoE active-parameter count exceeds its total count")
+    check(numeric.loc[~moe, "activated_parameters_b"].isna().all(), "a dense model unexpectedly has an active-parameter count")
+    passed("model parameters: 15 official model-card revisions pinned; published count basis and served-identity boundary retained")
+    return numeric
+
+
+def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, parameters: pd.DataFrame) -> None:
     common = pd.read_csv(RESULT_DATA / "common_roster_primary.csv")
     check(len(common) == 40 and not common.duplicated(["model", "task"]).any(), "common roster must be 40 unique cells")
     check(set(common["model"]) == COMMON_MODELS, "common roster model set drift")
@@ -229,6 +330,118 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame) -> N
     check((release["run_status"] == "success").all() and release["score"].notna().all(), "release plot contains a failed or missing score")
     check(set(release["evidence_status"]) == {"exploratory aggregate; no CI or raw-log replay"}, "release evidence label drift")
 
+    expected_size_candidates = selected[
+        (selected["grid"] == "within-family scaling")
+        & (selected["run_status"] == "success")
+        & (selected["benchmark"] != "CCD-Bench")
+    ].copy()
+    expected_size_candidates["_tier"] = expected_size_candidates["size_tier"].str.extract(r"^([SML])", expand=False)
+    expected_size_groups = []
+    for _, group in expected_size_candidates.groupby(["family", "task"], sort=True):
+        if len(group) == 3 and set(group["_tier"]) == {"S", "M", "L"}:
+            expected_size_groups.append(group.drop(columns="_tier"))
+    expected_size_source = pd.concat(expected_size_groups, ignore_index=True)
+
+    expected_release_candidates = selected[
+        (selected["grid"] == "time scaling")
+        & (selected["run_status"] == "success")
+        & (selected["benchmark"] != "CCD-Bench")
+    ].copy()
+    expected_release_groups = [
+        group
+        for _, group in expected_release_candidates.groupby(["family", "task"], sort=True)
+        if group["release_period"].nunique() >= 2
+    ]
+    expected_release_source = pd.concat(expected_release_groups, ignore_index=True)
+
+    point_frames = {
+        "size": (size_points, expected_size_source, 45),
+        "release": (release, expected_release_source, 35),
+    }
+    lineage_keys = ["model", "task", "grid", "benchmark"]
+    metadata_columns = [
+        "model_display",
+        "total_parameters_b",
+        "activated_parameters_b",
+        "parameter_label",
+        "architecture",
+        "source_url",
+        "source_revision",
+        "parameter_basis",
+        "run_identity_scope",
+        "checked_on",
+    ]
+    for name, (frame, independently_selected, expected_rows) in point_frames.items():
+        check(not frame.duplicated(lineage_keys).any(), f"{name} points contain a duplicate source key")
+        observed_source = frame[selected.columns].sort_values(lineage_keys).reset_index(drop=True).convert_dtypes()
+        expected_source = independently_selected[selected.columns].sort_values(lineage_keys).reset_index(drop=True).convert_dtypes()
+        check(len(expected_source) == expected_rows and observed_source.equals(expected_source), f"{name} points differ from selected source rows")
+
+        joined = frame.merge(parameters, on="model", how="left", suffixes=("_point", "_source"), validate="many_to_one")
+        check(len(joined) == expected_rows, f"{name} parameter join changed the point count")
+        for column in metadata_columns:
+            point_column = joined[f"{column}_point"]
+            source_column = joined[f"{column}_source"]
+            if column in {"total_parameters_b", "activated_parameters_b"}:
+                check(
+                    np.allclose(
+                        pd.to_numeric(point_column, errors="coerce"),
+                        pd.to_numeric(source_column, errors="coerce"),
+                        rtol=0,
+                        atol=1e-12,
+                        equal_nan=True,
+                    ),
+                    f"{name} {column} differs from model-parameter source",
+                )
+            else:
+                check(
+                    point_column.astype("string").fillna("").equals(source_column.astype("string").fillna("")),
+                    f"{name} {column} differs from model-parameter source",
+                )
+        expected_labels = frame["model_display"] + "\n" + frame["parameter_label"]
+        check(frame["point_label"].equals(expected_labels), f"{name} compound point labels drift from model plus parameter count")
+
+    expected_size_counts = {model: count for model, count in [
+        ("qwen/qwen3-8b", 4),
+        ("qwen/qwen3-32b", 4),
+        ("qwen/qwen3-235b-a22b-2507", 4),
+        ("google/gemma-3-4b-it", 5),
+        ("google/gemma-3-12b-it", 5),
+        ("google/gemma-3-27b-it", 5),
+        ("meta-llama/llama-3.2-3b-instruct", 6),
+        ("meta-llama/llama-3.1-8b-instruct", 6),
+        ("meta-llama/llama-3.3-70b-instruct", 6),
+    ]}
+    expected_release_counts = {
+        "qwen/qwen-2.5-7b-instruct": 6,
+        "qwen/qwen3.5-9b": 6,
+        "deepseek/deepseek-chat-v3-0324": 6,
+        "deepseek/deepseek-chat-v3.1": 6,
+        "deepseek/deepseek-v3.2": 6,
+        "deepseek/deepseek-v4-flash": 5,
+    }
+    check(set(size_points["model"]) | set(release["model"]) == set(parameters["model"]), "plotted model union differs from parameter ledger")
+    check(size_points["model"].value_counts().to_dict() == expected_size_counts, "size point-label multiplicities drift")
+    check(release["model"].value_counts().to_dict() == expected_release_counts, "release point-label multiplicities drift")
+    complete_tiers = size_points.groupby(["family", "task"])["tier"].agg(lambda values: (len(values), set(values)))
+    check(all(length == 3 and tiers == {"S", "M", "L"} for length, tiers in complete_tiers), "a size path is not an exact S/M/L triplet")
+    size_order = (
+        parameters[parameters["model"].isin(expected_size_counts)][["model", "total_parameters_b"]]
+        .sort_values(["total_parameters_b", "model"], kind="stable")
+        .reset_index(drop=True)
+    )
+    expected_positions = dict(zip(size_order["model"], range(len(size_order))))
+    expected_row_positions = size_points["model"].map(expected_positions)
+    check(
+        np.array_equal(size_points["size_plot_position"].astype(int).to_numpy(), expected_row_positions.astype(int).to_numpy()),
+        "a size point is assigned to the wrong parameter-ordered x position",
+    )
+    check(size_points.groupby("model")["size_plot_position"].nunique().eq(1).all(), "one size model appears at multiple x positions")
+    check(set(size_points["size_plot_position"].astype(int)) == set(range(9)), "size x positions must be contiguous 0 through 8")
+    for _, group in size_points.groupby(["family", "task"]):
+        tier_order = group.set_index("tier").loc[["S", "M", "L"], "total_parameters_b"].to_numpy(dtype=float)
+        check(np.all(np.diff(tier_order) > 0), "a size S/M/L tier does not increase in published total parameters")
+
     takeaways = pd.read_csv(RESULT_DATA / "research_question_takeaways.csv", keep_default_na=False)
     check(len(takeaways) == 5, "research-question table must contain five rows")
     check(not takeaways["evidence_status"].str.contains(r"^verified", case=False, regex=True).any(), "takeaway overclaims verification")
@@ -246,7 +459,7 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame) -> N
     joined_answers = " ".join(takeaways["answer"])
     for phrase in ("18 intervals", "5 of 15", "9 are mixed", "1 falls"):
         check(phrase in joined_answers, f"takeaway table is missing expected result: {phrase}")
-    passed("derived results: 40 common cells; 28/28 and 45/45 compare overlaps; 45 size points; 35 release points; no failed row plotted")
+    passed("derived results: 40 common cells; 28/28 and 45/45 compare overlaps; all 80 plotted rows match source and parameter metadata")
 
 
 def validate_legacy_firewalls() -> None:
@@ -282,6 +495,13 @@ def resolve_local_reference(base: Path, raw: str) -> Path | None:
     path = (base / target).resolve()
     check(within_root(path), f"local reference escapes repository: {raw}")
     return path
+
+
+def point_label_gid(layer: str, task: str, model: str) -> str:
+    def clean(value: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+
+    return f"{clean(layer)}-point-label-{clean(task)}--{clean(model)}"
 
 
 def validate_site_and_links() -> None:
@@ -335,8 +555,8 @@ def validate_visuals() -> None:
     expected = {
         "01_common_roster_task_results": ("No model is the point-estimate leader on every task", {"Haiku", "Opus", "GPT-5.4", "Mini", "Qwen"}),
         "02_precision_by_task": ("Available marginal intervals do not resolve a comparison-task model order", {".20 planning target", ".30 audit warning"}),
-        "03_size_paths": ("Bigger is not reliably better", {"Qwen", "Gemma", "Llama"}),
-        "04_release_period_paths": ("Newer-route point estimates move in both directions", {"2025", "Q2", "DeepSeek"}),
+        "03_size_paths": ("Bigger is not reliably better", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
+        "04_release_period_paths": ("Newer-route point estimates move in both directions", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active", "2025", "Q2"}),
     }
     for stem, (title, labels) in expected.items():
         png = ROOT / "assets" / "results" / f"{stem}.png"
@@ -361,11 +581,33 @@ def validate_visuals() -> None:
                 if key.endswith("href"):
                     check(not str(value).startswith(("http://", "https://", "//")), f"external SVG resource: {stem}")
 
+    label_contracts = {
+        "03_size_paths": ("size", "size_task_points.csv", 45),
+        "04_release_period_paths": ("release", "release_period_task_points.csv", 35),
+    }
+    for stem, (layer, csv_name, expected_count) in label_contracts.items():
+        prefix = f"{layer}-point-label-"
+        root = ET.parse(ROOT / "assets" / "results" / f"{stem}.svg").getroot()
+        groups = [element for element in root.iter() if element.attrib.get("id", "").startswith(prefix)]
+        points = pd.read_csv(RESULT_DATA / csv_name)
+        expected_map = {
+            point_label_gid(layer, row.task, row.model): " ".join(str(row.point_label).split())
+            for row in points.itertuples(index=False)
+        }
+        observed_map = {
+            element.attrib["id"]: " ".join("".join(element.itertext()).split())
+            for element in groups
+        }
+        check(len(points) == expected_count and len(expected_map) == expected_count, f"{stem} expected point-label identities are not unique")
+        check(len(groups) == expected_count and observed_map == expected_map, f"{stem} model+B label is not attached to its exact task-model point")
+
     builder = (ROOT / "scripts" / "build_result_visuals.py").read_text()
     check("MODEL_MARKERS" in builder and "FAMILY_LINESTYLES" in builder, "multi-series visuals lack non-color encodings")
     check("quarter_key(period) - first_period" in builder, "release plot is not using actual quarter spacing")
+    check("size_plot_position" in builder and "categorical spacing" in builder, "size plot does not disclose its parameter-ordered categorical axis")
+    check("assert_point_label_layout" in builder, "direct point labels lack build-time overlap and clipping checks")
     css = (ROOT / "assets" / "styles.css").read_text()
-    check(".wide-chart" in css and "overflow-x: auto" in css and "width: 820px" in css, "mobile chart readability contract missing")
+    check(".wide-chart" in css and "overflow-x: auto" in css and ".labeled-point-chart img" in css and "width: 1180px" in css, "mobile chart readability contract missing")
 
     common = pd.read_csv(RESULT_DATA / "common_roster_primary.csv")
     axis_limits = {
@@ -386,7 +628,7 @@ def validate_visuals() -> None:
         for task, group in frame.groupby("task"):
             lower, upper = (0.05, 0.18) if task == "unimoral_consequence_generation" else (0.30, 0.80)
             check(group["score"].between(lower, upper).all(), f"{filename} axis would clip {task}")
-    passed("visuals: 4 PNG/SVG pairs decode, contain expected titles/labels, use non-color encodings, actual quarter spacing, and non-clipping shared scales")
+    passed("visuals: 4 PNG/SVG pairs decode; all 45/35 labels are bound to exact task-model GIDs; layout and scale contracts pass")
 
 
 def validate_pdf_hashes() -> None:
@@ -409,6 +651,8 @@ def validate_language_and_hygiene() -> None:
         "Verified primary aggregate": "raw-replay-adjacent verification label",
         "No model leads all eight tasks": "unqualified leader claim",
         "Which comparisons are precise enough to interpret?": "unsupported sufficiency threshold",
+        "exact model": "unsupported served-model identity claim",
+        "exact checkpoint": "unsupported served-checkpoint identity claim",
     }
     for phrase, description in forbidden_claims.items():
         check(phrase.lower() not in combined.lower(), f"authored surface contains {description}: {phrase!r}")
@@ -451,7 +695,8 @@ def main() -> int:
             check(args.source_repo.is_dir(), f"source repo does not exist: {args.source_repo}")
         primary = validate_canonical_bundle()
         selected = validate_selected_sources(args.source_repo)
-        validate_derived_results(primary, selected)
+        parameters = validate_parameter_metadata()
+        validate_derived_results(primary, selected, parameters)
         validate_legacy_firewalls()
         validate_site_and_links()
         validate_visuals()

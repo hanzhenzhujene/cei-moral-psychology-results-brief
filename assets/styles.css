@@ -900,6 +900,10 @@ footer {
     max-width: none;
   }
 
+  .labeled-point-chart img {
+    width: 1180px;
+  }
+
   .swipe-hint {
     position: sticky;
     left: 0;
