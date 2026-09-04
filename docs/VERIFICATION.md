@@ -2,6 +2,8 @@
 
 Verified on 3 September 2026 for the results-first release.
 
+The research-lead slide deck was added and verified on 4 September 2026.
+
 ## Result lineage
 
 | Check | Outcome |
@@ -34,6 +36,8 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py \
 
 It checks the canonical and selected-source manifests, all 80 derived point rows, all size and release summaries, and the 15-model parameter ledger. It also verifies:
 
+- the 8-slide PPTX package, 16:9 canvas, 3 native tables, 4 native charts, 4 linked workbooks, and 8 sourced notes;
+- the slide 2 leader table and slide 3–6 chart caches against the repo CSVs, plus each chart cache against its embedded workbook;
 - `18/12` values in the collapsed semantic audit tables;
 - the six Gemma answer labels in both desktop and mobile size figures;
 - the eight endpoint-delta labels in both desktop and mobile release figures;
@@ -62,6 +66,22 @@ Its report confirmed 31 manifested artifacts, 42 links, the `78/26/9/30` partiti
 | Accessibility | Model and family series use marker shapes and line styles in addition to color. Headline figures have descriptive alt text, and the underlying audit views remain semantic HTML |
 
 The README preview points directly to the size-answer chart. The main site embeds the size and release answer charts; full-resolution PNG and SVG links sit immediately below each figure.
+
+## Slide deck QA
+
+| Check | Outcome |
+|---|---|
+| Story | 8 slides; one claim per slide; task results, precision, size, release, paper fit, and action remain separate |
+| Native objects | 4 editable charts and 3 editable tables |
+| Evidence labels | Main results, exploratory, paper-review, and decision claims are visibly separated |
+| Metrics | Accuracy, normalized preference, and METEOR are not combined into one score or axis |
+| Model labels | Size and release examples show the named model and published parameter basis, including active parameters for MoE models |
+| Package validation | Slide count, native-object ownership, relationship targets, nested workbook links, chart formulas, font policy, layout geometry, and first-party import checks pass |
+| Source-to-slide validation | The public repo validator independently opens the PPTX and recomputes the slide 2–6 table and chart values from CSV evidence |
+| Repeat build | The semantic validator runs before an atomic rename replaces the stable deck. The PPTX container SHA can change with generated package metadata, so the content contract is rechecked after every build |
+| Visual inspection | All 8 slides were rendered at 1280 × 720 and inspected at full resolution; no observed overlap, clipping, or compressed screenshots |
+
+The final deck is `slides/cei-moral-psychology-results-deck.pptx`. The source is `scripts/build_slides.mjs`; technical caveats and citations are retained in speaker notes.
 
 ## Repository and hygiene
 

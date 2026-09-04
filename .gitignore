@@ -1,3 +1,5 @@
 .DS_Store
 *.log
 tmp/
+.codex-slides-build/
+.chart-data-*/

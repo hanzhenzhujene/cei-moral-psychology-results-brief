@@ -6,11 +6,12 @@ This private repository turns the benchmark outputs into a results-first readout
 
 ## Start here
 
-1. Open [`index.html`](index.html) for the visual readout.
-2. Read [`docs/RESULTS_READOUT.md`](docs/RESULTS_READOUT.md) for the result, implication, and limit behind every chart.
-3. Use [`data/results/`](data/results/) for the plotted rows and derived tables.
-4. Read [`docs/RESEARCH_LEAD_BRIEF.md`](docs/RESEARCH_LEAD_BRIEF.md) for the release decision.
-5. Use the poster, paper, and onboarding audits only when those evidence layers are relevant.
+1. Read [`docs/ONE_MINUTE_READOUT.md`](docs/ONE_MINUTE_READOUT.md) for the decision and the four main results.
+2. Open [`slides/cei-moral-psychology-results-deck.pptx`](slides/cei-moral-psychology-results-deck.pptx) for the 8-slide research-lead story.
+3. Open [`index.html`](index.html) for the full visual readout.
+4. Read [`docs/RESULTS_READOUT.md`](docs/RESULTS_READOUT.md) for the evidence and limits behind every chart.
+5. Use [`data/results/`](data/results/) for the plotted rows and derived tables.
+6. Use the poster, paper, and onboarding audits only when those evidence layers are relevant.
 
 ## What the results say
 
@@ -39,6 +40,7 @@ The repository contains substantial benchmark result data. What is missing is di
 | Location | Purpose |
 |---|---|
 | `index.html` | Responsive visual result brief |
+| `slides/` | Editable 8-slide research-lead deck |
 | `assets/results/` | Four headline charts plus four landscape audit-detail charts in PNG and SVG |
 | `data/results/` | Exact plotted rows, direction summaries, and research-question tables |
 | `docs/RESULTS_READOUT.md` | Chart-by-chart interpretation for a research lead |
@@ -47,7 +49,7 @@ The repository contains substantial benchmark result data. What is missing is di
 | `docs/ONBOARDING_AUDIT.md` | Original page completion check |
 | `evidence/canonical-audit/` | Manifested copy of the validated audit bundle |
 | `evidence/source-results/` | Checksummed selected-grid source snapshot |
-| `scripts/` | Deterministic figure builder and independent site validator |
+| `scripts/` | Deterministic figure and slide builders plus the independent site validator |
 
 ## Rebuild and verify
 
@@ -56,11 +58,28 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/build_result_visuals.py
 PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py
 ```
 
-The independent canonical validator also runs from the outer audit workspace:
+The repo validator also opens the PPTX. It checks the native tables, charts, embedded workbooks, notes, and the slide 2–6 values against the CSV evidence.
+
+The slide builder uses the bundled Codex presentation runtime. In Codex, load the workspace dependencies to find the Node.js, Python, and package paths, then run:
+
+```sh
+PRESENTATIONS_SKILL_DIR=/absolute/path/to/presentations-skill \
+WORKSPACE_PYTHON=/absolute/path/to/bundled-python \
+VALIDATION_PYTHON=/absolute/path/to/python-with-repo-dependencies \
+ARTIFACT_TOOL_DIR=/absolute/path/to/@oai/artifact-tool \
+RUNTIME_NODE_MODULES=/absolute/path/to/bundled-node_modules \
+/absolute/path/to/bundled-node scripts/build_slides.mjs
+```
+
+`WORKSPACE_PYTHON` is the bundled presentation runtime. `VALIDATION_PYTHON` must provide the repo validator dependencies (`beautifulsoup4`, `numpy`, `pandas`, and `Pillow`). The builder checks a private staging copy, recomputes its slide evidence, and then atomically replaces only the generated PPTX. It does not rewrite the reports.
+
+When the outer audit workspace is available, run its additional source-level gate from that workspace:
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python work/validate_audit.py
 ```
+
+That outer validator is not bundled in this personal results repo.
 
 ## Source pins
 

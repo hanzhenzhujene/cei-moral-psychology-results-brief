@@ -5,13 +5,16 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import itertools
 import json
+import posixpath
 import re
 import sys
 import urllib.parse
 import xml.etree.ElementTree as ET
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from zipfile import BadZipFile, ZipFile
 
 import numpy as np
 import pandas as pd
@@ -24,6 +27,7 @@ CANONICAL = ROOT / "evidence" / "canonical-audit"
 SELECTED = ROOT / "evidence" / "source-results"
 RESULT_DATA = ROOT / "data" / "results"
 PARAMETERS = ROOT / "evidence" / "model-parameter-sources.csv"
+SLIDE_DECK = ROOT / "slides" / "cei-moral-psychology-results-deck.pptx"
 
 SOURCE_HEAD = "b3a348684692f615d789392692ce34a1359192d3"
 CANONICAL_SHA = "276acecd603761e6ff61bd6e2685fbb87f0eaa47"
@@ -539,6 +543,536 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
     passed("derived results: 40 common cells; 28/28 and 45/45 compare overlaps; all 80 plotted rows and 12 release summaries match source and parameter metadata")
 
 
+REL_NS = "{http://schemas.openxmlformats.org/package/2006/relationships}"
+P_NS = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
+A_NS = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+C_NS = "{http://schemas.openxmlformats.org/drawingml/2006/chart}"
+S_NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+R_ID = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+SECRET_PATTERNS = {
+    "OpenAI-style key": re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b"),
+    "GitHub token": re.compile(r"\b(?:ghp|github_pat)_[A-Za-z0-9_]{20,}\b"),
+    "AWS access key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+}
+
+
+def check_text_hygiene(text: str, label: str) -> None:
+    mac_user_root = "/" + "Users/"
+    file_scheme = "file" + "://"
+    check(
+        mac_user_root not in text
+        and file_scheme not in text
+        and not re.search(r"[A-Za-z]:\\Users\\", text),
+        f"private absolute path in {label}",
+    )
+    for secret_label, pattern in SECRET_PATTERNS.items():
+        check(pattern.search(text) is None, f"possible {secret_label} in {label}")
+
+
+def resolve_package_target(source_part: str, target: str) -> str:
+    if target.startswith("/"):
+        return posixpath.normpath(target.lstrip("/"))
+    return posixpath.normpath(posixpath.join(posixpath.dirname(source_part), target))
+
+
+def relationship_part(source_part: str) -> str:
+    parent, name = posixpath.split(source_part)
+    return posixpath.join(parent, "_rels", f"{name}.rels")
+
+
+def relationship_source_part(rels_part: str) -> str:
+    if rels_part == "_rels/.rels":
+        return ""
+    part = PurePosixPath(rels_part)
+    check(part.parent.name == "_rels" and part.name.endswith(".rels"), f"invalid relationship part path: {rels_part}")
+    return (part.parent.parent / part.name.removesuffix(".rels")).as_posix()
+
+
+def validate_package_graph(archive: ZipFile, label: str) -> None:
+    members = archive.namelist()
+    check(len(members) == len(set(members)), f"{label} contains duplicate ZIP part names")
+    names = set(members)
+    for rels_name in sorted(name for name in names if name.endswith(".rels")):
+        source_part = relationship_source_part(rels_name)
+        check(not source_part or source_part in names, f"{label} relationship source is missing: {source_part}")
+        root = ET.fromstring(archive.read(rels_name))
+        relationships = root.findall(f"{REL_NS}Relationship")
+        relationship_ids = [rel.attrib.get("Id", "") for rel in relationships]
+        check(all(relationship_ids) and len(relationship_ids) == len(set(relationship_ids)), f"{label} has missing or duplicate relationship IDs in {rels_name}")
+        for rel in relationships:
+            target = rel.attrib.get("Target", "")
+            check(rel.attrib.get("Type", "") and target, f"{label} has an incomplete relationship in {rels_name}")
+            parsed = urllib.parse.urlsplit(target)
+            check(
+                not parsed.scheme
+                and not parsed.netloc
+                and not parsed.query
+                and not parsed.fragment
+                and "\\" not in target
+                and "\x00" not in target,
+                f"{label} has an unsafe relationship target in {rels_name}",
+            )
+            check(rel.attrib.get("TargetMode", "").lower() != "external", f"{label} contains an external relationship in {rels_name}")
+            resolved = resolve_package_target(source_part, urllib.parse.unquote(parsed.path))
+            check(
+                resolved not in {"", ".", ".."}
+                and not resolved.startswith("../")
+                and not posixpath.isabs(resolved),
+                f"{label} relationship escapes the package in {rels_name}: {target}",
+            )
+            check(resolved in names, f"{label} relationship target is missing: {resolved}")
+
+
+def package_xml_text(archive: ZipFile) -> str:
+    text: list[str] = []
+    for name in sorted(member for member in archive.namelist() if member.endswith((".xml", ".rels"))):
+        root = ET.fromstring(archive.read(name))
+        for node in root.iter():
+            if node.text:
+                text.append(node.text)
+            text.extend(node.attrib.values())
+    return "\n".join(text)
+
+
+def package_relationships(archive: ZipFile, source_part: str) -> list[dict[str, str]]:
+    rels_name = relationship_part(source_part)
+    check(rels_name in archive.namelist(), f"slide deck relationship part is missing: {rels_name}")
+    root = ET.fromstring(archive.read(rels_name))
+    relationships = []
+    for rel in root.findall(f"{REL_NS}Relationship"):
+        relationships.append({
+            "id": rel.attrib.get("Id", ""),
+            "type": rel.attrib.get("Type", ""),
+            "target": rel.attrib.get("Target", ""),
+            "target_mode": rel.attrib.get("TargetMode", ""),
+            "resolved": resolve_package_target(source_part, rel.attrib.get("Target", "")),
+        })
+    return relationships
+
+
+def cell_text(cell: ET.Element) -> str:
+    return "".join(node.text or "" for node in cell.iter(f"{A_NS}t"))
+
+
+def slide_tables(root: ET.Element) -> list[list[list[str]]]:
+    tables: list[list[list[str]]] = []
+    for table in root.iter(f"{A_NS}tbl"):
+        rows: list[list[str]] = []
+        for row in table.findall(f"{A_NS}tr"):
+            rows.append([cell_text(cell) for cell in row.findall(f"{A_NS}tc")])
+        tables.append(rows)
+    return tables
+
+
+def chart_cache(archive: ZipFile, chart_part: str) -> list[dict[str, object]]:
+    root = ET.fromstring(archive.read(chart_part))
+    series: list[dict[str, object]] = []
+    for item in root.iter(f"{C_NS}ser"):
+        tx = item.find(f"{C_NS}tx")
+        name_node = next(tx.iter(f"{C_NS}v"), None) if tx is not None else None
+        category_parent = item.find(f"{C_NS}cat")
+        value_parent = item.find(f"{C_NS}val")
+        check(name_node is not None and category_parent is not None and value_parent is not None, f"incomplete chart series in {chart_part}")
+
+        categories = sorted(
+            (
+                int(point.attrib["idx"]),
+                next(point.iter(f"{C_NS}v")).text or "",
+            )
+            for point in category_parent.iter(f"{C_NS}pt")
+        )
+        values = sorted(
+            (
+                int(point.attrib["idx"]),
+                float(next(point.iter(f"{C_NS}v")).text or "nan"),
+            )
+            for point in value_parent.iter(f"{C_NS}pt")
+        )
+        check([idx for idx, _ in categories] == list(range(len(categories))), f"non-contiguous chart categories in {chart_part}")
+        check([idx for idx, _ in values] == list(range(len(values))), f"non-contiguous chart values in {chart_part}")
+        check(len(categories) == len(values), f"chart category/value length mismatch in {chart_part}")
+        series.append({
+            "name": name_node.text or "",
+            "categories": [value for _, value in categories],
+            "values": [value for _, value in values],
+        })
+    check(series, f"no cached native chart series found in {chart_part}")
+    return series
+
+
+def xlsx_column_name(index: int) -> str:
+    check(index >= 0, "worksheet column index cannot be negative")
+    name = ""
+    value = index + 1
+    while value:
+        value, remainder = divmod(value - 1, 26)
+        name = chr(ord("A") + remainder) + name
+    return name
+
+
+def validate_chart_formula_ranges(
+    chart_root: ET.Element,
+    series: list[dict[str, object]],
+    chart_part: str,
+) -> None:
+    xml_series = list(chart_root.iter(f"{C_NS}ser"))
+    check(len(xml_series) == len(series), f"chart series/formula count drift in {chart_part}")
+    for series_index, (item, cached) in enumerate(zip(xml_series, series)):
+        row_count = len(cached["categories"])
+        category_parent = item.find(f"{C_NS}cat")
+        value_parent = item.find(f"{C_NS}val")
+        check(category_parent is not None and value_parent is not None, f"chart series lacks category or value formula in {chart_part}")
+        category_formulas = [node.text or "" for node in category_parent.iter(f"{C_NS}f")]
+        value_formulas = [node.text or "" for node in value_parent.iter(f"{C_NS}f")]
+        category_column = xlsx_column_name(series_index * 2)
+        value_column = xlsx_column_name(series_index * 2 + 1)
+        expected_category = f"'Chart Data'!${category_column}$2:${category_column}${row_count + 1}"
+        expected_values = f"'Chart Data'!${value_column}$2:${value_column}${row_count + 1}"
+        check(category_formulas == [expected_category], f"chart category formula does not point to its cached workbook cells in {chart_part}")
+        check(value_formulas == [expected_values], f"chart value formula does not point to its cached workbook cells in {chart_part}")
+
+
+def xlsx_matrix(blob: bytes) -> list[list[str | float]]:
+    with ZipFile(io.BytesIO(blob)) as workbook:
+        validate_package_graph(workbook, "embedded chart workbook")
+        check_text_hygiene(package_xml_text(workbook), "embedded chart workbook")
+        workbook_part = "xl/workbook.xml"
+        workbook_root = ET.fromstring(workbook.read(workbook_part))
+        sheets = workbook_root.findall(f".//{S_NS}sheet")
+        check(len(sheets) == 1, f"embedded chart workbook must contain exactly one worksheet, found {len(sheets)}")
+        first_sheet = sheets[0]
+        check(first_sheet.attrib.get("name") == "Chart Data", "embedded chart workbook worksheet must be named 'Chart Data'")
+        relationship_id = first_sheet.attrib.get(R_ID, "")
+        sheet_rel = next(
+            (rel for rel in package_relationships(workbook, workbook_part) if rel["id"] == relationship_id),
+            None,
+        )
+        check(
+            sheet_rel is not None
+            and sheet_rel["type"].endswith("/worksheet")
+            and sheet_rel["resolved"] in workbook.namelist(),
+            "embedded chart worksheet relationship is broken",
+        )
+
+        shared_strings: list[str] = []
+        if "xl/sharedStrings.xml" in workbook.namelist():
+            shared_root = ET.fromstring(workbook.read("xl/sharedStrings.xml"))
+            shared_strings = ["".join(node.text or "" for node in item.iter(f"{S_NS}t")) for item in shared_root.findall(f"{S_NS}si")]
+
+        sheet_root = ET.fromstring(workbook.read(sheet_rel["resolved"]))
+        matrix: list[list[str | float]] = []
+        for row in sheet_root.iter(f"{S_NS}row"):
+            observed: dict[int, str | float] = {}
+            for cell in row.findall(f"{S_NS}c"):
+                reference = cell.attrib.get("r", "")
+                letters = re.match(r"[A-Z]+", reference)
+                check(letters is not None, f"invalid worksheet cell reference: {reference}")
+                column = 0
+                for character in letters.group(0):
+                    column = column * 26 + ord(character) - ord("A") + 1
+                column -= 1
+                cell_type = cell.attrib.get("t", "")
+                value_node = cell.find(f"{S_NS}v")
+                if cell_type == "inlineStr":
+                    value: str | float = "".join(node.text or "" for node in cell.iter(f"{S_NS}t"))
+                elif cell_type == "s":
+                    check(value_node is not None, f"shared-string cell has no value: {reference}")
+                    value = shared_strings[int(value_node.text or "0")]
+                elif value_node is None or value_node.text is None:
+                    value = ""
+                else:
+                    value = float(value_node.text)
+                observed[column] = value
+            width = max(observed, default=-1) + 1
+            matrix.append([observed.get(column, "") for column in range(width)])
+        return matrix
+
+
+def workbook_matrix_from_chart(series: list[dict[str, object]]) -> list[list[str | float]]:
+    width = len(series) * 2
+    rows: list[list[str | float]] = [[] for _ in range(len(series[0]["categories"]) + 1)]
+    for item in series:
+        categories = item["categories"]
+        values = item["values"]
+        check(len(categories) + 1 == len(rows), "native chart series use different category counts")
+        rows[0].extend(["Category", str(item["name"])])
+        for index, (category, value) in enumerate(zip(categories, values), start=1):
+            rows[index].extend([str(category), float(value)])
+    check(all(len(row) == width for row in rows), "embedded chart workbook matrix is ragged")
+    return rows
+
+
+def check_matrix_equal(observed: list[list[str | float]], expected: list[list[str | float]], label: str) -> None:
+    check(len(observed) == len(expected), f"{label} row count drift")
+    for row_index, (left, right) in enumerate(zip(observed, expected), start=1):
+        check(len(left) == len(right), f"{label} column count drift on row {row_index}")
+        for column_index, (left_value, right_value) in enumerate(zip(left, right), start=1):
+            if isinstance(right_value, float):
+                check(isinstance(left_value, float) and np.isclose(left_value, right_value, rtol=0, atol=1e-12), f"{label} numeric drift at row {row_index}, column {column_index}")
+            else:
+                check(str(left_value) == str(right_value), f"{label} text drift at row {row_index}, column {column_index}")
+
+
+def check_chart_equal(
+    observed: list[dict[str, object]],
+    expected: list[dict[str, object]],
+    label: str,
+) -> None:
+    check(len(observed) == len(expected), f"{label} series count drift")
+    for observed_series, expected_series in zip(observed, expected):
+        check(observed_series["name"] == expected_series["name"], f"{label} series-name drift")
+        check(observed_series["categories"] == expected_series["categories"], f"{label} category drift")
+        left = np.asarray(observed_series["values"], dtype=float)
+        right = np.asarray(expected_series["values"], dtype=float)
+        check(left.shape == right.shape and np.allclose(left, right, rtol=0, atol=1e-12), f"{label} value drift")
+
+
+def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
+    check(slide_deck.is_file(), f"research-lead slide deck is missing: {slide_deck}")
+    with ZipFile(slide_deck) as archive:
+        validate_package_graph(archive, "slide deck")
+        check_text_hygiene(package_xml_text(archive), "slide deck package text")
+        names = set(archive.namelist())
+        presentation_root = ET.fromstring(archive.read("ppt/presentation.xml"))
+        slide_size = presentation_root.find(f"{P_NS}sldSz")
+        check(slide_size is not None, "slide deck has no declared page size")
+        check(
+            (slide_size.attrib.get("cx"), slide_size.attrib.get("cy")) == ("12192000", "6858000"),
+            "slide deck is not the intended 16:9 1280 x 720 canvas",
+        )
+        presentation_relationships = {
+            rel["id"]: rel for rel in package_relationships(archive, "ppt/presentation.xml")
+        }
+        slide_parts: list[str] = []
+        for slide_id in presentation_root.findall(f".//{P_NS}sldId"):
+            relationship_id = slide_id.attrib.get(R_ID, "")
+            relationship = presentation_relationships.get(relationship_id)
+            check(relationship is not None and relationship["type"].endswith("/slide"), "presentation slide order contains a broken relationship")
+            slide_parts.append(relationship["resolved"])
+        check(len(slide_parts) == len(set(slide_parts)) == 8, "slide deck must contain exactly 8 uniquely related slides")
+
+        chart_parts_by_slide: dict[int, str] = {}
+        workbook_parts: set[str] = set()
+        notes_parts: list[str] = []
+        slide_roots: dict[int, ET.Element] = {}
+        for slide_number, slide_part in enumerate(slide_parts, start=1):
+            check(slide_part in names, f"slide {slide_number} package part is missing")
+            root = ET.fromstring(archive.read(slide_part))
+            slide_roots[slide_number] = root
+            relationships = package_relationships(archive, slide_part)
+            relationships_by_id = {rel["id"]: rel for rel in relationships}
+            chart_rels = []
+            for chart_reference in root.iter(f"{C_NS}chart"):
+                relationship = relationships_by_id.get(chart_reference.attrib.get(R_ID, ""))
+                check(relationship is not None and relationship["type"].endswith("/chart"), f"slide {slide_number} has a broken native-chart relationship")
+                chart_rels.append(relationship)
+            note_rels = [rel for rel in relationships if rel["type"].endswith("/notesSlide")]
+            check(len(note_rels) == 1 and note_rels[0]["resolved"] in names, f"slide {slide_number} must have one speaker-notes part")
+            notes_parts.append(note_rels[0]["resolved"])
+            if slide_number in {3, 4, 5, 6}:
+                check(len(chart_rels) == 1 and chart_rels[0]["resolved"] in names, f"slide {slide_number} must own one native chart")
+                chart_parts_by_slide[slide_number] = chart_rels[0]["resolved"]
+            else:
+                check(not chart_rels, f"unexpected native chart on slide {slide_number}")
+
+        table_counts = {number: len(slide_tables(root)) for number, root in slide_roots.items()}
+        check(table_counts == {1: 0, 2: 1, 3: 0, 4: 0, 5: 0, 6: 0, 7: 1, 8: 1}, f"native table ownership drift: {table_counts}")
+        check(len(set(notes_parts)) == 8, "speaker-note parts are not unique across all eight slides")
+
+        chart_series: dict[int, list[dict[str, object]]] = {}
+        for slide_number, chart_part in chart_parts_by_slide.items():
+            chart_root = ET.fromstring(archive.read(chart_part))
+            series = chart_cache(archive, chart_part)
+            chart_series[slide_number] = series
+            chart_relationships = {rel["id"]: rel for rel in package_relationships(archive, chart_part)}
+            external_data = chart_root.find(f".//{C_NS}externalData")
+            check(external_data is not None, f"slide {slide_number} chart lacks an embedded-workbook reference")
+            package_rel = chart_relationships.get(external_data.attrib.get(R_ID, ""))
+            check(package_rel is not None and package_rel["type"].endswith("/package"), f"slide {slide_number} chart must own one embedded workbook")
+            workbook_part = package_rel["resolved"]
+            check(workbook_part in names and workbook_part.endswith(".xlsx"), f"slide {slide_number} embedded workbook relationship is broken")
+            workbook_parts.add(workbook_part)
+            workbook = xlsx_matrix(archive.read(workbook_part))
+            validate_chart_formula_ranges(chart_root, series, chart_part)
+            check_matrix_equal(
+                workbook,
+                workbook_matrix_from_chart(series),
+                f"slide {slide_number} workbook versus chart cache",
+            )
+        embedded_workbooks = {name for name in names if name.startswith("ppt/embeddings/") and name.endswith(".xlsx")}
+        check(len(workbook_parts) == 4 and workbook_parts == embedded_workbooks, "slide deck must contain exactly four related chart workbooks")
+
+        common = pd.read_csv(RESULT_DATA / "common_roster_primary.csv")
+        task_order = [
+            "moralbench_mfq_agreement",
+            "moralbench_vignette_agreement",
+            "moralbench_mfq_compare",
+            "moralbench_vignette_compare",
+            "unimoral_action_prediction",
+            "unimoral_moral_typology",
+            "unimoral_factor_attribution",
+            "unimoral_consequence_generation",
+        ]
+        metric_names = {"normalized_preference": "Normalized preference", "accuracy": "Accuracy", "meteor": "METEOR"}
+        tie_names = {
+            frozenset({"Claude Haiku 4.5", "Qwen3 8B"}): "Haiku + Qwen tie†",
+            frozenset({"Claude Haiku 4.5", "GPT-5.4"}): "Haiku + GPT-5.4 tie†",
+        }
+        expected_leaders = [["Task", "Top saved value", "Metric", "Model"]]
+        for task in task_order:
+            rows = common[common["task"] == task]
+            check(len(rows) == 5, f"slide 2 source roster drift for {task}")
+            top = float(rows["score"].max())
+            leaders = frozenset(rows[np.isclose(rows["score"], top, rtol=0, atol=1e-12)]["model_label"])
+            if len(leaders) == 1:
+                leader_text = next(iter(leaders))
+            else:
+                check(leaders in tie_names, f"slide 2 contains an unexpected leader tie for {task}: {sorted(leaders)}")
+                leader_text = tie_names[leaders]
+            expected_leaders.append([
+                str(rows.iloc[0]["task_label"]),
+                f"{top:.3f}".removeprefix("0"),
+                metric_names[str(rows.iloc[0]["metric_semantics"])],
+                leader_text,
+            ])
+        check(slide_tables(slide_roots[2])[0] == expected_leaders, "slide 2 leader table does not recompute from the common roster")
+
+        precision = pd.read_csv(RESULT_DATA / "task_precision.csv").sort_values("median_ci_width", ascending=False)
+        precision_expected = [{
+            "name": "Interval width",
+            "categories": precision["task_label"].tolist(),
+            "values": [float(f"{value:.3f}") for value in precision["median_ci_width"]],
+        }]
+        check_chart_equal(chart_series[3], precision_expected, "slide 3 precision chart")
+
+        size_summary = pd.read_csv(RESULT_DATA / "size_path_summary.csv")
+        unimoral_size = size_summary[size_summary["task"].isin(list(SCALING_TASK_LABELS)[:4])]
+        check(len(unimoral_size) == 12, "slide 4 denominator must remain 12 complete UniMoral paths")
+        direction_counts = unimoral_size["direction"].value_counts().to_dict()
+        size_count_expected = [{
+            "name": "Complete paths",
+            "categories": ["Rise at both steps", "Change direction", "Fall at both steps"],
+            "values": [float(direction_counts.get("rising", 0)), float(direction_counts.get("mixed", 0)), float(direction_counts.get("falling", 0))],
+        }]
+        check_chart_equal(chart_series[4], size_count_expected, "slide 4 size-path chart")
+
+        size_points = pd.read_csv(RESULT_DATA / "size_task_points.csv")
+        gemma = size_points[
+            (size_points["family"] == "Gemma")
+            & (size_points["task"].isin(["unimoral_factor_attribution", "unimoral_moral_typology"]))
+        ]
+        gemma_models = gemma[["model", "model_display", "parameter_label", "total_parameters_b"]].drop_duplicates().sort_values("total_parameters_b")
+        gemma_categories = [f"{row.model_display}\n({row.parameter_label})" for row in gemma_models.itertuples(index=False)]
+        gemma_expected = []
+        for task, name in (("unimoral_factor_attribution", "Factor attribution"), ("unimoral_moral_typology", "Moral typology")):
+            score_by_model = gemma[gemma["task"] == task].set_index("model")["score"]
+            gemma_expected.append({
+                "name": name,
+                "categories": gemma_categories,
+                "values": [float(f"{float(score_by_model[model]):.3f}") for model in gemma_models["model"]],
+            })
+        check_chart_equal(chart_series[5], gemma_expected, "slide 5 Gemma chart")
+
+        release = pd.read_csv(RESULT_DATA / "release_path_summary.csv")
+        release_tasks = [
+            ("unimoral_action_prediction", "Action"),
+            ("unimoral_moral_typology", "Typology"),
+            ("unimoral_factor_attribution", "Factor"),
+        ]
+        release_expected = []
+        for family in ("Qwen", "DeepSeek"):
+            family_rows = release[release["family"] == family].set_index("task")
+            release_expected.append({
+                "name": family,
+                "categories": [label for _, label in release_tasks],
+                "values": [float(f"{float(family_rows.loc[task, 'endpoint_delta']):.6f}") for task, _ in release_tasks],
+            })
+        check_chart_equal(chart_series[6], release_expected, "slide 6 release-endpoint chart")
+        slide_6_text = " ".join(node.text or "" for node in slide_roots[6].iter(f"{A_NS}t"))
+        for phrase in (
+            "Qwen2.5 7B Instruct (7.61B) to Qwen3.5 9B (9B)",
+            "V3-0324 (671B main, 37B active) to V4 Flash (284B main, 13B active)",
+            "28–29 May 2026",
+            "Consequence uses METEOR",
+        ):
+            check(phrase in slide_6_text, f"slide 6 lacks required endpoint, date, or metric text: {phrase}")
+
+        paper_map = pd.read_csv(ROOT / "data" / "paper_protocol_map.csv")
+        check(not paper_map["match_status"].eq("exact").any(), "paper protocol map unexpectedly contains an exact local replication")
+        paper_statuses = {
+            benchmark: set(group["match_status"])
+            for benchmark, group in paper_map.groupby("benchmark")
+        }
+        check(
+            paper_statuses == {
+                "MoralBench": {"approximate"},
+                "UniMoral": {"approximate", "unavailable"},
+                "MoReBench": {"approximate", "proxy_only", "unavailable"},
+                "MoralLens": {"approximate", "proxy_only"},
+            },
+            "paper evidence composition drift",
+        )
+        expected_paper_table = [
+            ["Paper", "Plain-language question", "How close is our test?"],
+            ["MoralBench", "Do model choices match human ratings?", "Similar, not exact"],
+            ["UniMoral", "Can models predict labels and consequences?", "Some similar tasks"],
+            ["MoReBench", "Does reasoning cover expert criteria?", "Stand-in only"],
+            ["MoralLens", "Which reasons appear before and after a choice?", "Stand-in only"],
+        ]
+        check(slide_tables(slide_roots[7])[0] == expected_paper_table, "slide 7 paper question and local-fit table drift")
+        slide_7_text = " ".join(node.text or "" for node in slide_roots[7].iter(f"{A_NS}t"))
+        check("0exactlocalreplications" in re.sub(r"\s+", "", slide_7_text), "slide 7 no longer states zero exact local replications")
+
+        brief_text = (ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md").read_text().lower()
+        priority_text = (ROOT / "evidence" / "canonical-audit" / "RERUN_PRIORITY.md").read_text().lower()
+        for phrase, source in (
+            ("recover raw archives and paired outcomes", brief_text),
+            ("approve gate m human validation", brief_text),
+            ("expand the comparison item banks only after", brief_text),
+            ("repair existing measurement evidence first", priority_text),
+        ):
+            check(phrase in source, f"slide 8 recommendation source no longer contains: {phrase}")
+        expected_action_table = [
+            ["When", "Action", "Reason"],
+            ["Now", "Publish task panels with their limits", "The current aggregates answer task-level questions"],
+            ["Next", "Recover same-item results; check parsing and labels", "This targets the main precision and measurement gaps"],
+            ["Next", "Run the planned human review", "Benchmark agreement is not human validity"],
+            ["Only if still unclear", "Expand the comparison item banks", "New items help only after the measurement is stable"],
+        ]
+        check(slide_tables(slide_roots[8])[0] == expected_action_table, "slide 8 decision order drift")
+
+        citation_pattern = re.compile(r"\b(?:docs|data|evidence)/[A-Za-z0-9_./-]+\.(?:md|csv)\b")
+        release_text: list[str] = []
+        combined_by_slide: dict[int, str] = {}
+        for slide_number, notes_part in enumerate(notes_parts, start=1):
+            notes_root = ET.fromstring(archive.read(notes_part))
+            notes_text = "\n".join(node.text or "" for node in notes_root.iter(f"{A_NS}t"))
+            check("Source:" in notes_text or "Sources:" in notes_text, f"slide {slide_number} speaker notes lack a source line")
+            citations = citation_pattern.findall(notes_text)
+            check(citations, f"slide {slide_number} speaker notes contain no repo-relative citation")
+            for citation in citations:
+                check((ROOT / citation).is_file(), f"slide {slide_number} cites a missing file: {citation}")
+            slide_text = " ".join(node.text or "" for node in slide_roots[slide_number].iter(f"{A_NS}t"))
+            combined_by_slide[slide_number] = f"{slide_text}\n{notes_text}"
+            release_text.append(combined_by_slide[slide_number])
+        required_caveats = {
+            2: "Values belong to different metrics",
+            3: "not a paired model-difference test",
+            4: "Accuracy and METEOR stay separate",
+            5: "No saved intervals or raw-log replay",
+            6: "Consequence uses METEOR and is not mixed into this accuracy chart",
+            7: "They are not direct score baselines",
+            8: "Benchmark agreement is not human validity",
+        }
+        for slide_number, phrase in required_caveats.items():
+            check(phrase.lower() in combined_by_slide[slide_number].lower(), f"slide {slide_number} evidence boundary drift: {phrase}")
+        combined = "\n".join(release_text)
+        check_text_hygiene(combined, "slide and speaker-note text")
+
+    passed("slide deck: 8 slides at 16:9; relationship graph, 3 tables, 4 chart formulas/caches/workbooks, and 8 sourced notes pass; slides 2–6 recompute from CSV evidence")
+
+
 def validate_legacy_firewalls() -> None:
     status = pd.read_csv(ROOT / "data" / "canonical_status.csv")
     check(status.shape == (8, 4), "canonical status table shape drift")
@@ -908,7 +1442,14 @@ def validate_pdf_hashes() -> None:
 
 
 def validate_language_and_hygiene() -> None:
-    authored = [ROOT / "README.md", ROOT / "index.html", ROOT / "docs" / "RESULTS_READOUT.md", ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md", ROOT / "docs" / "VERIFICATION.md"]
+    authored = [
+        ROOT / "README.md",
+        ROOT / "index.html",
+        ROOT / "docs" / "ONE_MINUTE_READOUT.md",
+        ROOT / "docs" / "RESULTS_READOUT.md",
+        ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md",
+        ROOT / "docs" / "VERIFICATION.md",
+    ]
     combined = "\n".join(path.read_text(errors="replace") for path in authored)
     forbidden_claims = {
         "underpowered": "untested power language",
@@ -923,27 +1464,32 @@ def validate_language_and_hygiene() -> None:
     check(CANONICAL_SHA in (ROOT / "README.md").read_text(), "README lacks the resolvable canonical SHA")
     check("malformed 41-character" in (ROOT / "README.md").read_text(), "README does not explain the upstream malformed SHA")
 
-    text_suffixes = {".md", ".html", ".css", ".py", ".csv", ".json", ".svg", ".txt"}
-    secret_patterns = {
-        "OpenAI-style key": re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b"),
-        "GitHub token": re.compile(r"\b(?:ghp|github_pat)_[A-Za-z0-9_]{20,}\b"),
-        "AWS access key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
-        "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+    text_suffixes = {
+        ".md", ".html", ".css", ".py", ".mjs", ".js", ".cjs", ".ts",
+        ".sh", ".yaml", ".yml", ".toml", ".csv", ".json", ".svg", ".txt",
     }
     for path in ROOT.rglob("*"):
         if not path.is_file() or ".git" in path.parts or path.suffix.lower() not in text_suffixes:
             continue
+        relative = path.relative_to(ROOT)
+        if relative.parts and (
+            relative.parts[0] in {"tmp", ".codex-slides-build"}
+            or relative.parts[0].startswith(".chart-data-")
+        ):
+            continue
         text = path.read_text(errors="replace")
-        mac_user_root = "/" + "Users/"
-        file_scheme = "file" + "://"
-        check(mac_user_root not in text and file_scheme not in text and not re.search(r"[A-Za-z]:\\Users\\", text), f"private absolute path in {path.relative_to(ROOT)}")
-        for label, pattern in secret_patterns.items():
-            check(pattern.search(text) is None, f"possible {label} in {path.relative_to(ROOT)}")
+        check_text_hygiene(text, str(path.relative_to(ROOT)))
     passed("language and hygiene: no power overclaim, raw-replay overclaim, private path, or common credential pattern")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--slide-deck",
+        type=Path,
+        default=SLIDE_DECK,
+        help="PPTX to validate; defaults to the published research-lead deck.",
+    )
     parser.add_argument(
         "--source-repo",
         type=Path,
@@ -961,12 +1507,13 @@ def main() -> int:
         selected = validate_selected_sources(args.source_repo)
         parameters = validate_parameter_metadata()
         validate_derived_results(primary, selected, parameters)
+        validate_slide_deck(args.slide_deck.resolve())
         validate_legacy_firewalls()
         validate_site_and_links()
         validate_visuals()
         validate_pdf_hashes()
         validate_language_and_hygiene()
-    except (ValidationError, KeyError, ValueError, OSError, ET.ParseError) as error:
+    except (ValidationError, KeyError, ValueError, OSError, ET.ParseError, BadZipFile) as error:
         print(f"VALIDATION FAILED: {error}", file=sys.stderr)
         return 1
 
