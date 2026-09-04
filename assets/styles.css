@@ -1034,11 +1034,11 @@ footer {
   }
 
   .hero {
-    padding-top: 3.5rem;
+    padding-top: 2.75rem;
   }
 
   h1 {
-    font-size: clamp(2.7rem, 15vw, 4.2rem);
+    font-size: clamp(2.45rem, 12vw, 3.4rem);
   }
 
   .stat-line,
