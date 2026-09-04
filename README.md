@@ -1,18 +1,16 @@
 # CEI moral psychology results brief
 
-This private repository turns the benchmark outputs into a results-first readout for a research lead. It answers four practical questions with charts, keeps unlike metrics separate, and states what each result can and cannot support.
+This private repository turns the benchmark outputs into a visual readout for a research lead.
 
-![UniMoral size-path overview and concrete Gemma counterexample](assets/results/03_size_paths.png)
+**Decision: publish each task result with its limits. Do not rank the models overall.**
 
 ## Start here
 
-1. Read [`docs/ONE_MINUTE_READOUT.md`](docs/ONE_MINUTE_READOUT.md) for the decision and the four main results.
-2. Share the [`rendered slide gallery`](slides/README.md) or the [`view-only PDF`](slides/cei-moral-psychology-results-deck.pdf).
-3. Use the [`editable PowerPoint`](slides/cei-moral-psychology-results-deck.pptx) only when you need to change the deck.
-4. Open [`index.html`](index.html) for the full visual readout.
-5. Read [`docs/RESULTS_READOUT.md`](docs/RESULTS_READOUT.md) for the evidence and limits behind every chart.
-6. Use [`data/results/`](data/results/) for the plotted rows and derived tables.
-7. Use the poster, paper, and onboarding audits only when those evidence layers are relevant.
+1. Read the [`one-minute result`](docs/ONE_MINUTE_READOUT.md).
+2. Open the [`slide gallery`](slides/README.md) or [`view-only PDF`](slides/cei-moral-psychology-results-deck.pdf).
+3. Use the [`editable PowerPoint`](slides/cei-moral-psychology-results-deck.pptx) only when the deck needs to change.
+
+![UniMoral size-path overview and concrete Gemma counterexample](assets/results/03_size_paths.png)
 
 ## What the results say
 

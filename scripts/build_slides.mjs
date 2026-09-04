@@ -321,8 +321,8 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "Action: compare every model on the same questions.", {
-    left: 120, top: 596, width: 780, height: 34,
+  addText(slide, "Action: recover each question's result, then compare models question by question.", {
+    left: 120, top: 596, width: 980, height: 34,
   }, { fontSize: 22, bold: true, color: C.coral });
   addText(slide, "If the order is still unclear, add more comparison questions.", {
     left: 120, top: 632, width: 860, height: 28,
@@ -634,7 +634,7 @@ function setNotes(slide, lines) {
   const values = [
     ["When", "Action", "Reason"],
     ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
-    ["Next", "Compare the same questions; check that answers were read and labeled correctly", "This tackles the biggest gaps"],
+    ["Next", "Recover each question's result; check reading and labels", "This lets us compare models directly"],
     ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
     ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
   ];
@@ -653,9 +653,9 @@ function setNotes(slide, lines) {
   addText(slide, "Best next move", { left: 92, top: 582, width: 220, height: 30 }, {
     fontSize: 17, color: C.muted, bold: true,
   });
-  addText(slide, "Compare models on the same questions. Then have people review the test.", {
-    left: 92, top: 614, width: 1050, height: 46,
-  }, { fontSize: 28, color: C.ink, bold: true, autoFit: "shrinkText" });
+  addText(slide, "Recover each question's result. Compare models. Then have people review the test.", {
+    left: 92, top: 614, width: 1096, height: 46,
+  }, { fontSize: 26, color: C.ink, bold: true, autoFit: "shrinkText" });
   setNotes(slide, [
     "Sources: docs/RESEARCH_LEAD_BRIEF.md; evidence/canonical-audit/RERUN_PRIORITY.md; evidence/canonical-audit/SELF_CRITIQUE.md.",
     "The order shown is a decision recommendation, not a statistical theorem.",

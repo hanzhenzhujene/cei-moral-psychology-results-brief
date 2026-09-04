@@ -1039,7 +1039,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         expected_action_table = [
             ["When", "Action", "Reason"],
             ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
-            ["Next", "Compare the same questions; check that answers were read and labeled correctly", "This tackles the biggest gaps"],
+            ["Next", "Recover each question's result; check reading and labels", "This lets us compare models directly"],
             ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
             ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
         ]
