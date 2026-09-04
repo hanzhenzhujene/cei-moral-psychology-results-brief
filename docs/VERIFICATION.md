@@ -25,14 +25,14 @@ Technical checks passed: the published files, charts, and slides match the saved
 | Missingness | No error, cancelled, or missing row is plotted as zero |
 | Protocol-budget drift | Qwen3-32B total `107,375` reasoning tokens; DeepSeek V4 total `1,171,189` confirmed from source metadata |
 
-Ten PNG/SVG figure pairs and seven result tables were generated twice consecutively. All 27 generated files were byte-identical across the two builds.
+Ten PNG/SVG figure pairs and seven result tables were generated twice consecutively in the recorded Python 3.12 release environment. All 27 payload files were byte-identical across the two builds; a separate manifest binds their hashes to the current builder and locked requirements. The figures use fixed canvases, so font-metric differences do not change the HTML dimensions; exact pixels can still vary across operating-system and FreeType builds.
 
 ## Independent validators
 
 The personal-repo validator passed with the pinned source checkout supplied:
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py \
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_site.py \
   --source-repo /path/to/moral-psychology-benchmark
 ```
 
@@ -82,6 +82,7 @@ The README preview shows the main task-by-task result. The site keeps the size a
 | Package validation | Slide count, native-object ownership, relationship targets, nested workbook links, chart formulas, font policy, layout geometry, and first-party import checks pass |
 | Source-to-slide validation | The public repo validator independently opens the PPTX and recomputes the slide 2–6 table, card, and chart values from CSV evidence |
 | Repeat build | One release command builds a private PPTX, renders its PDF and eight PNGs, writes the manifest, validates the staged 11-file bundle, publishes it, and validates the public bundle again |
+| Python environment | `requirements-release.txt` pins the full Python 3.12 dependency set used for this handoff |
 | Repeat output | Two consecutive full releases passed. The PDF and all eight PNG hashes stayed identical; generated PPTX package metadata changed its container hash, and the manifest automatically rebound to the current deck |
 | Failure recovery | Fourteen tests cover every replacement point, public-validation failure, real `SIGINT`, real `SIGTERM`, both cleanup paths, and truthful post-interrupt status messages. The public hashes and signal state are restored before an in-transaction interrupt propagates |
 | Full rollback check | A real release was forced to fail after all 11 public replacements. It restored the old SHA-256 values and the actual repo validator passed afterward |

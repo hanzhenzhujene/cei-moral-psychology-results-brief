@@ -37,26 +37,20 @@ The chart does not show a moral score. It shows eight distinct measurements. The
 
 Source: [`common_roster_primary.csv`](../data/results/common_roster_primary.csv), filtered from the current canonical primary interval table.
 
-## 2. Precision by task
+## 2. Can the comparison tests identify a leader?
 
-![Median confidence interval width by task](../assets/results/02_precision_by_task.png)
+![Two cards showing complete pairwise overlap on both accuracy comparison tests](../assets/results/02_precision_by_task.png)
 
 This section uses all primary models: 8 for MFQ compare and 10 for vignette compare, not the five-model roster above. All 28 and 45 marginal model-pair ranges overlap. Because these are not paired difference tests, they do not resolve a leader.
 
-| Task | Median full 95% interval width | Read |
-|---|---:|---|
-| MFQ compare | `.395` | Too wide to resolve a model order |
-| Vignette compare | `.370` | Too wide to resolve a model order |
-| MFQ agreement | `.220` | Material uncertainty |
-| Vignette agreement | `.124` | Narrower, but still based on a small item bank |
-| UniMoral factor | `.033` | Nominal row-level precision |
-| UniMoral typology | `.032` | Nominal row-level precision |
-| UniMoral action | `.020` | Nominal row-level precision |
-| UniMoral consequence | `.012` | Nominal saved-standard-error precision |
+| Accuracy test | Saved models × questions | Overlapping model pairs |
+|---|---:|---:|
+| MFQ compare | `8 × 20` | `28/28 (100%)` |
+| Vignette compare | `10 × 24` | `45/45 (100%)` |
 
-All 18 intervals wider than `.30` occur here. Restore answers and scores by question, check scoring and labels, then compare models directly. Ask people whether the test matches human judgment; add items only if the order stays unclear.
+Restore answers and scores by question, check scoring and labels, then compare models directly. Ask people whether the test matches human judgment; add items only if the order stays unclear. The full task-width table remains available as supporting data, but widths from different metrics should not be compared on one scale.
 
-Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task medians; [`primary_confidence_intervals.csv`](../evidence/canonical-audit/figures/data/primary_confidence_intervals.csv) for the 18 individual wide intervals.
+Sources: [`primary_confidence_intervals.csv`](../evidence/canonical-audit/figures/data/primary_confidence_intervals.csv) for the saved ranges and pairwise-overlap counts; [`task_precision.csv`](../data/results/task_precision.csv) for the supporting width table, which keeps each metric labeled.
 
 ## 3. Model size paths
 

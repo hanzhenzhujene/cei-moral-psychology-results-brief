@@ -32,6 +32,7 @@ SLIDE_DECK = ROOT / "slides" / "cei-moral-psychology-results-deck.pptx"
 SLIDE_PDF = ROOT / "slides" / "cei-moral-psychology-results-deck.pdf"
 SLIDE_RENDER_DIR = ROOT / "slides" / "rendered"
 SLIDE_EXPORT_MANIFEST = ROOT / "slides" / "RENDER_MANIFEST.csv"
+RESULT_GENERATED_MANIFEST = RESULT_DATA / "GENERATED_MANIFEST.csv"
 
 SOURCE_HEAD = "b3a348684692f615d789392692ce34a1359192d3"
 CANONICAL_SHA = "276acecd603761e6ff61bd6e2685fbb87f0eaa47"
@@ -140,6 +141,53 @@ def sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def validate_generated_result_manifest() -> None:
+    figure_stems = {
+        "01_common_roster_task_results",
+        "02_precision_by_task",
+        "03_size_paths",
+        "03_size_paths_mobile",
+        "03_size_paths_detail_a",
+        "03_size_paths_detail_b",
+        "04_release_period_paths",
+        "04_release_period_paths_mobile",
+        "04_release_period_paths_detail_a",
+        "04_release_period_paths_detail_b",
+    }
+    table_names = {
+        "common_roster_primary.csv",
+        "task_precision.csv",
+        "size_task_points.csv",
+        "size_path_summary.csv",
+        "release_period_task_points.csv",
+        "release_path_summary.csv",
+        "research_question_takeaways.csv",
+    }
+    expected = {f"assets/results/{stem}.{suffix}" for stem in figure_stems for suffix in ("png", "svg")}
+    expected.update(f"data/results/{name}" for name in table_names)
+    manifest = pd.read_csv(RESULT_GENERATED_MANIFEST, keep_default_na=False)
+    check(
+        list(manifest.columns) == ["path", "sha256", "bytes", "builder_sha256", "requirements_sha256"],
+        "generated-result manifest schema drift",
+    )
+    check(len(manifest) == 27 and manifest["path"].is_unique, "generated-result manifest must contain 27 unique paths")
+    check(set(manifest["path"]) == expected, "generated-result manifest path set drift")
+    check(
+        set(manifest["builder_sha256"]) == {sha256(ROOT / "scripts" / "build_result_visuals.py")},
+        "generated-result manifest is not bound to the current builder",
+    )
+    check(
+        set(manifest["requirements_sha256"]) == {sha256(ROOT / "requirements-release.txt")},
+        "generated-result manifest is not bound to the current release requirements",
+    )
+    for row in manifest.itertuples(index=False):
+        path = ROOT / row.path
+        check(path.is_file(), f"missing manifested result file: {row.path}")
+        check(path.stat().st_size == int(row.bytes), f"manifested result size drift: {row.path}")
+        check(sha256(path) == row.sha256, f"manifested result hash drift: {row.path}")
+    passed("generated results: 27 figure/table files match the builder- and requirements-bound release manifest")
 
 
 def within_root(path: Path) -> bool:
@@ -1377,7 +1425,7 @@ def validate_site_and_links() -> None:
 def validate_visuals() -> None:
     expected = {
         "01_common_roster_task_results": ("No model is the point-estimate leader on every task", {"Haiku", "Opus", "GPT-5.4", "Mini", "Qwen"}),
-        "02_precision_by_task": ("Saved ranges overlap for every model pair on both comparison tests", {".20 internal planning target", ".30 internal audit warning"}),
+        "02_precision_by_task": ("Can the two comparison tests tell us which model leads?", {"100%", "28 of 28 model pairs", "45 of 45 model pairs", "8 models · 20 questions", "10 models · 24 questions"}),
         "03_size_paths": ("Bigger models do not score higher consistently on UniMoral", {"4 of 12", "7 of 12", "1 of 12", "Gemma 3-4B-IT", "4B total", "Gemma 3-27B-IT", "27B total"}),
         "03_size_paths_detail_a": ("How model size relates to UniMoral classification scores", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
         "03_size_paths_detail_b": ("How model size relates to consequence and ValuePrism scores", {"Qwen3-8B", "235B total / 22B active", "ValuePrism relevance", "ValuePrism valence"}),
@@ -1394,10 +1442,14 @@ def validate_visuals() -> None:
         with Image.open(png) as image:
             check(image.width >= 2500 and image.height >= 1200, f"result PNG is unexpectedly small: {stem}")
             check(image.width / image.height >= 1.15, f"result figure reverted to a compressed portrait composite: {stem}")
+            png_aspect = image.width / image.height
             stats = ImageStat.Stat(image.convert("L").resize((200, 200)))
             check(stats.var[0] > 25, f"result PNG appears blank: {stem}")
         tree = ET.parse(svg)
         root = tree.getroot()
+        view_box = [float(value) for value in str(root.get("viewBox", "")).split()]
+        check(len(view_box) == 4 and view_box[2] > 0 and view_box[3] > 0, f"invalid SVG viewBox: {stem}")
+        check(abs(png_aspect - (view_box[2] / view_box[3])) <= 1e-6, f"PNG/SVG canvas mismatch: {stem}")
         svg_text = " ".join("".join(root.itertext()).split())
         check(title in svg_text, f"SVG title drift: {stem}")
         for label in labels:
@@ -1422,10 +1474,14 @@ def validate_visuals() -> None:
         with Image.open(png) as image:
             check(image.width >= 1200 and image.height >= 2000, f"mobile result PNG is unexpectedly small: {stem}")
             check(image.width / image.height <= 0.80, f"mobile result figure is not a readable portrait layout: {stem}")
+            png_aspect = image.width / image.height
             stats = ImageStat.Stat(image.convert("L").resize((200, 200)))
             check(stats.var[0] > 25, f"mobile result PNG appears blank: {stem}")
         tree = ET.parse(svg)
         root = tree.getroot()
+        view_box = [float(value) for value in str(root.get("viewBox", "")).split()]
+        check(len(view_box) == 4 and view_box[2] > 0 and view_box[3] > 0, f"invalid mobile SVG viewBox: {stem}")
+        check(abs(png_aspect - (view_box[2] / view_box[3])) <= 1e-6, f"mobile PNG/SVG canvas mismatch: {stem}")
         svg_text = " ".join("".join(root.itertext()).split())
         check(title in svg_text, f"mobile SVG title drift: {stem}")
         for label in labels:
@@ -1684,7 +1740,7 @@ def validate_language_and_hygiene() -> None:
         if not path.is_file() or ".git" in path.parts or path.suffix.lower() not in text_suffixes:
             continue
         relative = path.relative_to(ROOT)
-        generated_parts = {"tmp", ".codex-slides-build", ".mypy_cache", ".pytest_cache", "__pycache__"}
+        generated_parts = {"tmp", ".venv", ".codex-slides-build", ".mypy_cache", ".pytest_cache", "__pycache__"}
         if any(part in generated_parts or part.startswith((".chart-data-", ".codex-slide-release-")) for part in relative.parts):
             continue
         text = path.read_text(errors="replace")
@@ -1758,6 +1814,7 @@ def main() -> int:
         selected = validate_selected_sources(args.source_repo)
         parameters = validate_parameter_metadata()
         validate_derived_results(primary, selected, parameters)
+        validate_generated_result_manifest()
         validate_slide_deck(args.slide_deck.resolve())
         if args.skip_slide_exports:
             check(

@@ -16,7 +16,7 @@
       <a class="brand" href="#top">CEI · Moral Psychology</a>
       <nav class="nav-links" aria-label="Page sections">
         <a href="#results">Results</a>
-        <a href="#precision">Precision</a>
+        <a href="#precision">Comparison tests</a>
         <a href="#scaling">Size &amp; release</a>
         <a href="#decisions">Decisions</a>
         <a href="#evidence-summary">Evidence</a>
@@ -71,7 +71,7 @@
 
         <figure class="result-figure wide-chart">
           <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-          <a href="assets/results/01_common_roster_task_results.png"><img src="assets/results/01_common_roster_task_results.png" width="3319" height="2104" decoding="async" fetchpriority="high" alt="Eight task-specific score-range panels for five consistently covered models; the highest saved score changes by task and comparison-task ranges are wide"></a>
+          <a href="assets/results/01_common_roster_task_results.png"><img src="assets/results/01_common_roster_task_results.png" width="3520" height="2112" decoding="async" fetchpriority="high" alt="Eight task-specific score-range panels for five consistently covered models; the highest saved score changes by task and comparison-task ranges are wide"></a>
           <figcaption>Five models with primary results on all eight text tasks. Matched task blocks share scales; normalized preference, accuracy, and METEOR remain separate. “Current” here means tracked aggregate evidence, not raw replay or human validity. Click for full size.</figcaption>
         </figure>
 
@@ -100,16 +100,16 @@
 
         <figure class="result-figure wide-chart">
           <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-          <a href="assets/results/02_precision_by_task.png"><img src="assets/results/02_precision_by_task.png" width="2827" height="1552" loading="lazy" decoding="async" alt="Horizontal bars across all available primary models, showing median uncertainty width near point four for the two MoralBench comparison tasks and below point zero four for all UniMoral tasks"></a>
-          <figcaption>Median full 95% interval width by task. The dashed line is the internal .20 planning target; the dotted line is the internal .30 audit warning.</figcaption>
+          <a href="assets/results/02_precision_by_task.png"><img src="assets/results/02_precision_by_task.png" width="2970" height="1650" loading="lazy" decoding="async" alt="Two cards show that saved marginal ranges overlap for 100 percent of model pairs on both accuracy comparison tests: 28 of 28 MFQ pairs and 45 of 45 vignette pairs"></a>
+          <figcaption>Both cards show one accuracy test. They report the share of model pairs whose saved marginal 95% ranges overlap; they are not paired model-difference tests.</figcaption>
         </figure>
 
         <div class="answer-grid">
-          <div><strong>Result</strong><span>All 28 MFQ and all 45 vignette model-pair ranges overlap. Median widths are .395 and .370.</span></div>
+          <div><strong>Result</strong><span>All 28 MFQ and all 45 vignette model-pair ranges overlap: 100% on both tests.</span></div>
           <div><strong>Implication</strong><span>Restore every model's answer and score for each question. Check scoring and labels, then compare models directly. Ask people whether the test matches human judgment.</span></div>
-          <div><strong>Limit</strong><span>Narrow row-level intervals are precision, not construct validity.</span></div>
+          <div><strong>Limit</strong><span>These are marginal ranges, not paired model-difference tests. Cluster-aware uncertainty is unavailable.</span></div>
         </div>
-        <div class="source-links"><a href="data/results/task_precision.csv">Task precision table</a></div>
+        <div class="source-links"><a href="evidence/canonical-audit/figures/data/primary_confidence_intervals.csv">Primary intervals</a><a href="data/results/task_precision.csv">Supporting width table</a></div>
       </div>
     </section>
 
@@ -129,7 +129,7 @@
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
             <figure class="result-figure flush insight-chart responsive-insight-chart">
-              <a href="assets/results/03_size_paths.svg"><picture><source media="(max-width: 640px)" srcset="assets/results/03_size_paths_mobile.png" width="1320" height="2376"><img src="assets/results/03_size_paths.png" width="3017" height="2170" loading="lazy" decoding="async" alt="Bar chart showing four of twelve UniMoral size paths rising at both steps, seven changing direction, and one falling, followed by a line chart where the same Gemma 4B, 12B, and 27B models rise on factor accuracy but fall on typology accuracy"></picture></a>
+              <a href="assets/results/03_size_paths.svg"><picture><source media="(max-width: 640px)" srcset="assets/results/03_size_paths_mobile.png" width="1320" height="2376"><img src="assets/results/03_size_paths.png" width="3080" height="2200" loading="lazy" decoding="async" alt="Bar chart showing four of twelve UniMoral size paths rising at both steps, seven changing direction, and one falling, followed by a line chart where the same Gemma 4B, 12B, and 27B models rise on factor accuracy but fall on typology accuracy"></picture></a>
               <figcaption>Each dot is one saved aggregate accuracy for the named Gemma model and task shown on the axes. Across all complete UniMoral paths, most do not rise at both size steps.</figcaption>
               <p class="matrix-file-link">Open full size: <a href="assets/results/03_size_paths.png">PNG</a> · <a href="assets/results/03_size_paths.svg">SVG</a></p>
             </figure>
@@ -206,7 +206,7 @@
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
             <figure class="result-figure flush insight-chart responsive-insight-chart">
-              <a href="assets/results/04_release_period_paths.svg"><picture><source media="(max-width: 640px)" srcset="assets/results/04_release_period_paths_mobile.png" width="1320" height="3036"><img src="assets/results/04_release_period_paths.png" width="3049" height="2153" loading="lazy" decoding="async" alt="Zero-centered endpoint-change dot plots showing Qwen and DeepSeek moving different UniMoral tasks in different directions, with accuracy and METEOR kept on separate scales"></picture></a>
+              <a href="assets/results/04_release_period_paths.svg"><picture><source media="(max-width: 640px)" srcset="assets/results/04_release_period_paths_mobile.png" width="1320" height="3036"><img src="assets/results/04_release_period_paths.png" width="3080" height="2200" loading="lazy" decoding="async" alt="Zero-centered endpoint-change dot plots showing Qwen and DeepSeek moving different UniMoral tasks in different directions, with accuracy and METEOR kept on separate scales"></picture></a>
               <figcaption>Each point is the later-minus-earlier aggregate for the named model path printed above the chart. All scores were evaluated May 28–29, 2026; release quarter describes the model, not the evaluation date.</figcaption>
               <p class="matrix-file-link">Open full size: <a href="assets/results/04_release_period_paths.png">PNG</a> · <a href="assets/results/04_release_period_paths.svg">SVG</a></p>
             </figure>

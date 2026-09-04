@@ -4,8 +4,13 @@
 from __future__ import annotations
 
 import csv
+import fcntl
 import hashlib
+import importlib.metadata
+import os
 import re
+import sys
+import tempfile
 from pathlib import Path
 
 import matplotlib as mpl
@@ -24,6 +29,29 @@ PARAMETERS = ROOT / "evidence" / "model-parameter-sources.csv"
 RELEASE_PERIODS = ROOT / "data" / "model_release_periods.csv"
 DATA = ROOT / "data" / "results"
 FIGURES = ROOT / "assets" / "results"
+RESULT_BUILD_LOCK = ROOT / ".codex-result-visuals.lock"
+
+RESULT_FIGURE_STEMS = [
+    "01_common_roster_task_results",
+    "02_precision_by_task",
+    "03_size_paths",
+    "03_size_paths_mobile",
+    "03_size_paths_detail_a",
+    "03_size_paths_detail_b",
+    "04_release_period_paths",
+    "04_release_period_paths_mobile",
+    "04_release_period_paths_detail_a",
+    "04_release_period_paths_detail_b",
+]
+RESULT_TABLE_NAMES = [
+    "common_roster_primary.csv",
+    "task_precision.csv",
+    "size_task_points.csv",
+    "size_path_summary.csv",
+    "release_period_task_points.csv",
+    "release_path_summary.csv",
+    "research_question_takeaways.csv",
+]
 
 SOURCE_HEAD = "b3a348684692f615d789392692ce34a1359192d3"
 RELEASE_PERIOD_SOURCE_PATH = "data/model_release_periods.csv"
@@ -129,28 +157,63 @@ def configure_style() -> None:
     )
 
 
-def save_figure(fig: plt.Figure, stem: str, *, tight: bool = True) -> None:
+def save_figure(fig: plt.Figure, stem: str, *, tight: bool = False) -> None:
     FIGURES.mkdir(parents=True, exist_ok=True)
     bbox_inches = "tight" if tight else None
-    fig.savefig(
-        FIGURES / f"{stem}.png",
-        dpi=220,
-        bbox_inches=bbox_inches,
-        facecolor=PAPER,
-        metadata={"Software": "CEI result visual builder", "Creation Time": "2026-09-03"},
-    )
-    fig.savefig(
-        FIGURES / f"{stem}.svg",
-        bbox_inches=bbox_inches,
-        facecolor=PAPER,
-        metadata={"Creator": "CEI result visual builder", "Date": "2026-09-03"},
-    )
-    plt.close(fig)
+    try:
+        with tempfile.TemporaryDirectory(prefix=".chart-data-", dir=ROOT) as temp_dir:
+            staged = Path(temp_dir)
+            png_path = staged / f"{stem}.png"
+            svg_path = staged / f"{stem}.svg"
+            fig.savefig(
+                png_path,
+                dpi=220,
+                bbox_inches=bbox_inches,
+                facecolor=PAPER,
+                metadata={"Software": "CEI result visual builder", "Creation Time": "2026-09-03"},
+            )
+            fig.savefig(
+                svg_path,
+                bbox_inches=bbox_inches,
+                facecolor=PAPER,
+                metadata={"Creator": "CEI result visual builder", "Date": "2026-09-03"},
+            )
+            # Matplotlib deliberately emits spaces at the ends of SVG path lines.
+            normalized_svg = "\n".join(line.rstrip() for line in svg_path.read_text(encoding="utf-8").splitlines()) + "\n"
+            svg_path.write_text(normalized_svg, encoding="utf-8")
+            os.replace(png_path, FIGURES / png_path.name)
+            os.replace(svg_path, FIGURES / svg_path.name)
+    finally:
+        plt.close(fig)
 
 
 def save_csv(frame: pd.DataFrame, name: str) -> None:
     DATA.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(DATA / name, index=False, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+    with tempfile.TemporaryDirectory(prefix=".chart-data-", dir=ROOT) as temp_dir:
+        staged = Path(temp_dir) / name
+        frame.to_csv(staged, index=False, quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+        os.replace(staged, DATA / name)
+
+
+def write_generated_manifest(builder_sha256: str, requirements_sha256: str) -> None:
+    paths = [DATA / name for name in RESULT_TABLE_NAMES]
+    paths.extend(FIGURES / f"{stem}.{suffix}" for stem in RESULT_FIGURE_STEMS for suffix in ("png", "svg"))
+    assert len(paths) == 27 and all(path.is_file() for path in paths)
+    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != builder_sha256:
+        raise RuntimeError("result-visual builder changed during the build")
+    if hashlib.sha256((ROOT / "requirements-release.txt").read_bytes()).hexdigest() != requirements_sha256:
+        raise RuntimeError("release requirements changed during the build")
+    rows = [
+        {
+            "path": path.relative_to(ROOT).as_posix(),
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "bytes": path.stat().st_size,
+            "builder_sha256": builder_sha256,
+            "requirements_sha256": requirements_sha256,
+        }
+        for path in sorted(paths)
+    ]
+    save_csv(pd.DataFrame(rows), "GENERATED_MANIFEST.csv")
 
 
 def validate_selected_sources() -> None:
@@ -165,7 +228,20 @@ def validate_selected_sources() -> None:
         assert frame.shape == (int(row.rows), int(row.columns)), f"source shape drift: {row.path}"
 
 
-def load_verified_results() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def validate_release_runtime(requirements_text: str) -> None:
+    if sys.version_info[:2] != (3, 12):
+        raise RuntimeError(f"result visuals require Python 3.12, found {sys.version.split()[0]}")
+    for raw_line in requirements_text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        name, expected = line.split("==", maxsplit=1)
+        actual = importlib.metadata.version(name)
+        if actual != expected:
+            raise RuntimeError(f"release dependency mismatch: {name}=={actual}; expected {expected}")
+
+
+def load_verified_results() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     primary = pd.read_csv(CANONICAL / "primary_confidence_intervals.csv")
     precision = pd.read_csv(CANONICAL / "task_diagnostic_spread.csv")
     partition = pd.read_csv(CANONICAL / "audit_partition.csv")
@@ -183,7 +259,7 @@ def load_verified_results() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     assert common.groupby("model")["task"].nunique().to_dict() == {model: 8 for model in COMMON_MODELS}
     common["model_label"] = common["model"].map(MODEL_LABELS)
     common["task_label"] = common["task"].map(lambda task: TASKS[task][0])
-    return common, precision, partition
+    return primary, common, precision, partition
 
 
 def plot_common_roster(common: pd.DataFrame) -> None:
@@ -241,36 +317,58 @@ def plot_common_roster(common: pd.DataFrame) -> None:
     save_figure(fig, "01_common_roster_task_results")
 
 
-def plot_precision(precision: pd.DataFrame) -> None:
-    ordered = precision.sort_values("median_ci_width", ascending=True).copy()
-    colors = []
-    for task in ordered["task"]:
-        if "compare" in task:
-            colors.append(RED)
-        elif "agreement" in task:
-            colors.append(AMBER)
-        else:
-            colors.append(GREEN)
+def plot_precision(primary: pd.DataFrame) -> None:
+    cards = []
+    for task, label, expected_models in (
+        ("moralbench_mfq_compare", "Moral Foundations (MFQ)", 8),
+        ("moralbench_vignette_compare", "Moral vignette", 10),
+    ):
+        frame = primary[primary["task"] == task]
+        assert len(frame) == expected_models
+        overlapping = 0
+        pairs = 0
+        rows = list(frame.itertuples(index=False))
+        for left_index, left in enumerate(rows):
+            for right in rows[left_index + 1 :]:
+                pairs += 1
+                if max(left.ci_lower, right.ci_lower) <= min(left.ci_upper, right.ci_upper):
+                    overlapping += 1
+        assert overlapping == pairs
+        cards.append((label, overlapping, pairs, expected_models, int(frame["n_scored"].iloc[0])))
+
     fig, ax = plt.subplots(figsize=(13.5, 7.5))
-    ypos = np.arange(len(ordered))
-    ax.hlines(ypos, 0, ordered["median_ci_width"], color=colors, linewidth=5, alpha=0.9)
-    ax.scatter(ordered["median_ci_width"], ypos, s=95, color=colors, edgecolor="white", linewidth=1.3, zorder=3)
-    for y, value in zip(ypos, ordered["median_ci_width"]):
-        ax.text(value + 0.012, y, f"{value:.3f}", va="center", fontsize=10, fontweight="bold")
-    ax.axvline(0.20, color=MUTED, linestyle="--", linewidth=1.3)
-    ax.axvline(0.30, color=RED, linestyle=":", linewidth=1.5)
-    ax.text(0.20, 0.99, ".20 internal planning target", transform=ax.get_xaxis_transform(), ha="right", va="top", color=MUTED, fontsize=8.5)
-    ax.text(0.30, 0.91, ".30 internal audit warning", transform=ax.get_xaxis_transform(), ha="left", va="top", color=RED, fontsize=8.5)
-    ax.set_yticks(ypos)
-    ax.set_yticklabels(ordered["task_label"])
-    ax.set_xlim(0, 0.45)
-    ax.set_xlabel("Median full width of the saved 95% interval")
-    ax.grid(axis="x", color=GRID, linewidth=0.8)
-    ax.set_title("Saved ranges overlap for every model pair on both comparison tests", loc="left", fontsize=20, fontweight="bold", pad=28)
-    ax.text(0, 1.025, "Each dot = one task median. Full panels: 8 MFQ and 10 vignette models. Saved ranges overlap for all 28 MFQ and 45 vignette model pairs.", transform=ax.transAxes, color=MUTED, fontsize=10.5)
-    fig.text(0.055, 0.065, "Decision: recover per-question outcomes, check scoring, compare models directly, and run human review.\nAdd independent items only if the order is still unclear.", fontsize=9.7, fontweight="bold")
-    fig.text(0.055, 0.018, "Narrow UniMoral intervals are nominal row-level precision; they do not establish construct validity or cluster-aware uncertainty.", fontsize=9.1, color=MUTED)
-    fig.tight_layout(rect=(0.03, 0.14, 0.99, 0.95))
+    ax.set_axis_off()
+    fig.suptitle(
+        "Can the two comparison tests tell us which model leads?",
+        x=0.055,
+        y=0.955,
+        ha="left",
+        fontsize=22,
+        fontweight="bold",
+    )
+    fig.text(0.055, 0.895, "No. Every saved model-pair range overlaps within both accuracy tests.", fontsize=13, color=MUTED)
+
+    for x, (label, overlapping, pairs, models, questions) in zip((0.07, 0.53), cards):
+        card = mpl.patches.FancyBboxPatch(
+            (x, 0.38),
+            0.40,
+            0.40,
+            boxstyle="round,pad=0.018,rounding_size=0.025",
+            transform=ax.transAxes,
+            linewidth=2,
+            edgecolor=RED,
+            facecolor=SOFT_RED,
+        )
+        ax.add_patch(card)
+        ax.text(x + 0.20, 0.715, label, transform=ax.transAxes, ha="center", va="center", fontsize=16, fontweight="bold")
+        ax.text(x + 0.20, 0.605, "100%", transform=ax.transAxes, ha="center", va="center", fontsize=42, fontweight="bold", color=RED)
+        ax.text(x + 0.20, 0.505, f"{overlapping} of {pairs} model pairs", transform=ax.transAxes, ha="center", va="center", fontsize=15, fontweight="bold")
+        ax.text(x + 0.20, 0.435, f"{models} models · {questions} questions", transform=ax.transAxes, ha="center", va="center", fontsize=11, color=MUTED)
+
+    fig.text(0.07, 0.265, "Result: the saved marginal ranges do not resolve a leader.", fontsize=12.5, fontweight="bold", color=RED)
+    fig.text(0.07, 0.205, "Limit: these are not paired model-difference tests. Question-level results and cluster-aware uncertainty are unavailable.", fontsize=10.5, color=INK)
+    fig.text(0.07, 0.125, "Next: restore each answer and score, check scoring and labels, then compare models directly and run human review.", fontsize=11, fontweight="bold")
+    fig.subplots_adjust(left=0.03, right=0.99, top=0.90, bottom=0.05)
     save_figure(fig, "02_precision_by_task")
 
 
@@ -653,10 +751,12 @@ def plot_size_answer(points: pd.DataFrame, summary: pd.DataFrame) -> None:
 
     fig.text(
         0.055,
-        0.018,
-        "Each dot is one saved aggregate accuracy for one named model on one task; lines only join the selected variants. Exploratory: no saved intervals or raw-log replay, and B is not a controlled intervention.",
-        fontsize=9.6,
+        0.010,
+        "Each dot is one saved aggregate accuracy for one named model on one task; lines only join the selected variants.\nExploratory: no saved intervals or raw-log replay, and B is not a controlled intervention.",
+        fontsize=9.2,
         color=MUTED,
+        va="bottom",
+        linespacing=1.2,
     )
     fig.subplots_adjust(left=0.16, right=0.965, top=0.89, bottom=0.09)
     save_figure(fig, "03_size_paths")
@@ -996,7 +1096,7 @@ def plot_release_answer(summary: pd.DataFrame) -> None:
         for row in rows.itertuples(index=False):
             y = y_positions[row.task] + family_offsets[row.family]
             delta = float(row.endpoint_delta)
-            point = ax.scatter(
+            ax.scatter(
                 delta,
                 y,
                 s=78,
@@ -1033,7 +1133,7 @@ def plot_release_answer(summary: pd.DataFrame) -> None:
         accuracy_ax,
         unimoral[unimoral["task"].isin(accuracy_tasks)],
         accuracy_tasks,
-        0.22,
+        0.26,
         "accuracy",
     )
     accuracy_ax.set_title("Classification tasks — zero means no endpoint change", loc="left", fontweight="bold", pad=10)
@@ -1326,9 +1426,13 @@ def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame, release_
     save_csv(table, "research_question_takeaways.csv")
 
 
-def main() -> None:
+def build_result_visuals() -> None:
+    builder_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    requirements_text = (ROOT / "requirements-release.txt").read_text(encoding="utf-8")
+    requirements_sha256 = hashlib.sha256(requirements_text.encode("utf-8")).hexdigest()
+    validate_release_runtime(requirements_text)
     configure_style()
-    common, precision, partition = load_verified_results()
+    primary, common, precision, partition = load_verified_results()
     _, results = load_selected_grid()
     parameters = load_model_parameters()
     size_points, size_summary = build_size_paths(results)
@@ -1349,7 +1453,7 @@ def main() -> None:
     save_takeaways(partition, size_summary, release_summary)
 
     plot_common_roster(common)
-    plot_precision(precision)
+    plot_precision(primary)
     plot_size_answer(size_points, size_summary)
     plot_size_answer_mobile(size_points, size_summary)
     plot_size_detail(
@@ -1378,7 +1482,17 @@ def main() -> None:
         "04_release_period_paths_detail_b",
         "How named model releases move on consequence and ValuePrism",
     )
-    print("Built 10 result figures and 7 machine-readable result tables.")
+    write_generated_manifest(builder_sha256, requirements_sha256)
+    print("Built 10 result figures, 7 machine-readable result tables, and their release manifest.")
+
+
+def main() -> None:
+    with RESULT_BUILD_LOCK.open("w") as lock_file:
+        try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise SystemExit("Another result-visual build is already running.") from error
+        build_result_visuals()
 
 
 if __name__ == "__main__":

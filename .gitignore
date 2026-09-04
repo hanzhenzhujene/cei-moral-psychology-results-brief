@@ -1,5 +1,11 @@
 .DS_Store
 *.log
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
 tmp/
 .codex-slides-build/
+.codex-slide-release-*/
+.codex-result-visuals.lock
 .chart-data-*/

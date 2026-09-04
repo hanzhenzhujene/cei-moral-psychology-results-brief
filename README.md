@@ -52,12 +52,21 @@ The repository has aggregate benchmark results, but it lacks original raw run ar
 
 ## Rebuild and verify
 
+Use Python 3.12. Prepare one locked environment for the charts, validator, and slide publisher:
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements-release.txt
+```
+
 ### Rebuild charts and site
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 python scripts/build_result_visuals.py
-PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/build_result_visuals.py
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_site.py
 ```
+
+The chart builder allows one writer at a time, stages each file before replacement, and writes `data/results/GENERATED_MANIFEST.csv` last. The validator checks all 27 payload hashes and binds them to the current builder and locked requirements, so a partial or stale rebuild cannot pass.
 
 The repo validator also opens the PPTX. It checks the native tables, charts, embedded workbooks, notes, and the slide 2–6 values against the CSV evidence.
 
@@ -71,21 +80,20 @@ WORKSPACE_PYTHON=/absolute/path/to/bundled-python \
 ARTIFACT_TOOL_DIR=/absolute/path/to/@oai/artifact-tool \
 RUNTIME_NODE_MODULES=/absolute/path/to/bundled-node_modules \
 RUNTIME_NODE=/absolute/path/to/bundled-node \
-/absolute/path/to/python-with-repo-dependencies scripts/publish_slides.py \
+.venv/bin/python scripts/publish_slides.py \
   --source-repo /absolute/path/to/moral-psychology-benchmark
 ```
 
 This builds the PPTX in private staging, renders the PDF and eight `2560 × 1440` PNGs from that exact deck, writes their manifest, and validates all 11 files together. Only then does it replace the public files. If replacement or the final public check fails, it restores the previous release and verifies the rollback. It does not rewrite the reports.
 
-`WORKSPACE_PYTHON` is the bundled presentation runtime. The Python used to run `publish_slides.py` must provide `beautifulsoup4`, `numpy`, `pandas`, `Pillow`, `pypdf`, and `img2pdf==0.6.1`. The lower-level `build_slides.mjs` writes only to a private path supplied by the publisher; it cannot overwrite the public deck by itself.
+`WORKSPACE_PYTHON` is the bundled presentation runtime. The lower-level `build_slides.mjs` writes only to a private path supplied by the publisher; it cannot overwrite the public deck by itself.
 
-In Codex, first load the workspace dependencies. Use its Node executable for `RUNTIME_NODE`, its `node_modules` directory for `RUNTIME_NODE_MODULES`, and its Python executable for `WORKSPACE_PYTHON`. `ARTIFACT_TOOL_DIR` is the `@oai/artifact-tool` directory inside those Node modules. `PRESENTATIONS_SKILL_DIR` is the installed presentations skill directory.
+In Codex, first load the workspace dependencies. Use its Node executable for `RUNTIME_NODE`, its `node_modules` directory for `RUNTIME_NODE_MODULES`, and its Python executable for `WORKSPACE_PYTHON`. `ARTIFACT_TOOL_DIR` is the `@oai/artifact-tool` directory inside those Node modules. For `PRESENTATIONS_SKILL_DIR`, find the `Presentations` entry in the Codex skill catalog and use the directory that contains its `SKILL.md`.
 
-Check the release Python before you build:
+Run the transaction tests before a release:
 
 ```sh
-/absolute/path/to/python-with-repo-dependencies -c \
-  "import bs4, img2pdf, numpy, pandas, PIL, pypdf; assert img2pdf.__version__ == '0.6.1'"
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m unittest -v tests.test_publish_slides
 ```
 
 If the pinned source checkout is unavailable, omit `--source-repo ...`. The release still receives all local checks, but skips the source-level byte comparison.
