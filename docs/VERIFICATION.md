@@ -38,8 +38,8 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py \
 
 It checks the canonical and selected-source manifests, all 80 derived point rows, all size and release summaries, and the 15-model parameter ledger. It also verifies:
 
-- the 8-slide PPTX package, 16:9 canvas, 3 native tables, 4 native charts, 4 linked workbooks, and 8 sourced notes;
-- the slide 2 leader table and slide 3–6 chart caches against the repo CSVs, plus each chart cache against its embedded workbook;
+- the 8-slide PPTX package, 16:9 canvas, 3 native tables, 3 native charts, 3 linked workbooks, and 8 sourced notes;
+- the slide 2 leader table, slide 3 overlap cards, and slide 4–6 chart caches against repo evidence, plus each chart cache against its embedded workbook;
 - `18/12` values in the collapsed semantic audit tables;
 - the six Gemma answer labels in both desktop and mobile size figures;
 - the eight endpoint-delta labels in both desktop and mobile release figures;
@@ -73,15 +73,19 @@ The README preview shows the main task-by-task result. The site keeps the size a
 
 | Check | Outcome |
 |---|---|
-| Story | 8 slides; one claim per slide; task results, precision, size, release, paper fit, and action remain separate |
+| Story | 8 slides; one claim per slide; task results, overlap and uncertainty, size, release, paper fit, and action remain separate |
 | Task labels | Slide 2 keeps all eight formal task names and adds a plain-language explanation of what each task tests |
-| Native objects | 4 editable charts and 3 editable tables |
+| Native objects | 3 editable charts, 3 editable tables, and 2 direct overlap cards |
 | Evidence labels | Main results, exploratory, paper-review, and decision claims are visibly separated |
 | Metrics | Accuracy, normalized preference, and METEOR are not combined into one score or axis |
 | Model labels | Size and release examples show the named model and published parameter basis, including active parameters for MoE models |
 | Package validation | Slide count, native-object ownership, relationship targets, nested workbook links, chart formulas, font policy, layout geometry, and first-party import checks pass |
-| Source-to-slide validation | The public repo validator independently opens the PPTX and recomputes the slide 2–6 table and chart values from CSV evidence |
-| Repeat build | The semantic validator runs before an atomic rename replaces the stable deck. The PPTX container SHA can change with generated package metadata, so the content contract is rechecked after every build |
+| Source-to-slide validation | The public repo validator independently opens the PPTX and recomputes the slide 2–6 table, card, and chart values from CSV evidence |
+| Repeat build | One release command builds a private PPTX, renders its PDF and eight PNGs, writes the manifest, validates the staged 11-file bundle, publishes it, and validates the public bundle again |
+| Repeat output | Two consecutive full releases passed. The PDF and all eight PNG hashes stayed identical; generated PPTX package metadata changed its container hash, and the manifest automatically rebound to the current deck |
+| Failure recovery | Fourteen tests cover every replacement point, public-validation failure, real `SIGINT`, real `SIGTERM`, both cleanup paths, and truthful post-interrupt status messages. The public hashes and signal state are restored before an in-transaction interrupt propagates |
+| Full rollback check | A real release was forced to fail after all 11 public replacements. It restored the old SHA-256 values and the actual repo validator passed afterward |
+| Single writer | A file lock rejects a second publisher; real process-signal tests confirm that an interrupt cannot leave a partial public release |
 | Visual inspection | All 8 share slides were rendered at 2560 × 1440 and inspected at full resolution; no observed overlap, clipping, or compressed screenshots |
 | Share copies | The repo includes an 8-page view-only PDF and eight 2560 × 1440 PNGs. Every manifest row records the current PPTX SHA-256; every page was rendered again and inspected at full resolution |
 | Portability | The PDF and PNGs use the verified slide render, so layout does not depend on the viewer's fonts or PowerPoint renderer |

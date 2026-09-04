@@ -11,6 +11,7 @@ const RUNTIME_PYTHON = process.env.WORKSPACE_PYTHON;
 const VALIDATION_PYTHON = process.env.VALIDATION_PYTHON;
 const ARTIFACT_TOOL_DIR = process.env.ARTIFACT_TOOL_DIR;
 const RUNTIME_NODE_MODULES = process.env.RUNTIME_NODE_MODULES;
+const SLIDE_DECK_OUTPUT = process.env.SLIDE_DECK_OUTPUT;
 
 for (const [name, value] of Object.entries({
   PRESENTATIONS_SKILL_DIR: SKILL_DIR,
@@ -18,6 +19,7 @@ for (const [name, value] of Object.entries({
   VALIDATION_PYTHON,
   ARTIFACT_TOOL_DIR,
   RUNTIME_NODE_MODULES,
+  SLIDE_DECK_OUTPUT,
 })) {
   if (!value || !path.isAbsolute(value)) {
     throw new Error(`${name} must be set to an absolute path.`);
@@ -54,7 +56,20 @@ const { Presentation, PresentationFile } = await import(pathToFileURL(
 ).href);
 
 const TMP_DIR = path.join(workspaceDir, ".codex-slides-build");
-const FINAL_PPTX = path.join(workspaceDir, "slides", "cei-moral-psychology-results-deck.pptx");
+const DECK_NAME = "cei-moral-psychology-results-deck.pptx";
+const PUBLIC_PPTX = path.join(workspaceDir, "slides", DECK_NAME);
+const FINAL_PPTX = path.resolve(SLIDE_DECK_OUTPUT);
+const outputParent = path.dirname(FINAL_PPTX);
+const stagingRoot = path.dirname(outputParent);
+if (
+  FINAL_PPTX === PUBLIC_PPTX
+  || path.basename(FINAL_PPTX) !== DECK_NAME
+  || path.basename(outputParent) !== "slides"
+  || path.dirname(stagingRoot) !== workspaceDir
+  || !path.basename(stagingRoot).startsWith(".codex-slide-release-")
+) {
+  throw new Error("SLIDE_DECK_OUTPUT must be the publisher-created private staging deck path.");
+}
 
 const {
   resolvePresentationFont,
@@ -66,6 +81,16 @@ const {
 
 await fs.mkdir(TMP_DIR, { recursive: true });
 await fs.mkdir(path.dirname(FINAL_PPTX), { recursive: true });
+const workspaceReal = await fs.realpath(workspaceDir);
+const outputParentReal = await fs.realpath(path.dirname(FINAL_PPTX));
+const stagingRootReal = path.dirname(outputParentReal);
+if (
+  path.basename(outputParentReal) !== "slides"
+  || path.dirname(stagingRootReal) !== workspaceReal
+  || !path.basename(stagingRootReal).startsWith(".codex-slide-release-")
+) {
+  throw new Error("SLIDE_DECK_OUTPUT staging path resolves outside the workspace release directory.");
+}
 
 const family = resolvePresentationFont({ fontFamily: "Aptos" });
 const presentation = Presentation.create({ slideSize: { width: 1280, height: 720 } });
@@ -263,91 +288,64 @@ function setNotes(slide, lines) {
   ]);
 }
 
-// Slide 3: precision
+// Slide 3: comparison overlap
 {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Every model pair has overlapping score ranges on both tests",
+    "Saved ranges overlap for every model pair on both tests",
     "Full primary panels: MFQ = 8 models × 20 questions; Vignette = 10 × 24.",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
-  addText(slide, "Each bar = the median full width of saved 95% intervals across available models.", {
+  addText(slide, "Each card = share of model pairs whose saved marginal 95% ranges overlap.", {
     left: 120, top: 149, width: 1030, height: 22,
   }, { fontSize: 15, color: C.muted });
-  const categories = [
-    "MFQ compare",
-    "Vignette compare",
-    "MFQ agreement",
-    "Vignette agreement",
-    "UniMoral factor",
-    "UniMoral typology",
-    "UniMoral action",
-    "UniMoral consequence",
-  ];
-  const values = [0.395, 0.370, 0.220, 0.124, 0.033, 0.032, 0.020, 0.012];
-  const chart = slide.charts.add("bar", {
-    position: { left: 120, top: 177, width: 1030, height: 337 },
-    title: "Median width of saved 95% ranges — wider means less sure",
-    titlePlacement: "none",
-    categories,
-    series: [{
-      name: "Interval width",
-      values,
-      fill: C.teal,
-      points: values.map((_, idx) => ({
-        idx,
-        fill: idx < 2 ? C.coral : idx < 4 ? C.gold : C.teal,
-        line: { fill: "none", width: 0 },
-      })),
-      valuesFormatCode: "0.000",
-    }],
-    barOptions: { direction: "bar", grouping: "clustered", gapWidth: 36 },
-    hasLegend: false,
-    xAxis: {
-      visible: true,
-      title: "Median full width of saved 95% interval",
-      min: 0,
-      max: 0.42,
-      majorUnit: 0.10,
-      numberFormatCode: "0.00",
-      majorGridlines: { style: "solid", fill: C.grid, width: 1 },
-      textStyle: { typeface: family, fontSize: 13, fill: C.muted },
-    },
-    yAxis: {
-      visible: true,
-      textStyle: { typeface: family, fontSize: 15, fill: C.ink },
-      line: { fill: "none", width: 0 },
-    },
-    dataLabels: {
-      showValue: true,
-      position: "outEnd",
-      textStyle: { typeface: family, fontSize: 14, fill: C.ink, bold: true },
-    },
-    chartFill: C.bg,
-    chartLine: { fill: "none", width: 0 },
-    plotAreaFill: C.bg,
-    plotAreaLine: { fill: "none", width: 0 },
-  });
-  applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "Marginal ranges overlap for all 28 MFQ and all 45 Vignette model pairs.", {
-    left: 120, top: 526, width: 1030, height: 30,
-  }, { fontSize: 18, bold: true, color: C.coral });
-  addText(slide, "These ranges look at one model at a time; paired question results are unavailable.", {
-    left: 120, top: 559, width: 1030, height: 24,
-  }, { fontSize: 15, color: C.muted });
+  for (const card of [
+    { left: 120, task: "MFQ compare", pairs: "28 of 28 model pairs" },
+    { left: 650, task: "Vignette compare", pairs: "45 of 45 model pairs" },
+  ]) {
+    slide.shapes.add({
+      geometry: "roundRect",
+      position: { left: card.left, top: 187, width: 480, height: 235 },
+      fill: C.coralSoft,
+      line: { style: "solid", fill: C.coral, width: 2 },
+      borderRadius: 18,
+    });
+    addText(slide, card.task, { left: card.left + 30, top: 210, width: 420, height: 34 }, {
+      fontSize: 23, bold: true, color: C.ink, alignment: "center",
+    });
+    addText(slide, "100%", { left: card.left + 30, top: 250, width: 420, height: 76 }, {
+      fontSize: 54, bold: true, color: C.coral, alignment: "center",
+    });
+    addText(slide, card.pairs, { left: card.left + 30, top: 330, width: 420, height: 32 }, {
+      fontSize: 19, bold: true, color: C.ink, alignment: "center",
+    });
+    addText(slide, "saved marginal ranges overlap", { left: card.left + 30, top: 368, width: 420, height: 26 }, {
+      fontSize: 15, color: C.muted, alignment: "center",
+    });
+  }
+  addText(slide, "100% of model pairs overlap on both tests. This does not resolve a leader.", {
+    left: 120, top: 449, width: 1030, height: 32,
+  }, { fontSize: 21, bold: true, color: C.coral });
+  addText(slide, "These are marginal ranges, not paired model-difference tests. Question-level results are unavailable.", {
+    left: 120, top: 492, width: 1030, height: 26,
+  }, { fontSize: 15, color: C.ink });
+  addText(slide, "Intervals are nominal; cluster-aware uncertainty is unavailable.", {
+    left: 120, top: 524, width: 1030, height: 24,
+  }, { fontSize: 14, color: C.muted });
   addText(slide, "Next: restore every model's answer and score for each question.", {
-    left: 120, top: 592, width: 1030, height: 32,
+    left: 120, top: 580, width: 1030, height: 32,
   }, { fontSize: 20, bold: true, color: C.ink });
   addText(slide, "Check scoring and labels. Then compare models and have people review the test.", {
-    left: 120, top: 628, width: 1030, height: 28,
+    left: 120, top: 618, width: 1030, height: 28,
   }, { fontSize: 16, color: C.muted });
   setNotes(slide, [
-    "Source: data/results/task_precision.csv.",
+    "Source: evidence/canonical-audit/figures/data/primary_confidence_intervals.csv.",
     "All 18 individual intervals wider than .30 occur in the two MoralBench comparison tasks.",
     "Denominator: all available primary models—8 on MFQ compare and 10 on vignette compare—not the five-model common roster.",
     "Within each comparison task, every model pair has overlapping marginal intervals: 28 of 28 MFQ pairs and 45 of 45 vignette pairs.",
-    "This is not a paired model-difference test. The narrow UniMoral intervals are nominal row-level estimates and do not establish cluster-aware uncertainty or human validity.",
+    "This is not a paired model-difference test. The visible cards compare only the two accuracy tasks; they do not rank interval widths across different metrics.",
+    "The saved intervals are nominal row-level estimates and do not establish cluster-aware uncertainty or human validity.",
   ]);
 }
 
@@ -509,7 +507,7 @@ function setNotes(slide, lines) {
   addSlideFrame(
     slide,
     "Later model versions score higher on some tasks and lower on others",
-    "Score change on three UniMoral tasks",
+    "Accuracy change on three UniMoral tasks; consequence text match stays separate",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
   addText(slide, "Qwen: 2024-Q3 · Qwen2.5 7B Instruct (7.61B) → 2026-Q1 · Qwen3.5 9B (9B)", {
@@ -522,8 +520,8 @@ function setNotes(slide, lines) {
     left: 110, top: 212, width: 980, height: 20,
   }, { fontSize: 12, color: C.muted });
   const chart = slide.charts.add("bar", {
-    position: { left: 120, top: 238, width: 1030, height: 331 },
-    title: "Score change from earlier to later version",
+    position: { left: 120, top: 238, width: 1030, height: 310 },
+    title: "Accuracy change from earlier to later version",
     titlePlacement: "none",
     categories: ["Action", "Typology", "Factor"],
     series: [
@@ -575,15 +573,21 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
+  addText(slide, "Across all four tasks: Qwen 3 higher / 1 lower · DeepSeek 2 higher / 2 lower", {
+    left: 120, top: 560, width: 1030, height: 28,
+  }, { fontSize: 18, bold: true, color: C.ink });
+  addText(slide, "Separate metric · Consequence text match (METEOR): Qwen −.027; DeepSeek +.019", {
+    left: 120, top: 590, width: 1030, height: 26,
+  }, { fontSize: 16, bold: true, color: C.coral });
   addText(slide, "All endpoint runs were evaluated on 28–29 May 2026.", {
-    left: 120, top: 594, width: 900, height: 32,
-  }, { fontSize: 20, bold: true, color: C.ink });
-  addText(slide, "Release period is model metadata, not a progress timeline; 28–29 May is the evaluation time.", {
-    left: 120, top: 630, width: 940, height: 28,
-  }, { fontSize: 15, color: C.muted, autoFit: "shrinkText" });
-  addText(slide, "Exploratory: saved uncertainty is unavailable. Consequence uses a different score and is not shown.", {
-    left: 120, top: 661, width: 940, height: 24,
-  }, { fontSize: 13, color: C.muted, autoFit: "shrinkText" });
+    left: 120, top: 620, width: 900, height: 26,
+  }, { fontSize: 17, bold: true, color: C.ink });
+  addText(slide, "Release period is model metadata, not a progress timeline.", {
+    left: 120, top: 650, width: 940, height: 22,
+  }, { fontSize: 13, color: C.muted });
+  addText(slide, "Exploratory: saved uncertainty is unavailable. METEOR stays separate from accuracy.", {
+    left: 120, top: 676, width: 940, height: 20,
+  }, { fontSize: 12, color: C.muted });
   setNotes(slide, [
     "Sources: data/results/release_path_summary.csv; data/results/release_period_task_points.csv; data/model_release_periods.csv; evidence/model-parameter-sources.csv.",
     "Classification accuracy deltas shown: Qwen action +.017873, typology +.042383, factor +.002005; DeepSeek action +.186589, typology -.003150, factor -.037514.",
@@ -686,7 +690,7 @@ function setNotes(slide, lines) {
 const requirements = {
   explicitTotalSlideCount: 8,
   requiredNativeTableOwnerSlides: [2, 7, 8],
-  requiredNativeChartOwnerSlides: [3, 4, 5, 6],
+  requiredNativeChartOwnerSlides: [4, 5, 6],
   materializeLiteralChartWorkbooks: true,
 };
 const fontPolicy = { basis: "design", families: [family] };
@@ -732,6 +736,7 @@ const semanticValidation = await runChecked(
     path.join(workspaceDir, "scripts", "validate_site.py"),
     "--slide-deck",
     validatedPath,
+    "--skip-slide-exports",
   ],
   {
     cwd: workspaceDir,
@@ -742,8 +747,8 @@ if (!semanticValidation.stdout.includes("VALIDATION PASSED")) {
   throw new Error("Semantic validator exited successfully without a VALIDATION PASSED receipt.");
 }
 
-// Stage beside the public file so the final rename stays on one filesystem.
-// The rename is the only operation that replaces the stable public filename.
+// Write only to the caller's private staging path. The release orchestrator
+// renders and validates the full share bundle before touching public files.
 const publishTempPath = path.join(
   path.dirname(FINAL_PPTX),
   `.${path.basename(FINAL_PPTX)}.${buildId}.tmp`,
@@ -760,10 +765,10 @@ try {
   await fs.rm(publishTempPath, { force: true });
 }
 
-const publicBytes = await fs.readFile(FINAL_PPTX);
-const publicSha256 = createHash("sha256").update(publicBytes).digest("hex");
-if (publicSha256 !== result.finalSha256) {
-  throw new Error(`Published deck hash ${publicSha256} differs from validated hash ${result.finalSha256}.`);
+const stagedOutputBytes = await fs.readFile(FINAL_PPTX);
+const stagedOutputSha256 = createHash("sha256").update(stagedOutputBytes).digest("hex");
+if (stagedOutputSha256 !== result.finalSha256) {
+  throw new Error(`Staged deck hash ${stagedOutputSha256} differs from validated hash ${result.finalSha256}.`);
 }
 
 process.stdout.write(`${JSON.stringify({
@@ -771,8 +776,8 @@ process.stdout.write(`${JSON.stringify({
   final: FINAL_PPTX,
   validatedPath,
   receiptPath,
-  publicSha256,
+  stagedOutputSha256,
   semanticValidation: "passed",
-  publishedViaAtomicRename: true,
+  publicFilesChanged: false,
   result,
 }, null, 2)}\n`);

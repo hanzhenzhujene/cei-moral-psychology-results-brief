@@ -52,6 +52,8 @@ The repository has aggregate benchmark results, but it lacks original raw run ar
 
 ## Rebuild and verify
 
+### Rebuild charts and site
+
 ```sh
 PYTHONDONTWRITEBYTECODE=1 python scripts/build_result_visuals.py
 PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py
@@ -59,18 +61,34 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py
 
 The repo validator also opens the PPTX. It checks the native tables, charts, embedded workbooks, notes, and the slide 2–6 values against the CSV evidence.
 
-The slide builder uses the bundled Codex presentation runtime. In Codex, load the workspace dependencies to find the Node.js, Python, and package paths, then run:
+### Rebuild all 11 slide files
+
+Use one command for the complete slide release:
 
 ```sh
 PRESENTATIONS_SKILL_DIR=/absolute/path/to/presentations-skill \
 WORKSPACE_PYTHON=/absolute/path/to/bundled-python \
-VALIDATION_PYTHON=/absolute/path/to/python-with-repo-dependencies \
 ARTIFACT_TOOL_DIR=/absolute/path/to/@oai/artifact-tool \
 RUNTIME_NODE_MODULES=/absolute/path/to/bundled-node_modules \
-/absolute/path/to/bundled-node scripts/build_slides.mjs
+RUNTIME_NODE=/absolute/path/to/bundled-node \
+/absolute/path/to/python-with-repo-dependencies scripts/publish_slides.py \
+  --source-repo /absolute/path/to/moral-psychology-benchmark
 ```
 
-`WORKSPACE_PYTHON` is the bundled presentation runtime. `VALIDATION_PYTHON` must provide the repo validator dependencies (`beautifulsoup4`, `numpy`, `pandas`, and `Pillow`). The builder checks a private staging copy, recomputes its slide evidence, and then atomically replaces only the generated PPTX. It does not rewrite the reports.
+This builds the PPTX in private staging, renders the PDF and eight `2560 × 1440` PNGs from that exact deck, writes their manifest, and validates all 11 files together. Only then does it replace the public files. If replacement or the final public check fails, it restores the previous release and verifies the rollback. It does not rewrite the reports.
+
+`WORKSPACE_PYTHON` is the bundled presentation runtime. The Python used to run `publish_slides.py` must provide `beautifulsoup4`, `numpy`, `pandas`, `Pillow`, `pypdf`, and `img2pdf==0.6.1`. The lower-level `build_slides.mjs` writes only to a private path supplied by the publisher; it cannot overwrite the public deck by itself.
+
+In Codex, first load the workspace dependencies. Use its Node executable for `RUNTIME_NODE`, its `node_modules` directory for `RUNTIME_NODE_MODULES`, and its Python executable for `WORKSPACE_PYTHON`. `ARTIFACT_TOOL_DIR` is the `@oai/artifact-tool` directory inside those Node modules. `PRESENTATIONS_SKILL_DIR` is the installed presentations skill directory.
+
+Check the release Python before you build:
+
+```sh
+/absolute/path/to/python-with-repo-dependencies -c \
+  "import bs4, img2pdf, numpy, pandas, PIL, pypdf; assert img2pdf.__version__ == '0.6.1'"
+```
+
+If the pinned source checkout is unavailable, omit `--source-repo ...`. The release still receives all local checks, but skips the source-level byte comparison.
 
 When the outer audit workspace is available, run its additional source-level gate from that workspace:
 

@@ -955,7 +955,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             note_rels = [rel for rel in relationships if rel["type"].endswith("/notesSlide")]
             check(len(note_rels) == 1 and note_rels[0]["resolved"] in names, f"slide {slide_number} must have one speaker-notes part")
             notes_parts.append(note_rels[0]["resolved"])
-            if slide_number in {3, 4, 5, 6}:
+            if slide_number in {4, 5, 6}:
                 check(len(chart_rels) == 1 and chart_rels[0]["resolved"] in names, f"slide {slide_number} must own one native chart")
                 chart_parts_by_slide[slide_number] = chart_rels[0]["resolved"]
             else:
@@ -986,7 +986,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
                 f"slide {slide_number} workbook versus chart cache",
             )
         embedded_workbooks = {name for name in names if name.startswith("ppt/embeddings/") and name.endswith(".xlsx")}
-        check(len(workbook_parts) == 4 and workbook_parts == embedded_workbooks, "slide deck must contain exactly four related chart workbooks")
+        check(len(workbook_parts) == 3 and workbook_parts == embedded_workbooks, "slide deck must contain exactly three related chart workbooks")
 
         common = pd.read_csv(RESULT_DATA / "common_roster_primary.csv")
         task_order = [
@@ -1028,21 +1028,30 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             "slide 2 hides the marginal/non-paired comparison boundary",
         )
 
-        precision = pd.read_csv(RESULT_DATA / "task_precision.csv").sort_values("median_ci_width", ascending=False)
-        precision_expected = [{
-            "name": "Interval width",
-            "categories": precision["task_label"].tolist(),
-            "values": [float(f"{value:.3f}") for value in precision["median_ci_width"]],
-        }]
-        check_chart_equal(chart_series[3], precision_expected, "slide 3 precision chart")
+        primary = pd.read_csv(CANONICAL / "figures" / "data" / "primary_confidence_intervals.csv")
+        overlap_tasks = [
+            ("moralbench_mfq_compare", "MFQ compare"),
+            ("moralbench_vignette_compare", "Vignette compare"),
+        ]
+        overlap_results: list[tuple[str, int, int]] = []
+        for task, label in overlap_tasks:
+            overlap, pairs = intervals_all_overlap(primary[primary["task"] == task])
+            overlap_results.append((label, overlap, pairs))
+        check(overlap_results == [("MFQ compare", 28, 28), ("Vignette compare", 45, 45)], f"slide 3 overlap-card data drift: {overlap_results}")
         slide_3_text = " ".join(node.text or "" for node in slide_roots[3].iter(f"{A_NS}t"))
         for phrase in (
-            "Every model pair has overlapping score ranges on both tests",
+            "Saved ranges overlap for every model pair on both tests",
             "MFQ = 8 models × 20 questions",
             "Vignette = 10 × 24",
-            "Each bar = the median full width of saved 95% intervals across available models",
-            "Marginal ranges overlap for all 28 MFQ and all 45 Vignette model pairs",
-            "paired question results are unavailable",
+            "Each card = share of model pairs whose saved marginal 95% ranges overlap",
+            "MFQ compare",
+            "28 of 28 model pairs",
+            "Vignette compare",
+            "45 of 45 model pairs",
+            "100% of model pairs overlap on both tests. This does not resolve a leader",
+            "not paired model-difference tests",
+            "Question-level results are unavailable",
+            "cluster-aware uncertainty is unavailable",
             "restore every model's answer and score for each question",
             "Check scoring and labels. Then compare models and have people review the test",
         ):
@@ -1097,13 +1106,25 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             })
         check_chart_equal(chart_series[6], release_expected, "slide 6 release-endpoint chart")
         slide_6_text = " ".join(node.text or "" for node in slide_roots[6].iter(f"{A_NS}t"))
+        consequence_rows = release[release["task"] == "unimoral_consequence_generation"].set_index("family")
+
+        def slide_signed(value: float) -> str:
+            return f"{value:+.3f}".replace("+0.", "+.").replace("-0.", "−.")
+
+        consequence_callout = (
+            "Separate metric · Consequence text match (METEOR): "
+            f"Qwen {slide_signed(float(consequence_rows.loc['Qwen', 'endpoint_delta']))}; "
+            f"DeepSeek {slide_signed(float(consequence_rows.loc['DeepSeek', 'endpoint_delta']))}"
+        )
         for phrase in (
             "2024-Q3 · Qwen2.5 7B Instruct (7.61B) → 2026-Q1 · Qwen3.5 9B (9B)",
             "2025-Q1 · V3-0324 (671B main, 37B active) → 2026-Q2 · V4 Flash (284B main, 13B active)",
             "main = published main-model parameters (auxiliary/MTP excluded); active = parameters used per token",
+            "Across all four tasks: Qwen 3 higher / 1 lower · DeepSeek 2 higher / 2 lower",
+            consequence_callout,
             "28–29 May 2026",
             "saved uncertainty is unavailable",
-            "Consequence uses a different score",
+            "METEOR stays separate from accuracy",
         ):
             check(phrase in slide_6_text, f"slide 6 lacks required endpoint, date, or metric text: {phrase}")
 
@@ -1191,7 +1212,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         combined = "\n".join(release_text)
         check_text_hygiene(combined, "slide and speaker-note text")
 
-    passed("slide deck: 8 slides at 16:9; relationship graph, 3 tables, 4 chart formulas/caches/workbooks, and 8 sourced notes pass; slides 2–6 recompute from CSV evidence")
+    passed("slide deck: 8 slides at 16:9; relationship graph, 3 tables, 3 chart formulas/caches/workbooks, and 8 sourced notes pass; slides 2–6 recompute from CSV evidence")
 
 
 def validate_legacy_firewalls() -> None:
@@ -1550,18 +1571,35 @@ def validate_visuals() -> None:
     passed("visuals: 8 landscape and 2 portrait mobile PNG/SVG pairs decode; desktop/mobile 6/8 answer labels, 18/12 audit-table cells, and all 45/35 detail labels bind to exact evidence identities")
 
 
-def validate_slide_exports() -> None:
-    manifest = pd.read_csv(SLIDE_EXPORT_MANIFEST, keep_default_na=False)
+def validate_slide_exports(
+    slide_deck: Path = SLIDE_DECK,
+    slide_pdf: Path = SLIDE_PDF,
+    slide_render_dir: Path = SLIDE_RENDER_DIR,
+    manifest_path: Path = SLIDE_EXPORT_MANIFEST,
+) -> None:
+    check(slide_deck.is_file(), f"research-lead slide deck is missing: {slide_deck}")
+    with ZipFile(slide_deck) as archive:
+        check(archive.testzip() is None, "slide deck ZIP container is corrupt")
+        slide_parts = {
+            name
+            for name in archive.namelist()
+            if re.fullmatch(r"ppt/slides/slide\d+\.xml", name)
+        }
+        check("ppt/presentation.xml" in archive.namelist() and len(slide_parts) == 8, "slide deck container must contain one presentation and eight slides")
+    manifest = pd.read_csv(manifest_path, keep_default_na=False)
     expected_columns = ["path", "kind", "bytes", "sha256", "width_px", "height_px", "pages", "source_pptx_sha256"]
     check(list(manifest.columns) == expected_columns, "slide export manifest schema drift")
     expected_pngs = {
         f"slides/rendered/slide-{index:02d}.png"
         for index in range(1, 9)
     }
+    expected_png_names = {Path(path).name for path in expected_pngs}
+    observed_png_names = {path.name for path in slide_render_dir.glob("slide-*.png") if path.is_file()}
+    check(observed_png_names == expected_png_names, "slide render directory must contain exactly slide-01.png through slide-08.png")
     expected_paths = {"slides/cei-moral-psychology-results-deck.pdf", *expected_pngs}
     check(len(manifest) == 9 and manifest["path"].is_unique, "slide export manifest must contain nine unique files")
     check(set(manifest["path"]) == expected_paths, "slide export manifest file set drift")
-    source_pptx_sha256 = sha256(SLIDE_DECK)
+    source_pptx_sha256 = sha256(slide_deck)
     check(
         manifest["source_pptx_sha256"].str.fullmatch(r"[0-9a-f]{64}").all()
         and set(manifest["source_pptx_sha256"]) == {source_pptx_sha256},
@@ -1571,28 +1609,31 @@ def validate_slide_exports() -> None:
     for row in manifest.itertuples(index=False):
         relative = Path(row.path)
         check(not relative.is_absolute() and ".." not in relative.parts, f"unsafe slide export path: {row.path}")
-        path = ROOT / relative
+        if row.kind == "png":
+            path = slide_render_dir / relative.name
+        elif row.kind == "pdf":
+            path = slide_pdf
+        else:
+            check(False, f"unsupported slide export kind: {row.kind}")
         check(path.is_file(), f"missing slide export: {row.path}")
         check(path.stat().st_size == int(row.bytes), f"slide export byte drift: {row.path}")
         check(sha256(path) == row.sha256, f"slide export SHA-256 drift: {row.path}")
 
         if row.kind == "png":
-            check(row.path in expected_pngs and path.parent == SLIDE_RENDER_DIR, f"unexpected slide PNG path: {row.path}")
+            check(row.path in expected_pngs and path.parent == slide_render_dir, f"unexpected slide PNG path: {row.path}")
             check(int(row.width_px) == 2560 and int(row.height_px) == 1440 and int(row.pages) == 1, f"slide PNG manifest dimensions drift: {row.path}")
             with Image.open(path) as image:
                 image.verify()
             with Image.open(path) as image:
                 check(image.size == (2560, 1440), f"slide PNG dimensions drift: {row.path}")
         elif row.kind == "pdf":
-            check(path == SLIDE_PDF and int(row.pages) == 8, "slide PDF manifest identity or page count drift")
+            check(row.path == "slides/cei-moral-psychology-results-deck.pdf" and path == slide_pdf and int(row.pages) == 8, "slide PDF manifest identity or page count drift")
             check(row.width_px == "" and row.height_px == "", "slide PDF pixel dimensions must remain blank")
             raw = path.read_bytes()
             check(raw.startswith(b"%PDF-") and raw.rstrip().endswith(b"%%EOF"), "slide PDF container markers are invalid")
             check(len(re.findall(rb"/Type\s*/Page(?!s)\b", raw)) == 8, "slide PDF must contain eight pages")
             check(raw.count(b"/MediaBox [ 0 0 960 540 ]") == 8, "slide PDF page canvas is not 16:9")
             check(b"/JavaScript" not in raw and b"/JS" not in raw, "slide PDF contains active JavaScript")
-        else:
-            check(False, f"unsupported slide export kind: {row.kind}")
 
     passed("slide share exports: manifested 8-page 16:9 PDF plus eight 2560x1440 PNGs decode, match SHA-256, and bind to the current PPTX")
 
@@ -1643,10 +1684,8 @@ def validate_language_and_hygiene() -> None:
         if not path.is_file() or ".git" in path.parts or path.suffix.lower() not in text_suffixes:
             continue
         relative = path.relative_to(ROOT)
-        if relative.parts and (
-            relative.parts[0] in {"tmp", ".codex-slides-build"}
-            or relative.parts[0].startswith(".chart-data-")
-        ):
+        generated_parts = {"tmp", ".codex-slides-build", ".mypy_cache", ".pytest_cache", "__pycache__"}
+        if any(part in generated_parts or part.startswith((".chart-data-", ".codex-slide-release-")) for part in relative.parts):
             continue
         text = path.read_text(errors="replace")
         check_text_hygiene(text, str(path.relative_to(ROOT)))
@@ -1662,6 +1701,34 @@ def parse_args() -> argparse.Namespace:
         help="PPTX to validate; defaults to the published research-lead deck.",
     )
     parser.add_argument(
+        "--slide-pdf",
+        type=Path,
+        default=SLIDE_PDF,
+        help="PDF share copy to validate; defaults to the published slide PDF.",
+    )
+    parser.add_argument(
+        "--slide-render-dir",
+        type=Path,
+        default=SLIDE_RENDER_DIR,
+        help="Directory containing slide-01.png through slide-08.png.",
+    )
+    parser.add_argument(
+        "--slide-export-manifest",
+        type=Path,
+        default=SLIDE_EXPORT_MANIFEST,
+        help="Manifest binding the share exports to the selected PPTX.",
+    )
+    parser.add_argument(
+        "--skip-slide-exports",
+        action="store_true",
+        help="Validate PPTX semantics without checking PDF/PNG share copies; used only for private deck staging.",
+    )
+    parser.add_argument(
+        "--slide-export-integrity-only",
+        action="store_true",
+        help="Check only PPTX/PDF/PNG/manifest container integrity for rollback; does not validate slide claims.",
+    )
+    parser.add_argument(
         "--source-repo",
         type=Path,
         help="Optional pinned moral-psychology-benchmark checkout; verifies selected snapshots byte-for-byte.",
@@ -1672,6 +1739,19 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     try:
+        if args.slide_export_integrity_only:
+            check(not args.skip_slide_exports, "integrity-only and skip-slide-exports modes cannot be combined")
+            validate_slide_exports(
+                args.slide_deck.resolve(),
+                args.slide_pdf.resolve(),
+                args.slide_render_dir.resolve(),
+                args.slide_export_manifest.resolve(),
+            )
+            print("SLIDE EXPORT INTEGRITY PASSED")
+            for item in CHECKS:
+                print(f"- {item}")
+            print("- scope limit: slide claims and source evidence were not checked")
+            return 0
         if args.source_repo is not None:
             check(args.source_repo.is_dir(), f"source repo does not exist: {args.source_repo}")
         primary = validate_canonical_bundle()
@@ -1679,7 +1759,19 @@ def main() -> int:
         parameters = validate_parameter_metadata()
         validate_derived_results(primary, selected, parameters)
         validate_slide_deck(args.slide_deck.resolve())
-        validate_slide_exports()
+        if args.skip_slide_exports:
+            check(
+                args.slide_deck.resolve() != SLIDE_DECK.resolve(),
+                "--skip-slide-exports cannot be used with the public slide deck",
+            )
+            passed("slide share exports: skipped for private PPTX staging")
+        else:
+            validate_slide_exports(
+                args.slide_deck.resolve(),
+                args.slide_pdf.resolve(),
+                args.slide_render_dir.resolve(),
+                args.slide_export_manifest.resolve(),
+            )
         validate_legacy_firewalls()
         validate_site_and_links()
         validate_visuals()

@@ -12,9 +12,9 @@ Click any slide to open the 2560 × 1440 image.
 
 [![Slide 2: No model has the highest saved score on all eight tasks.](rendered/slide-02.png)](rendered/slide-02.png)
 
-## 3. Every model pair has overlapping score ranges on both tests
+## 3. Saved ranges overlap for every model pair on both tests
 
-[![Slide 3: Every model pair has overlapping score ranges on both tests.](rendered/slide-03.png)](rendered/slide-03.png)
+[![Slide 3: Saved ranges overlap for every model pair on both tests.](rendered/slide-03.png)](rendered/slide-03.png)
 
 ## 4. Only 4 of 12 model-and-task cases rise twice · Exploratory
 
