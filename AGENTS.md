@@ -45,8 +45,8 @@ Before changing the site or any conclusion, read:
 
 - Do not modify files under `evidence/`; replace them only with a new, checksummed source version.
 - Update `data/` first when a factual claim changes, then update the matching prose and visual.
-- Rebuild result figures with `PYTHONDONTWRITEBYTECODE=1 python scripts/build_result_visuals.py`; do not hand-edit generated charts or result tables.
-- Validate the assembled site with `PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py` and also run the outer canonical validator.
+- Rebuild result figures with `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/build_result_visuals.py`; do not hand-edit generated charts or result tables.
+- Validate the assembled site with `PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_site.py` and also run the outer canonical validator.
 - Use one writer for each file. Parallel agents should perform read-only review or work in isolated branches.
 - Do not add API keys, provider credentials, private contact details, or local absolute paths.
 

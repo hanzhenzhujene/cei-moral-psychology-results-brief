@@ -3,11 +3,28 @@
 
 from __future__ import annotations
 
+import hashlib
+import os
+import time
+
+
+if __name__ == "__main__" and not globals().get("_CEI_SNAPSHOT_EXECUTION"):
+    delay = float(os.environ.get("CEI_RESULT_VISUAL_BOOTSTRAP_DELAY", "0"))
+    if delay > 0:
+        time.sleep(delay)
+    with open(__file__, "rb") as source_file:
+        source_bytes = source_file.read()
+    source_sha256 = hashlib.sha256(source_bytes).hexdigest()
+    snapshot_globals = dict(globals())
+    snapshot_globals["_CEI_SNAPSHOT_EXECUTION"] = True
+    snapshot_globals["_CEI_EXECUTED_SOURCE_SHA256"] = source_sha256
+    exec(compile(source_bytes, __file__, "exec"), snapshot_globals)
+    raise SystemExit(0)
+
+
 import csv
 import fcntl
-import hashlib
 import importlib.metadata
-import os
 import re
 import sys
 import tempfile
@@ -1427,7 +1444,9 @@ def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame, release_
 
 
 def build_result_visuals() -> None:
-    builder_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    builder_sha256 = globals().get("_CEI_EXECUTED_SOURCE_SHA256")
+    if not isinstance(builder_sha256, str):
+        raise RuntimeError("result-visual builder must run through its source-snapshot launcher")
     requirements_text = (ROOT / "requirements-release.txt").read_text(encoding="utf-8")
     requirements_sha256 = hashlib.sha256(requirements_text.encode("utf-8")).hexdigest()
     validate_release_runtime(requirements_text)

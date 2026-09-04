@@ -93,7 +93,8 @@ In Codex, first load the workspace dependencies. Use its Node executable for `RU
 Run the transaction tests before a release:
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m unittest -v tests.test_publish_slides
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m unittest -v \
+  tests.test_publish_slides tests.test_build_result_visuals_bootstrap
 ```
 
 If the pinned source checkout is unavailable, omit `--source-repo ...`. The release still receives all local checks, but skips the source-level byte comparison.
