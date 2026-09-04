@@ -80,8 +80,10 @@ The README preview points directly to the size-answer chart. The main site embed
 | Source-to-slide validation | The public repo validator independently opens the PPTX and recomputes the slide 2–6 table and chart values from CSV evidence |
 | Repeat build | The semantic validator runs before an atomic rename replaces the stable deck. The PPTX container SHA can change with generated package metadata, so the content contract is rechecked after every build |
 | Visual inspection | All 8 slides were rendered at 1280 × 720 and inspected at full resolution; no observed overlap, clipping, or compressed screenshots |
+| Share copies | The repo includes an 8-page view-only PDF and eight 2560 × 1440 PNGs. Every page was rendered again and inspected at full resolution |
+| Portability | The PDF and PNGs use the verified slide render, so layout does not depend on the viewer's fonts or PowerPoint renderer |
 
-The final deck is `slides/cei-moral-psychology-results-deck.pptx`. The source is `scripts/build_slides.mjs`; technical caveats and citations are retained in speaker notes.
+The editable deck is `slides/cei-moral-psychology-results-deck.pptx`. The share copies are `slides/cei-moral-psychology-results-deck.pdf` and `slides/rendered/`. The source is `scripts/build_slides.mjs`; technical caveats and citations are retained in speaker notes.
 
 ## Repository and hygiene
 

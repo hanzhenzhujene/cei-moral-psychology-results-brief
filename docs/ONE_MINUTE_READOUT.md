@@ -4,7 +4,7 @@
 
 | Publish now | Keep exploratory | Fix or hold next |
 |---|---|---|
-| Results for each task | Model size patterns | Recover same-item results |
+| Results for each task | Model size patterns | Compare models on the same items |
 | Saved uncertainty | Release period patterns | Check parsing and labels |
 | Clear evidence limits | — | Hold poster numbers until replay files return |
 | — | — | Run the planned human review |
@@ -36,3 +36,13 @@ None of the local runs exactly repeats a paper protocol. The papers help explain
 | The two comparison tasks need better evidence. | The current comparison rank is settled. |
 | Size and release patterns are exploratory. | Bigger or newer causes better moral performance. |
 | Human validation is still pending. | Benchmark agreement proves moral correctness. |
+
+## Quick definitions
+
+| Term | Plain meaning |
+|---|---|
+| Top saved value | The highest stored number for that task. It is not a proven winner. |
+| Saved interval | The stored uncertainty range around a result. |
+| MFQ | Short statements about moral foundations. |
+| METEOR | A text-similarity score for generated consequences. |
+| Human validation | People check whether the benchmark measures the judgment we care about. |

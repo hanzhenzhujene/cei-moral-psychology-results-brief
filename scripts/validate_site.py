@@ -28,6 +28,9 @@ SELECTED = ROOT / "evidence" / "source-results"
 RESULT_DATA = ROOT / "data" / "results"
 PARAMETERS = ROOT / "evidence" / "model-parameter-sources.csv"
 SLIDE_DECK = ROOT / "slides" / "cei-moral-psychology-results-deck.pptx"
+SLIDE_PDF = ROOT / "slides" / "cei-moral-psychology-results-deck.pdf"
+SLIDE_RENDER_DIR = ROOT / "slides" / "rendered"
+SLIDE_EXPORT_MANIFEST = ROOT / "slides" / "RENDER_MANIFEST.csv"
 
 SOURCE_HEAD = "b3a348684692f615d789392692ce34a1359192d3"
 CANONICAL_SHA = "276acecd603761e6ff61bd6e2685fbb87f0eaa47"
@@ -914,12 +917,12 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             "unimoral_factor_attribution",
             "unimoral_consequence_generation",
         ]
-        metric_names = {"normalized_preference": "Normalized preference", "accuracy": "Accuracy", "meteor": "METEOR"}
+        metric_names = {"normalized_preference": "Agreement score", "accuracy": "Accuracy", "meteor": "Text-match score"}
         tie_names = {
             frozenset({"Claude Haiku 4.5", "Qwen3 8B"}): "Haiku + Qwen tie†",
             frozenset({"Claude Haiku 4.5", "GPT-5.4"}): "Haiku + GPT-5.4 tie†",
         }
-        expected_leaders = [["Task", "Top saved value", "Metric", "Model"]]
+        expected_leaders = [["Task", "Highest stored result", "Score type", "Model"]]
         for task in task_order:
             rows = common[common["task"] == task]
             check(len(rows) == 5, f"slide 2 source roster drift for {task}")
@@ -994,7 +997,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             "Qwen2.5 7B Instruct (7.61B) to Qwen3.5 9B (9B)",
             "V3-0324 (671B main, 37B active) to V4 Flash (284B main, 13B active)",
             "28–29 May 2026",
-            "Consequence uses METEOR",
+            "The consequence task uses a different score",
         ):
             check(phrase in slide_6_text, f"slide 6 lacks required endpoint, date, or metric text: {phrase}")
 
@@ -1015,14 +1018,14 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         )
         expected_paper_table = [
             ["Paper", "Plain-language question", "How close is our test?"],
-            ["MoralBench", "Do model choices match human ratings?", "Similar, not exact"],
-            ["UniMoral", "Can models predict labels and consequences?", "Some similar tasks"],
-            ["MoReBench", "Does reasoning cover expert criteria?", "Stand-in only"],
-            ["MoralLens", "Which reasons appear before and after a choice?", "Stand-in only"],
+            ["MoralBench", "Do model choices match human ratings?", "Similar question"],
+            ["UniMoral", "Can models predict choices, moral categories, influences, and what happens next?", "Some similar tasks"],
+            ["MoReBench", "Does reasoning cover expert criteria?", "Different scoring"],
+            ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Different scoring"],
         ]
         check(slide_tables(slide_roots[7])[0] == expected_paper_table, "slide 7 paper question and local-fit table drift")
         slide_7_text = " ".join(node.text or "" for node in slide_roots[7].iter(f"{A_NS}t"))
-        check("0exactlocalreplications" in re.sub(r"\s+", "", slide_7_text), "slide 7 no longer states zero exact local replications")
+        check("0papersrepeatedexactly" in re.sub(r"\s+", "", slide_7_text), "slide 7 no longer states that zero papers were repeated exactly")
 
         brief_text = (ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md").read_text().lower()
         priority_text = (ROOT / "evidence" / "canonical-audit" / "RERUN_PRIORITY.md").read_text().lower()
@@ -1035,10 +1038,10 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             check(phrase in source, f"slide 8 recommendation source no longer contains: {phrase}")
         expected_action_table = [
             ["When", "Action", "Reason"],
-            ["Now", "Publish task panels with their limits", "The current aggregates answer task-level questions"],
-            ["Next", "Recover same-item results; check parsing and labels", "This targets the main precision and measurement gaps"],
-            ["Next", "Run the planned human review", "Benchmark agreement is not human validity"],
-            ["Only if still unclear", "Expand the comparison item banks", "New items help only after the measurement is stable"],
+            ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
+            ["Next", "Compare the same questions; check that answers were read and labeled correctly", "This tackles the biggest gaps"],
+            ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
+            ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
         ]
         check(slide_tables(slide_roots[8])[0] == expected_action_table, "slide 8 decision order drift")
 
@@ -1223,7 +1226,7 @@ def validate_site_and_links() -> None:
 
     markdown_links = 0
     markdown_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
-    for md_path in [ROOT / "README.md", ROOT / "AGENTS.md", *sorted((ROOT / "docs").glob("*.md")), *sorted((ROOT / "evidence").rglob("*.md"))]:
+    for md_path in [ROOT / "README.md", ROOT / "AGENTS.md", *sorted((ROOT / "docs").glob("*.md")), *sorted((ROOT / "evidence").rglob("*.md")), *sorted((ROOT / "slides").glob("*.md"))]:
         for match in markdown_pattern.finditer(md_path.read_text(errors="replace")):
             path = resolve_local_reference(md_path.parent, match.group(1))
             if path is not None:
@@ -1429,6 +1432,47 @@ def validate_visuals() -> None:
     passed("visuals: 8 landscape and 2 portrait mobile PNG/SVG pairs decode; desktop/mobile 6/8 answer labels, 18/12 audit-table cells, and all 45/35 detail labels bind to exact evidence identities")
 
 
+def validate_slide_exports() -> None:
+    manifest = pd.read_csv(SLIDE_EXPORT_MANIFEST, keep_default_na=False)
+    expected_columns = ["path", "kind", "bytes", "sha256", "width_px", "height_px", "pages"]
+    check(list(manifest.columns) == expected_columns, "slide export manifest schema drift")
+    expected_pngs = {
+        f"slides/rendered/slide-{index:02d}.png"
+        for index in range(1, 9)
+    }
+    expected_paths = {"slides/cei-moral-psychology-results-deck.pdf", *expected_pngs}
+    check(len(manifest) == 9 and manifest["path"].is_unique, "slide export manifest must contain nine unique files")
+    check(set(manifest["path"]) == expected_paths, "slide export manifest file set drift")
+
+    for row in manifest.itertuples(index=False):
+        relative = Path(row.path)
+        check(not relative.is_absolute() and ".." not in relative.parts, f"unsafe slide export path: {row.path}")
+        path = ROOT / relative
+        check(path.is_file(), f"missing slide export: {row.path}")
+        check(path.stat().st_size == int(row.bytes), f"slide export byte drift: {row.path}")
+        check(sha256(path) == row.sha256, f"slide export SHA-256 drift: {row.path}")
+
+        if row.kind == "png":
+            check(row.path in expected_pngs and path.parent == SLIDE_RENDER_DIR, f"unexpected slide PNG path: {row.path}")
+            check(int(row.width_px) == 2560 and int(row.height_px) == 1440 and int(row.pages) == 1, f"slide PNG manifest dimensions drift: {row.path}")
+            with Image.open(path) as image:
+                image.verify()
+            with Image.open(path) as image:
+                check(image.size == (2560, 1440), f"slide PNG dimensions drift: {row.path}")
+        elif row.kind == "pdf":
+            check(path == SLIDE_PDF and int(row.pages) == 8, "slide PDF manifest identity or page count drift")
+            check(row.width_px == "" and row.height_px == "", "slide PDF pixel dimensions must remain blank")
+            raw = path.read_bytes()
+            check(raw.startswith(b"%PDF-") and raw.rstrip().endswith(b"%%EOF"), "slide PDF container markers are invalid")
+            check(len(re.findall(rb"/Type\s*/Page(?!s)\b", raw)) == 8, "slide PDF must contain eight pages")
+            check(raw.count(b"/MediaBox [ 0 0 960 540 ]") == 8, "slide PDF page canvas is not 16:9")
+            check(b"/JavaScript" not in raw and b"/JS" not in raw, "slide PDF contains active JavaScript")
+        else:
+            check(False, f"unsupported slide export kind: {row.kind}")
+
+    passed("slide share exports: manifested 8-page 16:9 PDF plus eight 2560x1440 PNGs decode and match SHA-256")
+
+
 def validate_pdf_hashes() -> None:
     checksum_file = ROOT / "evidence" / "SHA256SUMS"
     lines = [line.strip() for line in checksum_file.read_text().splitlines() if line.strip()]
@@ -1508,6 +1552,7 @@ def main() -> int:
         parameters = validate_parameter_metadata()
         validate_derived_results(primary, selected, parameters)
         validate_slide_deck(args.slide_deck.resolve())
+        validate_slide_exports()
         validate_legacy_firewalls()
         validate_site_and_links()
         validate_visuals()

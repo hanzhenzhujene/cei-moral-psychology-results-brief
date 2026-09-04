@@ -186,10 +186,10 @@ function setNotes(slide, lines) {
     left: 92, top: 382, width: 760, height: 34,
   }, { fontSize: 18, color: C.muted });
   addRule(slide, 92, 474, 720, C.grid, 2);
-  addText(slide, "Why: the point leader changes by task, and two comparison tests are still too uncertain for a reliable order.", {
+  addText(slide, "Why: the top model changes by task, and two comparison tests still cannot give a reliable order.", {
     left: 92, top: 500, width: 965, height: 72,
   }, { fontSize: 24, color: C.ink, autoFit: "shrinkText" });
-  addText(slide, "Current task results are publishable with limits. Size and release views remain exploratory.", {
+  addText(slide, "Share the task results with their limits. Size and release slides are early clues, not final answers.", {
     left: 92, top: 602, width: 980, height: 36,
   }, { fontSize: 17, color: C.muted });
   setNotes(slide, [
@@ -205,19 +205,19 @@ function setNotes(slide, lines) {
   addSlideFrame(
     slide,
     "No model leads all eight tasks",
-    "Top saved values among the five models with complete coverage",
+    "Highest stored result for each task, using the same five models",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
   const values = [
-    ["Task", "Top saved value", "Metric", "Model"],
-    ["MFQ agreement", ".884", "Normalized preference", "GPT-5.4 mini"],
-    ["Vignette agreement", ".920", "Normalized preference", "GPT-5.4"],
+    ["Task", "Highest stored result", "Score type", "Model"],
+    ["MFQ agreement", ".884", "Agreement score", "GPT-5.4 mini"],
+    ["Vignette agreement", ".920", "Agreement score", "GPT-5.4"],
     ["MFQ compare", ".550", "Accuracy", "Haiku + Qwen tie†"],
     ["Vignette compare", ".625", "Accuracy", "Haiku + GPT-5.4 tie†"],
     ["UniMoral action", ".668", "Accuracy", "Claude Haiku 4.5"],
     ["UniMoral typology", ".651", "Accuracy", "Claude Opus 4.8"],
     ["UniMoral factor", ".609", "Accuracy", "Claude Haiku 4.5"],
-    ["UniMoral consequence", ".152", "METEOR", "Claude Opus 4.8"],
+    ["UniMoral consequence", ".152", "Text-match score", "Claude Opus 4.8"],
   ];
   const table = slide.tables.add({
     rows: values.length,
@@ -230,17 +230,29 @@ function setNotes(slide, lines) {
     values,
   });
   styleTable(table, values.length, 4, { bodySize: 17, headerSize: 16 });
-  table.cells.block({ row: 1, column: 3, rowCount: 8, columnCount: 1 }).textStyle.bold = true;
-  addText(slide, "† The saved intervals do not resolve an order on the two comparison tasks.", {
+  table.cells.block({ row: 1, column: 3, rowCount: 2, columnCount: 1 }).assign({
+    fill: C.tealSoft,
+    textStyle: { typeface: family, fontSize: 17, color: C.teal, bold: true },
+  });
+  table.cells.block({ row: 3, column: 3, rowCount: 2, columnCount: 1 }).assign({
+    fill: C.goldSoft,
+    textStyle: { typeface: family, fontSize: 17, color: "#8B5F00", bold: true },
+  });
+  table.cells.block({ row: 5, column: 3, rowCount: 4, columnCount: 1 }).assign({
+    fill: C.purpleSoft,
+    textStyle: { typeface: family, fontSize: 17, color: C.purple, bold: true },
+  });
+  addText(slide, "† The uncertainty ranges overlap on the two comparison tasks. We cannot tell who leads.", {
     left: 96, top: 620, width: 1080, height: 30,
   }, { fontSize: 16, color: C.coral });
-  addText(slide, "Values belong to different metrics. Do not compare their size across rows.", {
+  addText(slide, "Each task uses its own score. Do not compare numbers from different rows.", {
     left: 96, top: 652, width: 1080, height: 26,
   }, { fontSize: 15, color: C.muted });
   setNotes(slide, [
     "Each row shows the highest saved point estimate for that task among Claude Haiku 4.5, Claude Opus 4.8, GPT-5.4, GPT-5.4 mini, and Qwen3 8B.",
     "Sources: data/results/common_roster_primary.csv; docs/RESULTS_READOUT.md section 1.",
     "The MFQ compare top value is shared by Claude Haiku 4.5 and Qwen3 8B. The vignette compare top value is shared by Claude Haiku 4.5 and GPT-5.4.",
+    "Values belong to different metrics. The visible labels translate normalized preference and METEOR into plain language.",
     "Do not average preference, accuracy, and METEOR or treat this table as a moral leaderboard.",
   ]);
 }
@@ -251,7 +263,7 @@ function setNotes(slide, lines) {
   addSlideFrame(
     slide,
     "Two comparison tests cannot rank models yet",
-    "Longer bar means less certainty. The comparison tests have 20 and 24 items per model.",
+    "Wider bar = less sure. MFQ has 20 questions per model; Vignette has 24.",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
   const categories = [
@@ -267,7 +279,7 @@ function setNotes(slide, lines) {
   const values = [0.395, 0.370, 0.220, 0.124, 0.033, 0.032, 0.020, 0.012];
   const chart = slide.charts.add("bar", {
     position: { left: 120, top: 170, width: 1030, height: 405 },
-    title: "Median full width of the saved 95% interval",
+    title: "How wide is the uncertainty range? Wider means less sure.",
     titlePlacement: "none",
     categories,
     series: [{
@@ -285,7 +297,7 @@ function setNotes(slide, lines) {
     hasLegend: false,
     xAxis: {
       visible: true,
-      title: "Median width of saved 95% interval",
+      title: "Width of the uncertainty range",
       min: 0,
       max: 0.42,
       majorUnit: 0.10,
@@ -309,10 +321,10 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "Action: recover each item's result for every model.", {
+  addText(slide, "Action: compare every model on the same questions.", {
     left: 120, top: 596, width: 780, height: 34,
   }, { fontSize: 22, bold: true, color: C.coral });
-  addText(slide, "If the order is still unclear, then expand the item banks.", {
+  addText(slide, "If the order is still unclear, add more comparison questions.", {
     left: 120, top: 632, width: 860, height: 28,
   }, { fontSize: 17, color: C.muted });
   setNotes(slide, [
@@ -328,13 +340,13 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Only 4 of 12 selected size paths rise twice",
-    "Three model families × four UniMoral tasks; variants differ in more than size",
+    "Only 4 of 12 model-and-task cases rise twice",
+    "Qwen, Gemma, and Llama × four tasks; model versions differ in more than size",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
   const chart = slide.charts.add("bar", {
     position: { left: 150, top: 190, width: 980, height: 330 },
-    title: "What happens across the three named variants?",
+    title: "What happens across three model versions?",
     titlePlacement: "none",
     categories: ["Rise at both steps", "Change direction", "Fall at both steps"],
     series: [{
@@ -352,7 +364,7 @@ function setNotes(slide, lines) {
     hasLegend: false,
     xAxis: {
       visible: true,
-      title: "Complete family and task paths, n = 12",
+      title: "Model-family and task cases (12 total)",
       min: 0,
       max: 12,
       majorUnit: 3,
@@ -379,13 +391,14 @@ function setNotes(slide, lines) {
   addText(slide, "Size is one clue, not a general rule.", {
     left: 150, top: 568, width: 860, height: 40,
   }, { fontSize: 26, bold: true, color: C.ink });
-  addText(slide, "Each case follows one family on one task. Accuracy and METEOR stay separate.", {
+  addText(slide, "Each case follows one model family on one task. Different score types stay separate.", {
     left: 150, top: 618, width: 920, height: 30,
   }, { fontSize: 16, color: C.muted });
   setNotes(slide, [
     "Sources: data/results/size_path_summary.csv; data/results/size_task_points.csv.",
     "Denominator: 12 complete paths equals three model families times four UniMoral tasks. Each path contains three named variants.",
     "Counts: 4 rise at both steps, 7 change direction, and 1 falls at both steps.",
+    "Accuracy and METEOR stay separate.",
     "This slide counts within-task direction only. It does not average accuracy and METEOR. The selected grid has no saved confidence intervals or raw-log replay.",
   ]);
 }
@@ -459,13 +472,14 @@ function setNotes(slide, lines) {
   addText(slide, "The larger named variants do not score higher on both tasks.", {
     left: 118, top: 612, width: 730, height: 34,
   }, { fontSize: 22, bold: true, color: C.purple });
-  addText(slide, "Each point is one saved task score. No saved intervals or raw-log replay.", {
+  addText(slide, "Each point is one stored task score. Its uncertainty range and original run are unavailable.", {
     left: 118, top: 650, width: 920, height: 26,
   }, { fontSize: 15, color: C.muted });
   setNotes(slide, [
     "Sources: data/results/size_path_summary.csv; data/results/size_task_points.csv; evidence/model-parameter-sources.csv.",
     "Exact values: factor attribution .578 to .601 to .613; moral typology .597 to .579 to .570.",
     "Across Qwen, Gemma, and Llama on four UniMoral tasks, 4 of 12 complete paths rise twice, 7 change direction, and 1 falls twice.",
+    "No saved intervals or raw-log replay are available for this selected grid.",
     "This is exploratory selected-grid evidence. Parameter tier is descriptive metadata, not a controlled intervention. Qwen and Llama paths also change model generation or release period.",
   ]);
 }
@@ -476,7 +490,7 @@ function setNotes(slide, lines) {
   addSlideFrame(
     slide,
     "Later model versions score higher on some tasks and lower on others",
-    "Accuracy change for three UniMoral classification tasks",
+    "Score change on three UniMoral tasks",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
   addText(slide, "Qwen: Qwen2.5 7B Instruct (7.61B) to Qwen3.5 9B (9B)", {
@@ -485,8 +499,11 @@ function setNotes(slide, lines) {
   addText(slide, "DeepSeek: V3-0324 (671B main, 37B active) to V4 Flash (284B main, 13B active)", {
     left: 110, top: 186, width: 1060, height: 26,
   }, { fontSize: 15, color: C.purple, bold: true });
+  addText(slide, "main = all parameters; active = parameters used for each token", {
+    left: 110, top: 212, width: 820, height: 20,
+  }, { fontSize: 12, color: C.muted });
   const chart = slide.charts.add("bar", {
-    position: { left: 120, top: 224, width: 1030, height: 345 },
+    position: { left: 120, top: 238, width: 1030, height: 331 },
     title: "Score change from earlier to later version",
     titlePlacement: "none",
     categories: ["Action", "Typology", "Factor"],
@@ -545,13 +562,13 @@ function setNotes(slide, lines) {
   addText(slide, "Release period describes the model. It is not a progress timeline.", {
     left: 120, top: 630, width: 940, height: 28,
   }, { fontSize: 17, color: C.muted });
-  addText(slide, "Consequence uses METEOR and is not mixed into this accuracy chart.", {
+  addText(slide, "The consequence task uses a different score, so it is not shown here.", {
     left: 120, top: 661, width: 940, height: 24,
   }, { fontSize: 14, color: C.muted });
   setNotes(slide, [
     "Sources: data/results/release_path_summary.csv; data/results/release_period_task_points.csv; evidence/model-parameter-sources.csv.",
     "Classification accuracy deltas shown: Qwen action +.017873, typology +.042383, factor +.002005; DeepSeek action +.186589, typology -.003150, factor -.037514.",
-    "Consequence generation is omitted from this chart because it uses METEOR, not accuracy. Its endpoint deltas are Qwen -.026780 and DeepSeek +.018985.",
+    "Consequence uses METEOR and is not mixed into this accuracy chart. Its endpoint deltas are Qwen -.026780 and DeepSeek +.018985.",
     "Every plotted selected-grid score was evaluated on 28 or 29 May 2026. Release quarter is descriptive model metadata, not observation time or a causal intervention.",
   ]);
 }
@@ -562,21 +579,21 @@ function setNotes(slide, lines) {
   addSlideFrame(
     slide,
     "We did not exactly repeat any paper's experiment",
-    "The papers explain the questions and methods. They are not direct score baselines.",
+    "The papers help explain our questions. Their scores cannot be compared with ours.",
     { label: "PAPER REVIEW", fill: C.purpleSoft, color: C.purple },
   );
   addText(slide, "0", { left: 88, top: 215, width: 230, height: 130 }, {
     fontSize: 96, bold: true, color: C.coral, alignment: "center",
   });
-  addText(slide, "exact local\nreplications", { left: 88, top: 342, width: 230, height: 80 }, {
+  addText(slide, "papers repeated\nexactly", { left: 88, top: 342, width: 230, height: 80 }, {
     fontSize: 24, bold: true, color: C.ink, alignment: "center",
   });
   const values = [
     ["Paper", "Plain-language question", "How close is our test?"],
-    ["MoralBench", "Do model choices match human ratings?", "Similar, not exact"],
-    ["UniMoral", "Can models predict labels and consequences?", "Some similar tasks"],
-    ["MoReBench", "Does reasoning cover expert criteria?", "Stand-in only"],
-    ["MoralLens", "Which reasons appear before and after a choice?", "Stand-in only"],
+    ["MoralBench", "Do model choices match human ratings?", "Similar question"],
+    ["UniMoral", "Can models predict choices, moral categories, influences, and what happens next?", "Some similar tasks"],
+    ["MoReBench", "Does reasoning cover expert criteria?", "Different scoring"],
+    ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Different scoring"],
   ];
   const table = slide.tables.add({
     rows: values.length,
@@ -590,16 +607,17 @@ function setNotes(slide, lines) {
   });
   styleTable(table, values.length, 3, { bodySize: 17, headerSize: 16, headerFill: C.purple });
   table.cells.block({ row: 1, column: 2, rowCount: 4, columnCount: 1 }).textStyle.bold = true;
-  addText(slide, "Use the papers to interpret the tasks, not to claim a score replication.", {
+  addText(slide, "Use the papers to explain our questions—not to compare scores.", {
     left: 355, top: 570, width: 845, height: 40,
   }, { fontSize: 21, bold: true, color: C.purple });
-  addText(slide, "UniMoral cue, language, and scenario-source claims are not available in the local run.", {
+  addText(slide, "Our UniMoral run does not test prompt hints, language differences, or where the stories came from.", {
     left: 355, top: 618, width: 845, height: 28,
   }, { fontSize: 15, color: C.muted });
   setNotes(slide, [
     "Sources: docs/PAPER_REVIEW.md; data/paper_protocol_map.csv.",
     "MoralBench and UniMoral share approximate task families with the local evaluator, but model, data, prompt, metric, scorer, or aggregation identities differ.",
     "MoReBench and MoralLens local performance surfaces are proxy-only. Their paper metrics and judges are not reproduced.",
+    "They are not direct score baselines. The visible status labels translate the protocol evidence into plain language.",
     "Do not use the canonical 37-row UniMoral and ValuePrism crosswalk as the denominator for all four papers. That ledger covers a different evidence scope.",
   ]);
 }
@@ -609,16 +627,16 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Fix the measurement before adding more models",
+    "Make the test stronger before adding more models",
     "Better evidence makes the current results more useful",
     { label: "DECISION", fill: C.coralSoft, color: C.coral },
   );
   const values = [
     ["When", "Action", "Reason"],
-    ["Now", "Publish task panels with their limits", "The current aggregates answer task-level questions"],
-    ["Next", "Recover same-item results; check parsing and labels", "This targets the main precision and measurement gaps"],
-    ["Next", "Run the planned human review", "Benchmark agreement is not human validity"],
-    ["Only if still unclear", "Expand the comparison item banks", "New items help only after the measurement is stable"],
+    ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
+    ["Next", "Compare the same questions; check that answers were read and labeled correctly", "This tackles the biggest gaps"],
+    ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
+    ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
   ];
   const table = slide.tables.add({
     rows: values.length,
@@ -635,12 +653,13 @@ function setNotes(slide, lines) {
   addText(slide, "Best next move", { left: 92, top: 582, width: 220, height: 30 }, {
     fontSize: 17, color: C.muted, bold: true,
   });
-  addText(slide, "Compare models on the same items, then complete human validation.", {
+  addText(slide, "Compare models on the same questions. Then have people review the test.", {
     left: 92, top: 614, width: 1050, height: 46,
   }, { fontSize: 28, color: C.ink, bold: true, autoFit: "shrinkText" });
   setNotes(slide, [
     "Sources: docs/RESEARCH_LEAD_BRIEF.md; evidence/canonical-audit/RERUN_PRIORITY.md; evidence/canonical-audit/SELF_CRITIQUE.md.",
     "The order shown is a decision recommendation, not a statistical theorem.",
+    "Benchmark agreement is not human validity. The visible wording translates that evidence boundary into plain language.",
     "The saved evidence still lacks canonical raw archives, clustered uncertainty, complete model and dataset identity, contamination testing, and representative human validation.",
   ]);
 }

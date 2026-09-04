@@ -7,11 +7,12 @@ This private repository turns the benchmark outputs into a results-first readout
 ## Start here
 
 1. Read [`docs/ONE_MINUTE_READOUT.md`](docs/ONE_MINUTE_READOUT.md) for the decision and the four main results.
-2. Open [`slides/cei-moral-psychology-results-deck.pptx`](slides/cei-moral-psychology-results-deck.pptx) for the 8-slide research-lead story.
-3. Open [`index.html`](index.html) for the full visual readout.
-4. Read [`docs/RESULTS_READOUT.md`](docs/RESULTS_READOUT.md) for the evidence and limits behind every chart.
-5. Use [`data/results/`](data/results/) for the plotted rows and derived tables.
-6. Use the poster, paper, and onboarding audits only when those evidence layers are relevant.
+2. Share the [`rendered slide gallery`](slides/README.md) or the [`view-only PDF`](slides/cei-moral-psychology-results-deck.pdf).
+3. Use the [`editable PowerPoint`](slides/cei-moral-psychology-results-deck.pptx) only when you need to change the deck.
+4. Open [`index.html`](index.html) for the full visual readout.
+5. Read [`docs/RESULTS_READOUT.md`](docs/RESULTS_READOUT.md) for the evidence and limits behind every chart.
+6. Use [`data/results/`](data/results/) for the plotted rows and derived tables.
+7. Use the poster, paper, and onboarding audits only when those evidence layers are relevant.
 
 ## What the results say
 
@@ -40,7 +41,7 @@ The repository contains substantial benchmark result data. What is missing is di
 | Location | Purpose |
 |---|---|
 | `index.html` | Responsive visual result brief |
-| `slides/` | Editable 8-slide research-lead deck |
+| `slides/` | Editable PowerPoint, view-only PDF, and eight 2560 × 1440 slide images |
 | `assets/results/` | Four headline charts plus four landscape audit-detail charts in PNG and SVG |
 | `data/results/` | Exact plotted rows, direction summaries, and research-question tables |
 | `docs/RESULTS_READOUT.md` | Chart-by-chart interpretation for a research lead |
