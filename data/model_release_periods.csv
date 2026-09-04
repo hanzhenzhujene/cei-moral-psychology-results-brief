@@ -1,0 +1,7 @@
+model,snapshot_release_period,source_event_date,verified_release_period,source_url,source_revision,source_basis,checked_on
+qwen/qwen-2.5-7b-instruct,2024-Q4,2024-09-19,2024-Q3,https://qwenlm.github.io/blog/qwen2.5/,,official Qwen launch post,2026-09-04
+qwen/qwen3.5-9b,2026-Q1,2026-02-27,2026-Q1,https://huggingface.co/Qwen/Qwen3.5-9B,c202236235762e1c871ad0ccb60c8ee5ba337b9a,official model repository creation date,2026-09-04
+deepseek/deepseek-chat-v3-0324,2025-Q1,2025-03-24,2025-Q1,https://huggingface.co/deepseek-ai/DeepSeek-V3-0324,e9b33add76883f293d6bf61f6bd89b497e80e335,official model repository creation date,2026-09-04
+deepseek/deepseek-chat-v3.1,2025-Q3,2025-08-21,2025-Q3,https://huggingface.co/deepseek-ai/DeepSeek-V3.1,c0781d039fb7a1ba2abc4add0bdc293e92d2b8db,official model repository creation date,2026-09-04
+deepseek/deepseek-v3.2,2025-Q4,2025-12-01,2025-Q4,https://huggingface.co/deepseek-ai/DeepSeek-V3.2,a7e62ac04ecb2c0a54d736dc46601c5606cf10a6,official model repository creation date,2026-09-04
+deepseek/deepseek-v4-flash,2026-Q2,2026-04-22,2026-Q2,https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash,60d8d70770c6776ff598c94bb586a859a38244f1,official model repository creation date,2026-09-04

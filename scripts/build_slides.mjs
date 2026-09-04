@@ -395,6 +395,9 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
+  addText(slide, "Each bar counts model-family × task cases (12 total).", {
+    left: 150, top: 526, width: 900, height: 24,
+  }, { fontSize: 14, color: C.muted });
   addText(slide, "Size is one clue, not a general rule.", {
     left: 150, top: 568, width: 860, height: 40,
   }, { fontSize: 26, bold: true, color: C.ink });
@@ -415,7 +418,7 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "The same Gemma models move in opposite directions",
+    "Gemma scores rise on one task and fall on another",
     "",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
@@ -450,7 +453,7 @@ function setNotes(slide, lines) {
     },
     xAxis: {
       visible: true,
-      title: "Published total parameter count within the Gemma 3 family",
+      title: "Gemma variants ordered by published total parameters",
       textStyle: { typeface: family, fontSize: 15, fill: C.ink },
       line: { style: "solid", fill: C.grid, width: 1 },
       majorGridlines: null,
@@ -479,7 +482,7 @@ function setNotes(slide, lines) {
   addText(slide, "The larger named variants do not score higher on both tasks.", {
     left: 118, top: 612, width: 730, height: 34,
   }, { fontSize: 22, bold: true, color: C.purple });
-  addText(slide, "Each point is one stored task score. Its uncertainty range and original run are unavailable.", {
+  addText(slide, "Each point is one stored task score. Its uncertainty range and raw run archive are unavailable.", {
     left: 118, top: 650, width: 920, height: 26,
   }, { fontSize: 15, color: C.muted });
   setNotes(slide, [
@@ -500,14 +503,14 @@ function setNotes(slide, lines) {
     "Score change on three UniMoral tasks",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
-  addText(slide, "Qwen: Qwen2.5 7B Instruct (7.61B) to Qwen3.5 9B (9B)", {
+  addText(slide, "Qwen: 2024-Q3 · Qwen2.5 7B Instruct (7.61B) → 2026-Q1 · Qwen3.5 9B (9B)", {
     left: 110, top: 158, width: 1000, height: 26,
-  }, { fontSize: 15, color: C.teal, bold: true });
-  addText(slide, "DeepSeek: V3-0324 (671B main, 37B active) to V4 Flash (284B main, 13B active)", {
+  }, { fontSize: 14, color: C.teal, bold: true, autoFit: "shrinkText" });
+  addText(slide, "DeepSeek: 2025-Q1 · V3-0324 (671B main, 37B active) → 2026-Q2 · V4 Flash (284B main, 13B active)", {
     left: 110, top: 186, width: 1060, height: 26,
-  }, { fontSize: 15, color: C.purple, bold: true });
-  addText(slide, "main = all parameters; active = parameters used for each token", {
-    left: 110, top: 212, width: 820, height: 20,
+  }, { fontSize: 14, color: C.purple, bold: true, autoFit: "shrinkText" });
+  addText(slide, "main = published main-model parameters (auxiliary/MTP excluded); active = parameters used per token", {
+    left: 110, top: 212, width: 980, height: 20,
   }, { fontSize: 12, color: C.muted });
   const chart = slide.charts.add("bar", {
     position: { left: 120, top: 238, width: 1030, height: 331 },
@@ -566,14 +569,14 @@ function setNotes(slide, lines) {
   addText(slide, "All endpoint runs were evaluated on 28–29 May 2026.", {
     left: 120, top: 594, width: 900, height: 32,
   }, { fontSize: 20, bold: true, color: C.ink });
-  addText(slide, "Release period describes the model. It is not a progress timeline.", {
+  addText(slide, "Release period is model metadata, not a progress timeline; 28–29 May is the evaluation time.", {
     left: 120, top: 630, width: 940, height: 28,
-  }, { fontSize: 17, color: C.muted });
-  addText(slide, "The consequence task uses a different score, so it is not shown here.", {
+  }, { fontSize: 15, color: C.muted, autoFit: "shrinkText" });
+  addText(slide, "Exploratory: saved uncertainty is unavailable. Consequence uses a different score and is not shown.", {
     left: 120, top: 661, width: 940, height: 24,
-  }, { fontSize: 14, color: C.muted });
+  }, { fontSize: 13, color: C.muted, autoFit: "shrinkText" });
   setNotes(slide, [
-    "Sources: data/results/release_path_summary.csv; data/results/release_period_task_points.csv; evidence/model-parameter-sources.csv.",
+    "Sources: data/results/release_path_summary.csv; data/results/release_period_task_points.csv; data/model_release_periods.csv; evidence/model-parameter-sources.csv.",
     "Classification accuracy deltas shown: Qwen action +.017873, typology +.042383, factor +.002005; DeepSeek action +.186589, typology -.003150, factor -.037514.",
     "Consequence uses METEOR and is not mixed into this accuracy chart. Its endpoint deltas are Qwen -.026780 and DeepSeek +.018985.",
     "Every plotted selected-grid score was evaluated on 28 or 29 May 2026. Release quarter is descriptive model metadata, not observation time or a causal intervention.",
@@ -589,8 +592,8 @@ function setNotes(slide, lines) {
     "The papers help explain our questions. Their scores cannot be compared with ours.",
     { label: "PAPER REVIEW", fill: C.purpleSoft, color: C.purple },
   );
-  addText(slide, "0", { left: 88, top: 215, width: 230, height: 130 }, {
-    fontSize: 96, bold: true, color: C.coral, alignment: "center",
+  addText(slide, "0 of 4", { left: 88, top: 230, width: 230, height: 105 }, {
+    fontSize: 60, bold: true, color: C.coral, alignment: "center",
   });
   addText(slide, "papers repeated\nexactly", { left: 88, top: 342, width: 230, height: 80 }, {
     fontSize: 24, bold: true, color: C.ink, alignment: "center",
@@ -634,14 +637,14 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Make the test stronger before adding more models",
+    "Share task results now. Strengthen the test next.",
     "Better evidence makes the current results more useful",
     { label: "DECISION", fill: C.coralSoft, color: C.coral },
   );
   const values = [
     ["When", "Action", "Reason"],
     ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
-    ["Next", "Recover each question's result; check reading and labels", "This lets us compare models directly"],
+    ["Next", "Recover per-question outcomes; check scoring and labels", "This lets us compare models directly"],
     ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
     ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
   ];
@@ -657,10 +660,10 @@ function setNotes(slide, lines) {
   });
   styleTable(table, values.length, 3, { bodySize: 18, headerSize: 16, headerFill: C.coral });
   table.cells.block({ row: 1, column: 0, rowCount: 4, columnCount: 1 }).textStyle.bold = true;
-  addText(slide, "Best next move", { left: 92, top: 582, width: 220, height: 30 }, {
+  addText(slide, "Best research next move", { left: 92, top: 582, width: 300, height: 30 }, {
     fontSize: 17, color: C.muted, bold: true,
   });
-  addText(slide, "Recover each question's result. Compare models. Then have people review the test.", {
+  addText(slide, "Recover per-question outcomes. Compare models. Then have people review the test.", {
     left: 92, top: 614, width: 1096, height: 46,
   }, { fontSize: 26, color: C.ink, bold: true, autoFit: "shrinkText" });
   setNotes(slide, [

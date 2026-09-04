@@ -16,22 +16,22 @@ Click any slide to open the 2560 × 1440 image.
 
 [![Slide 3: Saved ranges overlap for every model pair in both tests.](rendered/slide-03.png)](rendered/slide-03.png)
 
-## 4. Only 4 of 12 model-and-task cases rise twice
+## 4. Only 4 of 12 model-and-task cases rise twice · Exploratory
 
 [![Slide 4: Only 4 of 12 model-and-task cases rise twice.](rendered/slide-04.png)](rendered/slide-04.png)
 
-## 5. The same Gemma models move in opposite directions
+## 5. Gemma scores rise on one task and fall on another · Exploratory
 
-[![Slide 5: The same Gemma models move in opposite directions.](rendered/slide-05.png)](rendered/slide-05.png)
+[![Slide 5: Gemma scores rise on one task and fall on another.](rendered/slide-05.png)](rendered/slide-05.png)
 
-## 6. Later versions score higher on some tasks and lower on others
+## 6. Later versions score higher on some tasks and lower on others · Exploratory
 
 [![Slide 6: Later model versions score higher on some tasks and lower on others.](rendered/slide-06.png)](rendered/slide-06.png)
 
-## 7. We did not exactly repeat any paper's experiment
+## 7. We did not exactly repeat any paper's experiment · Paper review
 
 [![Slide 7: We did not exactly repeat any paper's experiment.](rendered/slide-07.png)](rendered/slide-07.png)
 
-## 8. Make the test stronger before adding more models
+## 8. Share task results now. Strengthen the test next. · Decision
 
-[![Slide 8: Make the test stronger before adding more models.](rendered/slide-08.png)](rendered/slide-08.png)
+[![Slide 8: Share task results now. Strengthen the test next.](rendered/slide-08.png)](rendered/slide-08.png)

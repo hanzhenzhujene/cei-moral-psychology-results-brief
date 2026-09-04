@@ -27,6 +27,7 @@ CANONICAL = ROOT / "evidence" / "canonical-audit"
 SELECTED = ROOT / "evidence" / "source-results"
 RESULT_DATA = ROOT / "data" / "results"
 PARAMETERS = ROOT / "evidence" / "model-parameter-sources.csv"
+RELEASE_PERIODS = ROOT / "data" / "model_release_periods.csv"
 SLIDE_DECK = ROOT / "slides" / "cei-moral-psychology-results-deck.pptx"
 SLIDE_PDF = ROOT / "slides" / "cei-moral-psychology-results-deck.pdf"
 SLIDE_RENDER_DIR = ROOT / "slides" / "rendered"
@@ -36,6 +37,7 @@ SOURCE_HEAD = "b3a348684692f615d789392692ce34a1359192d3"
 CANONICAL_SHA = "276acecd603761e6ff61bd6e2685fbb87f0eaa47"
 UPSTREAM_BAD_SHA = CANONICAL_SHA + "d"
 RUN_IDENTITY_SCOPE = "named-model specification only; served provider endpoint, quantization, and checkpoint revision not retained"
+RELEASE_PERIOD_SOURCE_PATH = "data/model_release_periods.csv"
 COMMON_MODELS = {
     "claude-haiku-4-5",
     "claude-opus-4-8",
@@ -95,6 +97,14 @@ EXPECTED_SOURCE_REVISIONS = {
     "deepseek/deepseek-chat-v3.1": "c0781d039fb7a1ba2abc4add0bdc293e92d2b8db",
     "deepseek/deepseek-v3.2": "a7e62ac04ecb2c0a54d736dc46601c5606cf10a6",
     "deepseek/deepseek-v4-flash": "60d8d70770c6776ff598c94bb586a859a38244f1",
+}
+EXPECTED_RELEASE_PERIODS = {
+    "qwen/qwen-2.5-7b-instruct": ("2024-Q4", "2024-09-19", "2024-Q3", "https://qwenlm.github.io/blog/qwen2.5/"),
+    "qwen/qwen3.5-9b": ("2026-Q1", "2026-02-27", "2026-Q1", "https://huggingface.co/Qwen/Qwen3.5-9B"),
+    "deepseek/deepseek-chat-v3-0324": ("2025-Q1", "2025-03-24", "2025-Q1", "https://huggingface.co/deepseek-ai/DeepSeek-V3-0324"),
+    "deepseek/deepseek-chat-v3.1": ("2025-Q3", "2025-08-21", "2025-Q3", "https://huggingface.co/deepseek-ai/DeepSeek-V3.1"),
+    "deepseek/deepseek-v3.2": ("2025-Q4", "2025-12-01", "2025-Q4", "https://huggingface.co/deepseek-ai/DeepSeek-V3.2"),
+    "deepseek/deepseek-v4-flash": ("2026-Q2", "2026-04-22", "2026-Q2", "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash"),
 }
 
 
@@ -184,6 +194,56 @@ def validate_canonical_bundle() -> pd.DataFrame:
     return primary
 
 
+def apply_verified_release_periods(results: pd.DataFrame) -> pd.DataFrame:
+    periods = pd.read_csv(RELEASE_PERIODS, keep_default_na=False)
+    expected_columns = [
+        "model",
+        "snapshot_release_period",
+        "source_event_date",
+        "verified_release_period",
+        "source_url",
+        "source_revision",
+        "source_basis",
+        "checked_on",
+    ]
+    check(list(periods.columns) == expected_columns, "release-period source schema drift")
+    check(len(periods) == 6 and periods["model"].is_unique, "release-period source must contain six unique release-path models")
+    check(set(periods["model"]) == set(EXPECTED_RELEASE_PERIODS), "release-period source model set drift")
+    check(periods["snapshot_release_period"].str.fullmatch(r"\d{4}-Q[1-4]").all(), "snapshot release-period format drift")
+    check(periods["verified_release_period"].str.fullmatch(r"\d{4}-Q[1-4]").all(), "verified release-period format drift")
+    dates = pd.to_datetime(periods["source_event_date"], format="%Y-%m-%d", errors="coerce")
+    check(dates.notna().all(), "release-period source event date is not ISO formatted")
+    derived = dates.map(lambda value: f"{value.year}-Q{(value.month - 1) // 3 + 1}")
+    check(derived.equals(periods["verified_release_period"]), "verified release date and quarter disagree")
+    check(periods["checked_on"].eq("2026-09-04").all(), "release-period source check date drift")
+
+    corrected = results.copy()
+    for row in periods.itertuples(index=False):
+        snapshot_period, event_date, verified_period, source_url = EXPECTED_RELEASE_PERIODS[row.model]
+        check(row.snapshot_release_period == snapshot_period, f"snapshot period drift for {row.model}")
+        check(row.source_event_date == event_date, f"release-period source event date drift for {row.model}")
+        check(row.verified_release_period == verified_period, f"verified release period drift for {row.model}")
+        check(row.source_url == source_url, f"release source URL drift for {row.model}")
+        if row.model == "qwen/qwen-2.5-7b-instruct":
+            check(row.source_revision == "" and row.source_basis == "official Qwen launch post", "Qwen2.5 release source boundary drift")
+        else:
+            check(row.source_revision == EXPECTED_SOURCE_REVISIONS[row.model], f"release source revision drift for {row.model}")
+            check(row.source_basis == "official model repository creation date", f"release source basis drift for {row.model}")
+        mask = corrected["model"] == row.model
+        check(mask.any(), f"release-period model absent from selected snapshot: {row.model}")
+        check(set(corrected.loc[mask, "release_period"]) == {snapshot_period}, f"selected snapshot period drift for {row.model}")
+        corrected.loc[mask, "release_period"] = verified_period
+
+    changed = periods[periods["snapshot_release_period"] != periods["verified_release_period"]]
+    check(
+        changed[["model", "verified_release_period"]].to_records(index=False).tolist()
+        == [("qwen/qwen-2.5-7b-instruct", "2024-Q3")],
+        "documented release-period corrections drift",
+    )
+    passed("release metadata: six release-path models sourced; Qwen2.5 corrected from snapshot Q4 to official 2024-Q3")
+    return corrected
+
+
 def validate_selected_sources(source_repo: Path | None) -> pd.DataFrame:
     manifest = pd.read_csv(SELECTED / "SOURCE_MANIFEST.csv", keep_default_na=False)
     check(len(manifest) == 2 and manifest["path"].is_unique, "selected source manifest must contain two unique rows")
@@ -215,7 +275,7 @@ def validate_selected_sources(source_repo: Path | None) -> pd.DataFrame:
     check(qwen_tokens == 107375, f"Qwen3-32B reasoning-token total drift: {qwen_tokens}")
     check(deepseek_tokens == 1171189, f"DeepSeek V4 reasoning-token total drift: {deepseek_tokens}")
     passed("selected grid: 17-model metadata, 119 result rows, statuses 102/13/4, 0 bundled raw logs, token-drift totals confirmed")
-    return results
+    return apply_verified_release_periods(results)
 
 
 def intervals_all_overlap(frame: pd.DataFrame) -> tuple[int, int]:
@@ -346,6 +406,11 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
     check(not release.duplicated(["family", "task", "release_period"]).any(), "duplicate family-task-quarter in release layer")
     check((release["run_status"] == "success").all() and release["score"].notna().all(), "release plot contains a failed or missing score")
     check(set(release["evidence_status"]) == {"exploratory aggregate; no CI or raw-log replay"}, "release evidence label drift")
+    check(set(release["source_path"]) == {"evidence/source-results/result_summary.csv"}, "release score source path drift")
+    check(
+        set(release["release_period_source_path"]) == {RELEASE_PERIOD_SOURCE_PATH},
+        "release-period source path omits the verified metadata overlay",
+    )
     run_dates = release["log_path"].str.extract(r"/(2026-05-(?:28|29))T", expand=False)
     check(run_dates.notna().all() and set(run_dates) == {"2026-05-28", "2026-05-29"}, "release rows are not confined to the recorded two-day evaluation window")
 
@@ -452,6 +517,7 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
                 "evidence_status": "exploratory aggregate; no CI or raw-log replay",
                 "source_repository_head": SOURCE_HEAD,
                 "source_path": "evidence/source-results/result_summary.csv",
+                "release_period_source_path": RELEASE_PERIOD_SOURCE_PATH,
             }
         )
     expected_release_summary = pd.DataFrame(expected_summary_rows)
@@ -986,6 +1052,11 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
                 "values": [float(f"{float(score_by_model[model]):.3f}") for model in gemma_models["model"]],
             })
         check_chart_equal(chart_series[5], gemma_expected, "slide 5 Gemma chart")
+        slide_5_text = " ".join(node.text or "" for node in slide_roots[5].iter(f"{A_NS}t"))
+        check(
+            "Its uncertainty range and raw run archive are unavailable." in slide_5_text,
+            "slide 5 overstates the missing selected-grid run evidence",
+        )
 
         release = pd.read_csv(RESULT_DATA / "release_path_summary.csv")
         release_tasks = [
@@ -1004,10 +1075,12 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         check_chart_equal(chart_series[6], release_expected, "slide 6 release-endpoint chart")
         slide_6_text = " ".join(node.text or "" for node in slide_roots[6].iter(f"{A_NS}t"))
         for phrase in (
-            "Qwen2.5 7B Instruct (7.61B) to Qwen3.5 9B (9B)",
-            "V3-0324 (671B main, 37B active) to V4 Flash (284B main, 13B active)",
+            "2024-Q3 · Qwen2.5 7B Instruct (7.61B) → 2026-Q1 · Qwen3.5 9B (9B)",
+            "2025-Q1 · V3-0324 (671B main, 37B active) → 2026-Q2 · V4 Flash (284B main, 13B active)",
+            "main = published main-model parameters (auxiliary/MTP excluded); active = parameters used per token",
             "28–29 May 2026",
-            "The consequence task uses a different score",
+            "saved uncertainty is unavailable",
+            "Consequence uses a different score",
         ):
             check(phrase in slide_6_text, f"slide 6 lacks required endpoint, date, or metric text: {phrase}")
 
@@ -1035,7 +1108,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         ]
         check(slide_tables(slide_roots[7])[0] == expected_paper_table, "slide 7 paper question and local-fit table drift")
         slide_7_text = " ".join(node.text or "" for node in slide_roots[7].iter(f"{A_NS}t"))
-        check("0papersrepeatedexactly" in re.sub(r"\s+", "", slide_7_text), "slide 7 no longer states that zero papers were repeated exactly")
+        check("0of4papersrepeatedexactly" in re.sub(r"\s+", "", slide_7_text), "slide 7 no longer states that zero of four reviewed papers were repeated exactly")
 
         brief_text = (ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md").read_text().lower()
         priority_text = (ROOT / "evidence" / "canonical-audit" / "RERUN_PRIORITY.md").read_text().lower()
@@ -1049,11 +1122,13 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         expected_action_table = [
             ["When", "Action", "Reason"],
             ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
-            ["Next", "Recover each question's result; check reading and labels", "This lets us compare models directly"],
+            ["Next", "Recover per-question outcomes; check scoring and labels", "This lets us compare models directly"],
             ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
             ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
         ]
         check(slide_tables(slide_roots[8])[0] == expected_action_table, "slide 8 decision order drift")
+        slide_8_text = " ".join(node.text or "" for node in slide_roots[8].iter(f"{A_NS}t"))
+        check("Best research next move" in slide_8_text, "slide 8 no longer distinguishes the research next move from the communication action")
 
         citation_pattern = re.compile(r"\b(?:docs|data|evidence)/[A-Za-z0-9_./-]+\.(?:md|csv)\b")
         release_text: list[str] = []
@@ -1253,8 +1328,8 @@ def validate_visuals() -> None:
         "03_size_paths_detail_a": ("How model size relates to UniMoral classification scores", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
         "03_size_paths_detail_b": ("How model size relates to consequence and ValuePrism scores", {"Qwen3-8B", "235B total / 22B active", "ValuePrism relevance", "ValuePrism valence"}),
         "04_release_period_paths": ("Newer named releases do not move every UniMoral task up", {"May 28–29, 2026", "Qwen endpoints: 3 higher, 1 lower", "DeepSeek endpoints: 2 higher, 2 lower", "671B main / 37B active"}),
-        "04_release_period_paths_detail_a": ("How named model releases move across UniMoral classification tasks", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
-        "04_release_period_paths_detail_b": ("How named model releases move on consequence and ValuePrism", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "04_release_period_paths_detail_a": ("How named model releases move across UniMoral classification tasks", {"2024", "Q3", "Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "04_release_period_paths_detail_b": ("How named model releases move on consequence and ValuePrism", {"2024", "Q3", "Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
     }
     for stem, (title, labels) in expected.items():
         png = ROOT / "assets" / "results" / f"{stem}.png"
@@ -1505,6 +1580,9 @@ def validate_language_and_hygiene() -> None:
         ROOT / "docs" / "VERIFICATION.md",
     ]
     combined = "\n".join(path.read_text(errors="replace") for path in authored)
+    index_text = (ROOT / "index.html").read_text()
+    check(index_text.count("2024 Q3 · Qwen2.5-7B · 7.61B") == 6, "index release matrix does not show Qwen2.5 as 2024 Q3 on all six tasks")
+    check("2024 Q4 · Qwen2.5-7B" not in index_text, "index still contains the corrected Qwen2.5 Q4 label")
     forbidden_claims = {
         "underpowered": "untested power language",
         "Verified primary aggregate": "raw-replay-adjacent verification label",

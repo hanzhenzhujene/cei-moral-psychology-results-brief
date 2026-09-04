@@ -21,10 +21,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CANONICAL = ROOT / "evidence" / "canonical-audit" / "figures" / "data"
 SELECTED = ROOT / "evidence" / "source-results"
 PARAMETERS = ROOT / "evidence" / "model-parameter-sources.csv"
+RELEASE_PERIODS = ROOT / "data" / "model_release_periods.csv"
 DATA = ROOT / "data" / "results"
 FIGURES = ROOT / "assets" / "results"
 
 SOURCE_HEAD = "b3a348684692f615d789392692ce34a1359192d3"
+RELEASE_PERIOD_SOURCE_PATH = "data/model_release_periods.csv"
 COMMON_MODELS = [
     "claude-haiku-4-5",
     "claude-opus-4-8",
@@ -272,12 +274,63 @@ def plot_precision(precision: pd.DataFrame) -> None:
     save_figure(fig, "02_precision_by_task")
 
 
+def load_verified_release_periods() -> pd.DataFrame:
+    periods = pd.read_csv(RELEASE_PERIODS, keep_default_na=False)
+    expected_columns = {
+        "model",
+        "snapshot_release_period",
+        "source_event_date",
+        "verified_release_period",
+        "source_url",
+        "source_revision",
+        "source_basis",
+        "checked_on",
+    }
+    assert set(periods.columns) == expected_columns
+    assert len(periods) == 6 and periods["model"].is_unique
+    assert set(periods["model"]) == {
+        "qwen/qwen-2.5-7b-instruct",
+        "qwen/qwen3.5-9b",
+        "deepseek/deepseek-chat-v3-0324",
+        "deepseek/deepseek-chat-v3.1",
+        "deepseek/deepseek-v3.2",
+        "deepseek/deepseek-v4-flash",
+    }
+    assert periods["snapshot_release_period"].str.fullmatch(r"\d{4}-Q[1-4]").all()
+    assert periods["verified_release_period"].str.fullmatch(r"\d{4}-Q[1-4]").all()
+    dates = pd.to_datetime(periods["source_event_date"], format="%Y-%m-%d", errors="raise")
+    derived_periods = dates.map(lambda value: f"{value.year}-Q{(value.month - 1) // 3 + 1}")
+    assert derived_periods.equals(periods["verified_release_period"])
+    assert periods["source_url"].str.startswith("https://").all()
+    revisions = periods["source_revision"]
+    assert revisions.eq("").sum() == 1
+    assert revisions[revisions.ne("")].str.fullmatch(r"[0-9a-f]{40}").all()
+    changed = periods[periods["snapshot_release_period"] != periods["verified_release_period"]]
+    assert changed[["model", "verified_release_period"]].to_records(index=False).tolist() == [
+        ("qwen/qwen-2.5-7b-instruct", "2024-Q3")
+    ]
+    return periods
+
+
+def apply_verified_release_periods(frame: pd.DataFrame, periods: pd.DataFrame) -> pd.DataFrame:
+    corrected = frame.copy()
+    for row in periods.itertuples(index=False):
+        mask = corrected["model"] == row.model
+        assert mask.any()
+        assert set(corrected.loc[mask, "release_period"]) == {row.snapshot_release_period}
+        corrected.loc[mask, "release_period"] = row.verified_release_period
+    return corrected
+
+
 def load_selected_grid() -> tuple[pd.DataFrame, pd.DataFrame]:
     validate_selected_sources()
     grid = pd.read_csv(SELECTED / "model_grid.csv")
     results = pd.read_csv(SELECTED / "result_summary.csv")
     assert grid.shape == (17, 13)
     assert results["run_status"].value_counts().to_dict() == {"success": 102, "error": 13, "cancelled": 4}
+    periods = load_verified_release_periods()
+    grid = apply_verified_release_periods(grid, periods)
+    results = apply_verified_release_periods(results, periods)
     results["score"] = pd.to_numeric(results["score"], errors="coerce")
     return grid, results
 
@@ -823,6 +876,7 @@ def build_release_paths(results: pd.DataFrame) -> pd.DataFrame:
     points["evidence_status"] = "exploratory aggregate; no CI or raw-log replay"
     points["source_repository_head"] = SOURCE_HEAD
     points["source_path"] = "evidence/source-results/result_summary.csv"
+    points["release_period_source_path"] = RELEASE_PERIOD_SOURCE_PATH
     return points
 
 
@@ -860,6 +914,7 @@ def build_release_summary(points: pd.DataFrame) -> pd.DataFrame:
                 "evidence_status": "exploratory aggregate; no CI or raw-log replay",
                 "source_repository_head": SOURCE_HEAD,
                 "source_path": "evidence/source-results/result_summary.csv",
+                "release_period_source_path": RELEASE_PERIOD_SOURCE_PATH,
             }
         )
     summary = pd.DataFrame(rows)
