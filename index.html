@@ -30,7 +30,7 @@
       <div class="wrap">
         <p class="eyebrow">Detailed evidence view · 4 September 2026</p>
         <h1>What the benchmark results actually say</h1>
-        <p class="lede">Two findings are ready to act on: point-estimate leaders change by task, and the two comparison tasks are the clear precision bottleneck. Size and release patterns are useful hypotheses, but they do not support a general scaling or progress claim.</p>
+        <p class="lede">Two findings are ready to use: the highest saved score changes by task, and both comparison tests leave the model order unclear. Selected bigger or later model versions do not score higher on every task. Treat those patterns as early clues, not a rule.</p>
 
         <div class="decision-banner">
           <strong>Decision</strong>
@@ -40,15 +40,15 @@
         <div class="stat-line" aria-label="Key status summary">
           <div class="stat">
             <span class="stat-value">78</span>
-            <span class="stat-label">current primary text cells</span>
+            <span class="stat-label">main audited model–task results</span>
           </div>
           <div class="stat">
             <span class="stat-value">5 × 8</span>
-            <span class="stat-label">common-roster subset: model × task</span>
+            <span class="stat-label">models × tasks in the main chart</span>
           </div>
           <div class="stat">
             <span class="stat-value">18</span>
-            <span class="stat-label">wide intervals, all on compare tasks</span>
+            <span class="stat-label">wide score ranges, all on comparison tests</span>
           </div>
           <div class="stat">
             <span class="stat-value">0</span>
@@ -62,21 +62,21 @@
       <div class="wrap">
         <div class="question-head">
           <div>
-            <p class="eyebrow">Research question 1 · current primary aggregate</p>
-            <h2>Do the consistently covered models form one stable order?</h2>
+            <p class="eyebrow">Research question 1 · main audited results</p>
+            <h2>Do the five consistently covered models form one stable order?</h2>
           </div>
-          <span class="evidence-pill verified">Tracked-artifact audit</span>
+          <span class="evidence-pill verified">Main audited results</span>
         </div>
-        <p class="section-intro">No. No model is the point-estimate leader on all eight tasks. The two MoralBench comparison panels are especially uncertain, so their model order is unresolved.</p>
+        <p class="section-intro">No. The highest saved score belongs to different models on different tasks. The two MoralBench comparison tests also cannot reliably show a leader.</p>
 
         <figure class="result-figure wide-chart">
           <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-          <a href="assets/results/01_common_roster_task_results.png"><img src="assets/results/01_common_roster_task_results.png" width="3319" height="2104" decoding="async" fetchpriority="high" alt="Eight task-specific confidence interval panels for five consistently covered models; point-estimate leaders differ by task and comparison-task intervals are wide"></a>
-          <figcaption>Five models that pass all eight operational text-task gates. Matched task blocks share scales; normalized preference, accuracy, and METEOR remain separate. “Current” here means tracked aggregate evidence, not raw replay or human validity. Click for full size.</figcaption>
+          <a href="assets/results/01_common_roster_task_results.png"><img src="assets/results/01_common_roster_task_results.png" width="3319" height="2104" decoding="async" fetchpriority="high" alt="Eight task-specific score-range panels for five consistently covered models; the highest saved score changes by task and comparison-task ranges are wide"></a>
+          <figcaption>Five models with primary results on all eight text tasks. Matched task blocks share scales; normalized preference, accuracy, and METEOR remain separate. “Current” here means tracked aggregate evidence, not raw replay or human validity. Click for full size.</figcaption>
         </figure>
 
         <div class="answer-grid">
-          <div><strong>Result</strong><span>No model is the point-estimate leader on all eight tasks.</span></div>
+          <div><strong>Result</strong><span>The highest saved score changes across the eight tasks.</span></div>
           <div><strong>Implication</strong><span>Use task-specific results; do not publish one model leaderboard.</span></div>
           <div><strong>Limit</strong><span>Intervals do not cover route drift, contamination, construct error, or human validity.</span></div>
         </div>
@@ -91,12 +91,12 @@
       <div class="wrap">
         <div class="question-head">
           <div>
-            <p class="eyebrow">Research question 2 · current primary aggregate</p>
-            <h2>Where does sampling uncertainty block a model order?</h2>
+            <p class="eyebrow">Research question 2 · main audited results</p>
+            <h2>Can the two comparison tests tell us which model leads?</h2>
           </div>
-          <span class="evidence-pill verified">Tracked-artifact audit</span>
+          <span class="evidence-pill verified">Main audited results</span>
         </div>
-        <p class="section-intro">This section uses all available primary models: 8 on MFQ compare and 10 on vignette compare, not the five-model common roster above. Every interval wider than .30 belongs to these two tasks.</p>
+        <p class="section-intro">No. Marginal score ranges overlap for all 28 MFQ and all 45 vignette model pairs. These ranges look at one model at a time; paired question-by-question results are not yet available.</p>
 
         <figure class="result-figure wide-chart">
           <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
@@ -105,8 +105,8 @@
         </figure>
 
         <div class="answer-grid">
-          <div><strong>Result</strong><span>MFQ compare: .395. Vignette compare: .370. All other medians are .220 or below.</span></div>
-          <div><strong>Implication</strong><span>Recover per-question outcomes and check scoring. Compare models directly, then run human review. Add items only if the order is still unclear.</span></div>
+          <div><strong>Result</strong><span>All 28 MFQ and all 45 vignette model-pair ranges overlap. Median widths are .395 and .370.</span></div>
+          <div><strong>Implication</strong><span>Restore every model's answer and score for each question. Check scoring and labels, then compare models directly. Ask people whether the test matches human judgment.</span></div>
           <div><strong>Limit</strong><span>Narrow row-level intervals are precision, not construct validity.</span></div>
         </div>
         <div class="source-links"><a href="data/results/task_precision.csv">Task precision table</a></div>
@@ -117,7 +117,7 @@
       <div class="wrap">
         <p class="eyebrow">Research questions 3–4 · exploratory</p>
         <h2>Size and release metadata are not shortcuts</h2>
-        <p class="section-intro">These views use a separate selected-grid snapshot with no saved confidence intervals or raw-log replay. The main charts ask local follow-up questions using only the four UniMoral task families; the full six-task tables and every named-model path remain available as audit detail.</p>
+        <p class="section-intro">These views use a separate exploratory dataset with no saved uncertainty estimates or original run files. The main charts use the four UniMoral task families; the full six-task tables and every named-model path remain available as audit detail.</p>
 
         <div class="visual-stack">
           <article class="visual-card">

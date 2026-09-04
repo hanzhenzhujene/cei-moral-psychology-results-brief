@@ -242,9 +242,9 @@ function setNotes(slide, lines) {
     fill: C.purpleSoft,
     textStyle: { typeface: family, fontSize: 17, color: C.purple, bold: true },
   });
-  addText(slide, "† The uncertainty ranges overlap on the two comparison tasks. We cannot tell who leads.", {
+  addText(slide, "† Marginal ranges overlap on both comparison tasks; paired question results are unavailable, so no leader is resolved.", {
     left: 96, top: 620, width: 1080, height: 30,
-  }, { fontSize: 16, color: C.coral });
+  }, { fontSize: 16, color: C.coral, autoFit: "shrinkText" });
   addText(slide, "Each task uses its own score. Do not compare numbers from different rows.", {
     left: 96, top: 652, width: 1080, height: 26,
   }, { fontSize: 15, color: C.muted });
@@ -262,7 +262,7 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Saved ranges overlap for every model pair in both tests",
+    "Every model pair has overlapping score ranges on both tests",
     "Full primary panels: MFQ = 8 models × 20 questions; Vignette = 10 × 24.",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
@@ -324,15 +324,18 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "Direct evidence: saved ranges overlap for all 28 MFQ and all 45 Vignette model pairs.", {
+  addText(slide, "Marginal ranges overlap for all 28 MFQ and all 45 Vignette model pairs.", {
     left: 120, top: 526, width: 1030, height: 30,
   }, { fontSize: 18, bold: true, color: C.coral });
-  addText(slide, "Action: recover per-question outcomes and check scoring.", {
-    left: 120, top: 580, width: 980, height: 32,
-  }, { fontSize: 21, bold: true, color: C.ink });
-  addText(slide, "Then compare models, run human review, and add questions only if still unclear.", {
-    left: 120, top: 616, width: 1000, height: 28,
-  }, { fontSize: 17, color: C.muted });
+  addText(slide, "These ranges look at one model at a time; paired question results are unavailable.", {
+    left: 120, top: 559, width: 1030, height: 24,
+  }, { fontSize: 15, color: C.muted });
+  addText(slide, "Next: restore every model's answer and score for each question.", {
+    left: 120, top: 592, width: 1030, height: 32,
+  }, { fontSize: 20, bold: true, color: C.ink });
+  addText(slide, "Check scoring and labels. Then compare models and have people review the test.", {
+    left: 120, top: 628, width: 1030, height: 28,
+  }, { fontSize: 16, color: C.muted });
   setNotes(slide, [
     "Source: data/results/task_precision.csv.",
     "All 18 individual intervals wider than .30 occur in the two MoralBench comparison tasks.",
@@ -602,8 +605,8 @@ function setNotes(slide, lines) {
     ["Paper", "Plain-language question", "How close is our test?"],
     ["MoralBench", "Do model choices match human ratings?", "Similar question"],
     ["UniMoral", "Can models predict choices, moral categories, influences, and what happens next?", "Some similar tasks"],
-    ["MoReBench", "Does reasoning cover expert criteria?", "Different scoring"],
-    ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Different scoring"],
+    ["MoReBench", "Does reasoning cover expert criteria?", "Related question, different test"],
+    ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Related question, different test"],
   ];
   const table = slide.tables.add({
     rows: values.length,
@@ -644,8 +647,8 @@ function setNotes(slide, lines) {
   const values = [
     ["When", "Action", "Reason"],
     ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
-    ["Next", "Recover per-question outcomes; check scoring and labels", "This lets us compare models directly"],
-    ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
+    ["Next", "Restore each model's answer and score for every question", "This lets us compare models on the same questions"],
+    ["Then", "Check scoring and labels; have people review the test", "A benchmark score alone does not prove the test matches human judgment"],
     ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
   ];
   const table = slide.tables.add({
@@ -663,9 +666,9 @@ function setNotes(slide, lines) {
   addText(slide, "Best research next move", { left: 92, top: 582, width: 300, height: 30 }, {
     fontSize: 17, color: C.muted, bold: true,
   });
-  addText(slide, "Recover per-question outcomes. Compare models. Then have people review the test.", {
+  addText(slide, "Restore answers and scores. Check scoring and labels. Compare models. Then have people review the test.", {
     left: 92, top: 614, width: 1096, height: 46,
-  }, { fontSize: 26, color: C.ink, bold: true, autoFit: "shrinkText" });
+  }, { fontSize: 24, color: C.ink, bold: true, autoFit: "shrinkText" });
   setNotes(slide, [
     "Sources: docs/RESEARCH_LEAD_BRIEF.md; evidence/canonical-audit/RERUN_PRIORITY.md; evidence/canonical-audit/SELF_CRITIQUE.md.",
     "The order shown is a decision recommendation, not a statistical theorem.",

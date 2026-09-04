@@ -588,7 +588,7 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
     for source in takeaways["source"]:
         check((ROOT / source).is_file(), f"takeaway source does not resolve: {source}")
     precision_takeaway = takeaways.loc[
-        takeaways["research_question"] == "Where does sampling uncertainty block a model order?"
+        takeaways["research_question"] == "Can the two comparison tests tell us which model leads?"
     ]
     check(len(precision_takeaway) == 1, "precision takeaway row is missing or duplicated")
     check(
@@ -1006,6 +1006,11 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
                 leader_text,
             ])
         check(slide_tables(slide_roots[2])[0] == expected_leaders, "slide 2 leader table does not recompute from the common roster")
+        slide_2_text = " ".join(node.text or "" for node in slide_roots[2].iter(f"{A_NS}t"))
+        check(
+            "Marginal ranges overlap on both comparison tasks; paired question results are unavailable" in slide_2_text,
+            "slide 2 hides the marginal/non-paired comparison boundary",
+        )
 
         precision = pd.read_csv(RESULT_DATA / "task_precision.csv").sort_values("median_ci_width", ascending=False)
         precision_expected = [{
@@ -1016,12 +1021,14 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         check_chart_equal(chart_series[3], precision_expected, "slide 3 precision chart")
         slide_3_text = " ".join(node.text or "" for node in slide_roots[3].iter(f"{A_NS}t"))
         for phrase in (
-            "Saved ranges overlap for every model pair in both tests",
+            "Every model pair has overlapping score ranges on both tests",
             "MFQ = 8 models × 20 questions",
             "Vignette = 10 × 24",
             "Each bar = the median full width of saved 95% intervals across available models",
-            "saved ranges overlap for all 28 MFQ and all 45 Vignette model pairs",
-            "run human review, and add questions only if still unclear",
+            "Marginal ranges overlap for all 28 MFQ and all 45 Vignette model pairs",
+            "paired question results are unavailable",
+            "restore every model's answer and score for each question",
+            "Check scoring and labels. Then compare models and have people review the test",
         ):
             check(phrase in slide_3_text, f"slide 3 hides the full-primary denominator or claim boundary: {phrase}")
 
@@ -1103,8 +1110,8 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             ["Paper", "Plain-language question", "How close is our test?"],
             ["MoralBench", "Do model choices match human ratings?", "Similar question"],
             ["UniMoral", "Can models predict choices, moral categories, influences, and what happens next?", "Some similar tasks"],
-            ["MoReBench", "Does reasoning cover expert criteria?", "Different scoring"],
-            ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Different scoring"],
+            ["MoReBench", "Does reasoning cover expert criteria?", "Related question, different test"],
+            ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Related question, different test"],
         ]
         check(slide_tables(slide_roots[7])[0] == expected_paper_table, "slide 7 paper question and local-fit table drift")
         slide_7_text = " ".join(node.text or "" for node in slide_roots[7].iter(f"{A_NS}t"))
@@ -1113,22 +1120,26 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         brief_text = (ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md").read_text().lower()
         priority_text = (ROOT / "evidence" / "canonical-audit" / "RERUN_PRIORITY.md").read_text().lower()
         for phrase, source in (
-            ("recover raw archives and paired outcomes", brief_text),
-            ("approve gate m human validation", brief_text),
-            ("expand the comparison item banks only after", brief_text),
+            ("restore every model's answer and score for each question", brief_text),
+            ("run the planned human review (gate m)", brief_text),
+            ("add more questions only if", brief_text),
             ("repair existing measurement evidence first", priority_text),
         ):
             check(phrase in source, f"slide 8 recommendation source no longer contains: {phrase}")
         expected_action_table = [
             ["When", "Action", "Reason"],
             ["Now", "Share each task result with its limits", "The saved results answer one task at a time"],
-            ["Next", "Recover per-question outcomes; check scoring and labels", "This lets us compare models directly"],
-            ["Then", "Have people review the test", "A benchmark score does not prove the test matches human judgment"],
+            ["Next", "Restore each model's answer and score for every question", "This lets us compare models on the same questions"],
+            ["Then", "Check scoring and labels; have people review the test", "A benchmark score alone does not prove the test matches human judgment"],
             ["Only if still unclear", "Add more comparison questions", "New questions help after the scoring works correctly"],
         ]
         check(slide_tables(slide_roots[8])[0] == expected_action_table, "slide 8 decision order drift")
         slide_8_text = " ".join(node.text or "" for node in slide_roots[8].iter(f"{A_NS}t"))
         check("Best research next move" in slide_8_text, "slide 8 no longer distinguishes the research next move from the communication action")
+        check(
+            "Restore answers and scores. Check scoring and labels. Compare models. Then have people review the test." in slide_8_text,
+            "slide 8 bottom line drops or reorders a research step",
+        )
 
         citation_pattern = re.compile(r"\b(?:docs|data|evidence)/[A-Za-z0-9_./-]+\.(?:md|csv)\b")
         release_text: list[str] = []

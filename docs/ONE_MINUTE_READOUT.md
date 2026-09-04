@@ -4,11 +4,11 @@
 
 | What we learned | What it means |
 |---|---|
-| Among the five models that ran all eight tasks, no model has the highest saved score on every task. | Show each task on its own. |
-| Across all available primary models—8 on MFQ and 10 on Vignette—the saved ranges overlap within each comparison test. | Recover each question's result, then compare models question by question. |
-| Only 4 of 12 selected size paths rise at both steps. | Size is a clue, not a rule. |
-| Later Qwen and DeepSeek versions score higher on some tasks and lower on others. | Release date is model information, not a progress measure. |
+| Among the five models with main audited results on all eight tasks, the highest saved score changes by task. | Show each task on its own. |
+| Marginal ranges overlap for every model pair: 28 of 28 on MFQ and 45 of 45 on Vignette. | No leader is resolved. |
+| Only 4 of 12 task-score paths rise after both size increases. | Size is a clue, not a rule. |
+| Later Qwen and DeepSeek versions score higher on some tasks and lower on others. | Release period is model metadata, not a progress measure. |
 
-**Next:** recover the per-question results, check that answers were read and labeled correctly, then have people review the test. Add more comparison questions only if the order is still unclear.
+**Next:** restore each model's answer and score by question. Check scoring and labels. Ask people whether the test matches human judgment. Add questions only if the order is still unclear.
 
-Size and release patterns are early clues. Human review is still pending. None of the local runs exactly repeats a paper's experiment.
+“Marginal” means one model at a time, not a paired comparison. Size and release patterns are early clues. No local run exactly repeats a paper's experiment.

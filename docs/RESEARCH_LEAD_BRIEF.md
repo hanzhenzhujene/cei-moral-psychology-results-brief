@@ -2,18 +2,28 @@
 
 ## Decision
 
-Publish the current primary task aggregates with their saved uncertainty and tracked-artifact limits. Present the size and release-period views as exploratory. Keep the separate MP-v2 poster numbers on hold until their replay packets are restored.
+Publish each task's current result and uncertainty, with its evidence limits. Label the size and version findings as exploratory. Do not publish the old MP-v2 poster numbers until the original run files are restored.
 
-The central finding is simple: the repository does not support one stable model order. Performance changes by task, the two MoralBench comparison tasks are too imprecise for ranking, and neither size nor release period produces a universal direction.
+The central finding is simple: no model stays on top across tasks. The two MoralBench comparison tests cannot reliably show a leader, and the observed size and release-period paths do not all move in the same direction.
 
 ## Result to decision
 
 | Question | Evidence-backed answer | Research implication | Release decision |
 |---|---|---|---|
-| Is there one consistently best model? | No. Point-estimate leaders change across the eight tasks in the five-model common roster. | Benchmark dimensions should remain separate. | Publish the task panels; reject a global leaderboard. |
-| Can the comparison tasks order models? | Not reliably. Median 95% interval width is `.395` for MFQ compare and `.370` for vignette compare. | The item banks are the immediate precision bottleneck. | Recover paired outcomes first; expand the item banks only if the order remains unresolved. |
-| Do scores rise at both size steps on the four UniMoral tasks? | Not consistently. Of 12 complete family × task paths, 4 rise twice, 7 change direction, and 1 falls twice. Gemma factor rises while Gemma typology falls across the same 4B→12B→27B sequence. The full six-task extension is 5 / 9 / 1 across 15 paths. | Parameter count is not a task-independent shortcut. | Use this as an exploratory planning result only. |
-| Do later named-model endpoints move every UniMoral task higher? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek splits 2 higher and 2 lower. The full six-task extension is 5 / 1 and 3 / 3. | Every plotted row was evaluated May 28–29, 2026; quarter is model-release metadata, not observation time. | Do not present this as longitudinal progress. |
+| Is there one consistently best model? | No. Among the five models with main audited results on all eight tasks, the highest saved score changes by task. | Keep the task results separate. | Publish the task panels; reject a global leaderboard. |
+| Can the comparison tests tell us which model leads? | No. Marginal score ranges overlap for all 28 MFQ and all 45 vignette model pairs. These are one-model-at-a-time ranges, not paired comparisons. | Restore every model's answer and score for each question, then compare the same questions directly. | Check scoring and labels before adding more questions. |
+| Do scores rise after both size steps on the four UniMoral tasks? | Not consistently. Of 12 complete model-family × task paths, 4 rise twice, 7 switch direction, and 1 falls twice. Gemma factor rises while Gemma typology falls across the same 4B→12B→27B sequence. | Bigger is not always better; size alone cannot explain the differences. | Use this as an exploratory result only. |
+| Do later Qwen and DeepSeek versions score higher on every UniMoral task? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. | Every plotted row was evaluated May 28–29, 2026; release period describes the model, not the evaluation time. | Do not present this as a progress trend. |
+
+## Three decisions for the research lead
+
+1. Share each task's current result and uncertainty now, with the evidence limits beside it.
+2. Restore every model's answer and score for each question. Check scoring and labels, then compare models on the same questions.
+3. Run the planned human review (Gate M): ask people whether the test matches human judgment. Add more questions only if the model order is still unclear.
+
+## Highest-value next action
+
+Restore the question-level answers and scores, check scoring and labels, and compare models on the same questions. Then run human review. Add new comparison questions only if the model order is still unclear.
 
 ## What is current, and what is exploratory
 
@@ -21,7 +31,7 @@ The central finding is simple: the repository does not support one stable model 
 |---|---:|---|
 | Canonical primary text | 78 cells | Current task-level aggregate evidence. Saved intervals are nominal and do not capture all dependence or validity risks. |
 | Common roster used in the main chart | 40 cells: 5 models × 8 tasks | Fairer visual coverage, but still not a ranking and not a human-validity result. |
-| Selected grid | 102 successful, 13 error, 4 cancelled rows | Descriptive family, size, and release metadata. No saved raw logs or uncertainty in the fresh clone; two routes also show large reasoning-token drift despite control attempts. |
+| Exploratory model snapshot | 102 successful, 13 error, 4 cancelled rows | Family, size, and release metadata only. The fresh clone has no saved raw logs or uncertainty; two routes also show large reasoning-token drift despite control attempts. |
 | Canonical UniMoral and ValuePrism crosswalk | 17 approximate, 4 proxy-only, 16 unavailable, 0 exact | Method context only; no exact numeric replication for those surfaces. |
 
 ## What changed after onboarding
@@ -30,7 +40,7 @@ The central finding is simple: the repository does not support one stable model 
 |---|---|---|---|
 | Canonical audit | 84 valid, 19 review, 39 invalid, 1 missing | 78 primary, 26 sensitivity, 9 multimodal extension, 30 excluded | Replace the stale categories rather than mapping them cell by cell. |
 | Benchmark results | Appeared incomplete in the earlier review | Substantial aggregate and some sample-level evidence exists under `results/` | Use the current aggregate result layer; name the raw archives that remain absent. |
-| Poster completion | Rendered visuals appeared as open tasks | The PDFs exist, but their separate replay packets do not | Separate visual completion from numerical verification. |
+| Poster completion | Rendered visuals appeared as open tasks | The PDFs exist, but their original run files do not | Separate visual completion from numerical verification. |
 | Relevant papers | Titles and simplified metrics only | Four primary papers reviewed; no exact replication | Compare methods and interpretations, not scores. |
 
 ## Poster appendix decision
@@ -41,13 +51,3 @@ The central finding is simple: the repository does not support one stable model 
 | Family Profile | “Profiles are not rankings” and the missing-Schwartz finding | Restore coder records and correct the `six legs × 1,645` wording. |
 | Bidirectional Alignment | Validation architecture and “agreement is not validity” | Restore paired judge records and preregister Gate M. |
 | Administration | Administration belongs in sample identity | Regenerate under the current seal with source manifests and uncertainty. |
-
-## Three decisions for the research lead
-
-1. Release the current task panels and precision finding now, with the tracked-artifact limits shown beside each chart.
-2. Repair the saved evidence first: recover raw archives and paired outcomes, adjudicate parser-flagged cells, and audit UniMoral duplicate-label disagreement.
-3. Approve Gate M human validation before adding more model rows. Expand the comparison item banks only after the construct and paired analysis are stable.
-
-## Highest-value next action
-
-Repair the existing measurement evidence, then run Gate M human validation. If the paired comparison order remains unresolved after that repair, a versioned independent item-bank expansion is the highest-value new model-evaluation spend.

@@ -10,29 +10,29 @@ This private repository turns the benchmark outputs into a visual readout for a 
 2. Open the [`slide gallery`](slides/README.md) or [`view-only PDF`](slides/cei-moral-psychology-results-deck.pdf).
 3. Use the [`editable PowerPoint`](slides/cei-moral-psychology-results-deck.pptx) only when the deck needs to change.
 
-![UniMoral size-path overview and concrete Gemma counterexample](assets/results/03_size_paths.png)
+![Task-by-task leaders across five models with main audited results on all eight tasks](slides/rendered/slide-02.png)
 
 ## What the results say
 
 | Research question | Result | Implication | Evidence level |
 |---|---|---|---|
-| Do the consistently covered models form one stable order? | No. Across five models and eight text tasks, no model is the point-estimate leader on every task. | Report task results separately. Do not publish one moral leaderboard. | Current primary aggregate; tracked-artifact audit |
-| Where does sampling uncertainty block a model order? | Across all available primary models—8 on MFQ compare and 10 on vignette compare—every interval wider than `.30` belongs to these two tasks. Their median widths are `.395` and `.370`. | Recover per-question outcomes and check scoring. Compare models directly, then run human review. Add items only if the order is still unclear. | Current primary aggregate; tracked-artifact audit |
-| Across complete selected UniMoral paths, do scores rise at both size steps? | Only 4 of 12 rise twice; 7 change direction and 1 falls twice. The full six-task extension, including ValuePrism, is 5 / 9 / 1 across 15 paths. | Treat size as a task-specific hypothesis, not a general result. | Exploratory selected grid |
-| Do later named-model endpoints move every UniMoral task higher? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. The six-task extension is 5 / 1 and 3 / 3. All were evaluated May 28–29, 2026. | Treat release quarter as model metadata, not a progress timeline. | Exploratory selected grid |
+| Among the five models with main audited results on all eight tasks, is there one stable order? | No. The highest saved score belongs to different models on different tasks. | Report task results separately. Do not publish one moral leaderboard. | Main audited results |
+| Can the two comparison tests tell us which model leads? | No. Marginal score ranges overlap for all 28 MFQ and all 45 vignette model pairs. These are one-model-at-a-time ranges, not paired comparisons. | Restore every model's answer and score for each question. Check scoring and labels, then compare models directly. | Main audited results |
+| Do scores keep rising as selected model variants get bigger? | Only 4 of 12 UniMoral score paths rise after both size steps; 7 switch direction and 1 falls twice. | Bigger is not always better. Treat size as an exploratory clue. | Exploratory dataset; no saved uncertainty |
+| Do later Qwen and DeepSeek versions score higher on every UniMoral task? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. All were evaluated May 28–29, 2026. | Newer is not always better. Release period is model metadata, not a progress trend. | Exploratory dataset; no saved uncertainty |
 
-The first two answers come from the current 78-cell primary text partition. The size and release-period views come from a separate selected-grid snapshot with no saved uncertainty and no referenced raw `.eval` logs in the fresh clone.
+The first two findings use the main audited results. The size and version findings use a separate dataset that has no saved uncertainty estimates or original run files in the fresh clone.
 
 ## Evidence boundaries
 
 | Layer | What exists | Safe use |
 |---|---|---|
-| Canonical benchmark audit | 78 primary text, 26 sensitivity text, 9 multimodal extension, and 30 excluded cells | Current task results, nominal uncertainty, status, and claim boundaries |
-| Selected-grid snapshot | 102 scored aggregate rows plus 17-model metadata | Exploratory family, size, and release-period patterns only |
-| Four MP-v2 posters | Four static PDFs | Design history and poster-reported observations; the replay packets are absent |
+| Main audited benchmark set | 78 primary text, 26 sensitivity text, 9 multimodal extension, and 30 excluded cells | Current task results, saved uncertainty, status, and claim boundaries |
+| Exploratory model snapshot | 102 scored aggregate rows plus 17-model metadata | Exploratory family, size, and release-period patterns only |
+| Four MP-v2 posters | Four static PDFs | Design history and poster-reported observations; the original run files are absent |
 | Four external papers | Primary papers reviewed; 0 exact local replications | Method and interpretation context, not direct score baselines |
 
-The repository has aggregate benchmark results, but it lacks canonical raw archives, the separate poster replay packets, clustered uncertainty, and representative human validation. Agreement among automated judges is not proof of moral correctness.
+The repository has aggregate benchmark results, but it lacks original raw run archives, the old poster run files, clustered uncertainty estimates, and representative human review. Agreement among automated judges is not proof of moral correctness.
 
 ## Repository map
 

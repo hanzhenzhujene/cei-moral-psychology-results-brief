@@ -4,10 +4,10 @@
 
 | Research question | Answer | Implication |
 |---|---|---|
-| Is there one stable model order? | No. The point-estimate leader changes across tasks. | Keep the eight task results separate. |
-| Where is precision weakest? | The two MoralBench comparison tasks. | Recover per-question outcomes and check scoring. Compare models directly, then run human review. Add items only if the order is still unclear. |
-| Across complete selected UniMoral paths, do scores rise at both size steps? | No. Only 4 of 12 rise twice; 7 change direction and 1 falls twice. | Treat size patterns as family- and task-specific. |
-| Do later named-model endpoints move every UniMoral task higher? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. | Release quarter is model metadata, not a longitudinal progress trend. |
+| Does one model lead all eight tasks? | No. The top saved score changes by task. | Keep task results separate. |
+| Can the comparison tests show a leader? | No: all 28 MFQ and 45 vignette marginal model-pair ranges overlap. | Restore answers and scores by question; check scoring and labels. |
+| Do scores rise at both size steps? | Only 4 of 12 rise twice; 7 switch direction; 1 falls twice. | Size is a clue, not a rule. |
+| Are later Qwen and DeepSeek versions better on every task? | No: Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. | Release period is metadata, not progress. |
 
 ## What the benchmark papers actually ask
 
@@ -15,8 +15,8 @@
 |---|---|---|
 | MoralBench | Do model choices track human ratings, and can a model choose the statement people rated higher? | Approximate task-family match. |
 | UniMoral | Can a model predict actions, moral frameworks, influencing factors, and plausible consequences? Do cues change the result? | Approximate for the four task families; cue claims unavailable. |
-| MoReBench | Does model reasoning cover expert-defined considerations, trade-offs, logic, and outcomes? | Local performance score is proxy-only. |
-| MoralLens | Which rationales appear, and do they change when reasoning comes before versus after a decision? | Local performance score is proxy-only. |
+| MoReBench | Does model reasoning cover expert-defined considerations, trade-offs, logic, and outcomes? | Related question, different test; local score is proxy-only. |
+| MoralLens | Which rationales appear, and do they change when reasoning comes before versus after a decision? | Related question, different test; local score is proxy-only. |
 
 There are **0 exact local replications**. The size and release views below are local follow-up questions, not restatements of the papers' main claims.
 
@@ -41,7 +41,7 @@ Source: [`common_roster_primary.csv`](../data/results/common_roster_primary.csv)
 
 ![Median confidence interval width by task](../assets/results/02_precision_by_task.png)
 
-This section uses all available primary models: 8 for MFQ compare and 10 for vignette compare. It does not reuse the five-model common roster from the chart above.
+This section uses all primary models: 8 for MFQ compare and 10 for vignette compare, not the five-model roster above. All 28 and 45 marginal model-pair ranges overlap. Because these are not paired difference tests, they do not resolve a leader.
 
 | Task | Median full 95% interval width | Read |
 |---|---:|---|
@@ -54,7 +54,7 @@ This section uses all available primary models: 8 for MFQ compare and 10 for vig
 | UniMoral action | `.020` | Nominal row-level precision |
 | UniMoral consequence | `.012` | Nominal saved-standard-error precision |
 
-All 18 individual intervals wider than `.30` occur in the two comparison tasks. Recover the per-question outcomes, check scoring, compare models directly, and run human review. Add independent items only if the order is still unclear.
+All 18 intervals wider than `.30` occur here. Restore answers and scores by question, check scoring and labels, then compare models directly. Ask people whether the test matches human judgment; add items only if the order stays unclear.
 
 Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task medians; [`primary_confidence_intervals.csv`](../evidence/canonical-audit/figures/data/primary_confidence_intervals.csv) for the 18 individual wide intervals.
 
@@ -72,7 +72,7 @@ Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task
 
 The bar chart answers the denominator question; the paired Gemma lines make the implication concrete. Exact paths remain in two landscape audit figures: [UniMoral classification](../assets/results/03_size_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/03_size_paths_detail_b.svg). All 45 audit points name the model and published B count.
 
-This is exploratory aggregate evidence. It has no saved confidence intervals or raw-log replay. Qwen and Llama tiers also change model generation or release period, and Qwen’s largest tier changes from dense to a 235B-total / 22B-active MoE architecture. Published total B is therefore neither a controlled size intervention nor inference compute. Provider metadata also records 107,375 reasoning tokens across Qwen3-32B rows despite control attempts.
+This chart cannot show that size caused the changes: model generation, release period, and architecture also change, and no saved intervals or raw logs are available. Qwen's largest tier is a 235B-total / 22B-active MoE; total B is not inference compute. Qwen3-32B rows record 107,375 reasoning tokens despite control attempts.
 
 Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv), [`size_task_points.csv`](../data/results/size_task_points.csv), and the revision-pinned model-card ledger in [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
 
@@ -92,7 +92,7 @@ Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv), [`siz
 
 The zero line gives the answer immediately: points on both sides mean later named models do not move every task in one direction. Exact chronological paths remain in two landscape audit figures: [UniMoral classification](../assets/results/04_release_period_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/04_release_period_paths_detail_b.svg). All 35 audit points name the model and published B count.
 
-Release quarter is descriptive metadata, not an intervention or progress timeline. Generation, route, architecture, and parameter count change together. For ValuePrism relevance only, the DeepSeek path ends at V3.2 because the V4 route was cancelled; Gemma has no valid newer comparison. DeepSeek V4 UniMoral rows record 1,171,189 reasoning tokens despite control attempts, and the saved metadata does not retain the served endpoint, quantization, or exact evaluated checkpoint revision.
+This chart cannot show that release period caused the changes: generation, route, architecture, and parameter count also change. Release period is metadata, not evaluation time. The DeepSeek ValuePrism path ends at V3.2 because V4 was cancelled; Gemma has no valid newer comparison. DeepSeek V4 UniMoral rows record 1,171,189 reasoning tokens despite control attempts. The saved metadata lacks the served endpoint, quantization, and evaluated checkpoint revision.
 
 Sources: [`release_path_summary.csv`](../data/results/release_path_summary.csv), [`release_period_task_points.csv`](../data/results/release_period_task_points.csv), and [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
 

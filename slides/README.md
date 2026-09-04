@@ -1,6 +1,6 @@
 # Visual results
 
-[Open the view-only PDF](cei-moral-psychology-results-deck.pdf) · [Download the editable PowerPoint](cei-moral-psychology-results-deck.pptx)
+[Read the one-minute result](../docs/ONE_MINUTE_READOUT.md) · [Open the view-only PDF](cei-moral-psychology-results-deck.pdf) · [Download the editable PowerPoint](cei-moral-psychology-results-deck.pptx)
 
 Click any slide to open the 2560 × 1440 image.
 
@@ -12,9 +12,9 @@ Click any slide to open the 2560 × 1440 image.
 
 [![Slide 2: No model has the highest saved score on all eight tasks.](rendered/slide-02.png)](rendered/slide-02.png)
 
-## 3. Saved ranges overlap for every model pair in both tests
+## 3. Every model pair has overlapping score ranges on both tests
 
-[![Slide 3: Saved ranges overlap for every model pair in both tests.](rendered/slide-03.png)](rendered/slide-03.png)
+[![Slide 3: Every model pair has overlapping score ranges on both tests.](rendered/slide-03.png)](rendered/slide-03.png)
 
 ## 4. Only 4 of 12 model-and-task cases rise twice · Exploratory
 
