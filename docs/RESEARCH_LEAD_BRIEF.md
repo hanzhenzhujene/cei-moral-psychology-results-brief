@@ -12,8 +12,8 @@ The central finding is simple: the repository does not support one stable model 
 |---|---|---|---|
 | Is there one consistently best model? | No. Point-estimate leaders change across the eight tasks in the five-model common roster. | Benchmark dimensions should remain separate. | Publish the task panels; reject a global leaderboard. |
 | Can the comparison tasks order models? | Not reliably. Median 95% interval width is `.395` for MFQ compare and `.370` for vignette compare. | The item banks are the immediate precision bottleneck. | Recover paired outcomes first; expand the item banks only if the order remains unresolved. |
-| Does bigger mean better? | Not consistently. Of 15 complete family × task paths, 5 rise, 9 are mixed, and 1 falls. | Size effects depend on both family and task. | Use this as an exploratory planning result only. |
-| Do newer-route point estimates all rise? | No. Qwen and DeepSeek show both rising and falling task endpoints; Gemma lacks a comparable newer endpoint. | Quarter, route, architecture, and sometimes size change together. | Do not call this a causal year trend. |
+| Does bigger mean better? | Not consistently. Of 15 complete family × task paths, 5 rise, 9 are mixed, and 1 falls. Gemma factor rises while Gemma typology falls across the same 4B→12B→27B sequence. | Parameter count is not a task-independent shortcut. | Use this as an exploratory planning result only. |
+| Do later named-route endpoints all move higher? | No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints. | Every plotted row was evaluated May 28–29, 2026; quarter is model-release metadata, not observation time. | Do not present this as longitudinal progress. |
 
 ## What is current, and what is exploratory
 

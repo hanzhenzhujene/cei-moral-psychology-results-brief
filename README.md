@@ -2,7 +2,7 @@
 
 This private repository turns the benchmark outputs into a results-first readout for a research lead. It answers four practical questions with charts, keeps unlike metrics separate, and states what each result can and cannot support.
 
-![Preview of the research lead results brief](assets/readout-preview.png)
+![Insight-first model-size matrix](assets/results/03_size_paths.png)
 
 ## Start here
 
@@ -19,7 +19,7 @@ This private repository turns the benchmark outputs into a results-first readout
 | Do the consistently covered models form one stable order? | No. Across five models and eight text tasks, no model is the point-estimate leader on every task. | Report task results separately. Do not publish one moral leaderboard. | Current primary aggregate; tracked-artifact audit |
 | Where does sampling uncertainty block a model order? | Every interval wider than `.30` belongs to the two MoralBench comparison tasks. Their median widths are `.395` and `.370`. | Recover paired outcomes first; expand the item banks if the order remains unresolved. | Current primary aggregate; tracked-artifact audit |
 | Does a larger model reliably score better? | Among 15 complete family × task paths, 5 rise, 9 are mixed, and 1 falls. | Treat size as a task-specific hypothesis, not a general result. | Exploratory selected grid |
-| Do newer-route point estimates all rise? | Qwen and DeepSeek show both rising and falling endpoints. Gemma has no valid newer endpoint. | Release period is not a shortcut for expected performance. | Exploratory selected grid |
+| Do later named-route endpoints all move higher? | No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints. All were evaluated May 28–29, 2026. | Treat release quarter as model metadata, not a progress timeline. | Exploratory selected grid |
 
 The first two answers come from the current 78-cell primary text partition. The size and release-period views come from a separate selected-grid snapshot with no saved uncertainty and no referenced raw `.eval` logs in the fresh clone.
 
@@ -39,8 +39,8 @@ The repository contains substantial benchmark result data. What is missing is di
 | Location | Purpose |
 |---|---|
 | `index.html` | Responsive visual result brief |
-| `assets/results/` | Four result charts in PNG and SVG |
-| `data/results/` | Exact plotted rows and research-question tables |
+| `assets/results/` | Four headline charts plus four landscape audit-detail charts in PNG and SVG |
+| `data/results/` | Exact plotted rows, direction summaries, and research-question tables |
 | `docs/RESULTS_READOUT.md` | Chart-by-chart interpretation for a research lead |
 | `docs/POSTER_AUDIT.md` | Poster claim audit and corrections |
 | `docs/PAPER_REVIEW.md` | Paper methods and protocol comparison |

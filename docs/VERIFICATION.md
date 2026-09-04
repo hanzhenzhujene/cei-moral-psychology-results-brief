@@ -12,13 +12,13 @@ Verified on 3 September 2026 for the results-first release.
 | Compare-task overlap | `28/28` MFQ pairs and `45/45` vignette pairs overlap marginally |
 | Common roster | 40 unique cells = 5 models × 8 tasks; values match the canonical table |
 | Selected-grid snapshot | Both CSVs match the pinned source byte for byte; statuses are `102 success / 13 error / 4 cancelled` |
-| Size view | 45 scored points; all `45/45` have a direct model + B label; 15 complete paths = `5 rising / 9 mixed / 1 falling` |
-| Release-period view | 35 scored points; all `35/35` have a direct model + B label across 12 Qwen or DeepSeek family-task paths |
+| Size view | 18-cell headline matrix; 45 scored points split `27 / 18` across two landscape audit figures; all `45/45` have a direct model + B label; 15 complete paths = `5 rising / 9 mixed / 1 falling` |
+| Release-period view | 12-cell headline matrix; 35 scored points split `18 / 17` across two landscape audit figures; all `35/35` have a direct model + B label; endpoint directions are Qwen `5 higher / 1 lower` and DeepSeek `3 higher / 3 lower`; all plotted evaluations ran on 28–29 May 2026 |
 | Parameter labels | 15 unique named models match revision-pinned official model cards; MoE labels preserve the published basis and active B; DeepSeek uses main-model counts excluding auxiliary/MTP weights; served provider, quantization, and checkpoint revision remain unknown |
 | Missingness | No error, cancelled, or missing row is plotted as zero |
 | Protocol-budget drift | Qwen3-32B total `107,375` reasoning tokens; DeepSeek V4 total `1,171,189` confirmed from source metadata |
 
-The four charts and six result tables were generated twice consecutively. All 14 generated files were byte-identical across the two builds.
+The eight PNG/SVG figure pairs and seven result tables were generated twice consecutively. All 23 generated files were byte-identical across the two builds.
 
 ## Independent validators
 
@@ -29,7 +29,7 @@ PYTHONDONTWRITEBYTECODE=1 python scripts/validate_site.py \
   --source-repo /path/to/moral-psychology-benchmark
 ```
 
-It checked the canonical and selected-source manifests, all 80 derived point rows, the 15-model parameter ledger, and exact `GID → label` bindings for all `45/35` size and release points, plus legacy firewalls, local links, image dimensions, SVG safety and semantics, chart axis bounds, PDF hashes, claim language, credentials, and private paths.
+It checked the canonical and selected-source manifests, all 80 derived point rows, all 12 release endpoint summaries, the 15-model parameter ledger, exact evidence bindings for all `18/12` responsive HTML cells, exact `GID → value` bindings for the `18/12` static matrix cells, and exact `GID → label` bindings for all `45/35` size and release detail points. It also checked legacy firewalls, local links, image dimensions and landscape aspect ratios, SVG safety and semantics, chart axis bounds, PDF hashes, claim language, credentials, and private paths.
 
 The outer canonical validator also passed:
 
@@ -43,17 +43,17 @@ Its report confirmed 31 manifested artifacts, 42 links, the `78/26/9/30` partiti
 
 | Surface | Outcome |
 |---|---|
-| Local references | 46 HTML and 47 Markdown references resolve |
-| Images | 8 of 8 have alt text and correct intrinsic dimensions; all load after scrolling |
-| Desktop | The unchanged site shell retains the earlier `1440 × 1000` and `1440 × 900` checks; both regenerated figures were inspected at full resolution and at the desktop content width |
-| Mobile | The two directly labeled figures were rendered and inspected at their actual `1,180 px` mobile canvas; all model + B callouts remain readable and the CSS keeps overflow inside each chart |
-| Mobile chart detail | Standard charts use an `820 px` canvas; the two directly labeled charts use a `1,180 px` canvas with a swipe cue |
+| Local references | 51 HTML and 52 Markdown references resolve |
+| Images | 6 of 6 site images have alt text and correct intrinsic dimensions; the two headline matrices are semantic HTML and do not depend on image loading |
+| Desktop | Chrome/Playwright passed at `1440 × 1000`: both matrices use family columns, all 30 evidence-bound cells fit the content width, the smallest visible matrix text is `12.8 px`, the page has no horizontal overflow, both audit sections start closed, their links become visible when opened, and the console is clean |
+| Mobile | Chrome/Playwright passed at `390 × 844`: both matrices reflow task by task with model family and B context repeated in each cell; the smallest visible matrix text remains `12.8 px`, the page has no horizontal overflow, and the exact model + B audit figures remain available through four full-resolution links |
+| Mobile chart detail | Only the two dense primary evidence charts retain contained `820 px` horizontal overflow; the size and release headline matrices no longer use a forced `1,180 px` width |
 | Navigation | Decision anchor resolves, and the decision surface appears before the evidence appendices |
-| Browser rerun | Automated Chrome launch ended in local `SIGABRT` before loading the page, so console and live viewport behavior were not re-certified in this update; no JavaScript changed |
-| Original figures | All four PNGs inspected at full resolution; the size and release figures contain `45/45` and `35/35` direct labels with no detected label-box overlap or clipping |
+| Browser rerun | Automated Chrome/Playwright QA passed on desktop and mobile with zero console or page errors; it asserted 30 responsive cells, no clipped cell bounds, and a `12 px` minimum computed matrix font size |
+| Original figures | All eight landscape PNGs were inspected at full resolution; the four audit-detail figures contain `45/45` and `35/35` direct labels with no detected label-box overlap or clipping |
 | Accessibility | Model/family series use marker shapes and line styles in addition to color |
 
-The README preview was regenerated from the final results-first hero.
+The README preview now points directly to the compact size-direction matrix.
 
 ## Repository and hygiene
 

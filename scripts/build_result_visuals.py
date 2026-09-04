@@ -15,6 +15,7 @@ mpl.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.patches import Rectangle
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,6 +67,10 @@ AMBER = "#D89210"
 RED = "#C44A3A"
 BLUE = "#2676B8"
 PURPLE = "#7651A8"
+SOFT_GREEN = "#E8F4F0"
+SOFT_AMBER = "#FFF4DF"
+SOFT_RED = "#FBEAE7"
+SOFT_GRAY = "#F1F3F5"
 
 TASKS = {
     "moralbench_mfq_agreement": ("MFQ agreement", "Normalized preference", (0.50, 1.01), 20),
@@ -468,19 +473,135 @@ def build_size_paths(results: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]
     return points, summary
 
 
-def plot_size_paths(points: pd.DataFrame, summary: pd.DataFrame) -> None:
-    fig, axes = plt.subplots(6, 1, figsize=(16, 21), sharex=True)
-    fig.suptitle("Bigger is not reliably better", x=0.055, y=0.985, ha="left", fontsize=22, fontweight="bold")
+def compact_score(value: float) -> str:
+    return f"{value:.3f}".removeprefix("0")
+
+
+def compact_parameter_label(value: str) -> str:
+    return value.replace(" main model", " main").replace(" total", "")
+
+
+def plot_size_matrix(points: pd.DataFrame, summary: pd.DataFrame) -> None:
+    """Create the one-screen answer; exact point paths remain in split detail figures."""
+    families = ["Qwen", "Gemma", "Llama"]
+    status_style = {
+        "rising": ("Rises", GREEN, SOFT_GREEN),
+        "mixed": ("Mixed", AMBER, SOFT_AMBER),
+        "falling": ("Falls", RED, SOFT_RED),
+    }
+    fig, ax = plt.subplots(figsize=(16, 11))
+    ax.set_xlim(0, 11.0)
+    ax.set_ylim(0, 7.45)
+    ax.axis("off")
+    fig.suptitle("Model size is not a reliable shortcut", x=0.045, y=0.982, ha="left", fontsize=22, fontweight="bold")
     fig.text(
-        0.055,
-        0.964,
-        "Models ordered by published total parameters (categorical spacing) · every observed point names the model and B count · MoE labels also show active B",
+        0.045,
+        0.947,
+        "Each cell follows one family from its small to medium to large named model; scores stay within their task and metric.",
         color=MUTED,
         fontsize=11.5,
     )
+
+    x_positions = {family: 2.35 + index * 2.82 for index, family in enumerate(families)}
+    cell_width = 2.62
+    row_height = 0.86
+    row_gap = 0.12
+    header_y = 7.02
+    for family in families:
+        family_points = points[points["family"] == family].drop_duplicates("tier").copy()
+        family_points["tier_order"] = family_points["tier"].map({"S": 0, "M": 1, "L": 2})
+        family_points = family_points.sort_values("tier_order")
+        assert len(family_points) == 3
+        parameter_path = " → ".join(compact_parameter_label(value) for value in family_points["parameter_label"])
+        ax.text(
+            x_positions[family] + cell_width / 2,
+            header_y,
+            family,
+            ha="center",
+            va="center",
+            fontsize=14,
+            fontweight="bold",
+            color=FAMILY_COLORS[family],
+        )
+        ax.text(
+            x_positions[family] + cell_width / 2,
+            header_y - 0.29,
+            parameter_path,
+            ha="center",
+            va="center",
+            fontsize=12.2,
+            color=MUTED,
+        )
+
+    for row_index, task in enumerate(SIX_TASKS):
+        y = 5.98 - row_index * (row_height + row_gap)
+        task_label, metric, _, _ = TASKS[task]
+        ax.text(0.05, y + row_height * 0.62, task_label, ha="left", va="center", fontsize=13.0, fontweight="bold")
+        ax.text(0.05, y + row_height * 0.29, metric, ha="left", va="center", fontsize=12.0, color=MUTED)
+        for family in families:
+            x = x_positions[family]
+            match = summary[(summary["family"] == family) & (summary["task"] == task)]
+            if match.empty:
+                ax.add_patch(Rectangle((x, y), cell_width, row_height, facecolor=SOFT_GRAY, edgecolor=PAPER, linewidth=3))
+                cell = ax.text(
+                    x + cell_width / 2,
+                    y + row_height / 2,
+                    "Not complete",
+                    ha="center",
+                    va="center",
+                    fontsize=14.2,
+                    color=MUTED,
+                )
+                cell.set_gid(point_label_gid("size-matrix", task, family))
+                continue
+            row = match.iloc[0]
+            status, status_color, fill = status_style[str(row.direction)]
+            task_points = points[(points["family"] == family) & (points["task"] == task)].copy()
+            task_points["tier_order"] = task_points["tier"].map({"S": 0, "M": 1, "L": 2})
+            task_points = task_points.sort_values("tier_order")
+            assert len(task_points) == 3
+            score_path = " → ".join(compact_score(value) for value in task_points["score"])
+            ax.add_patch(Rectangle((x, y), cell_width, row_height, facecolor=fill, edgecolor=PAPER, linewidth=3))
+            ax.text(x + 0.12, y + row_height * 0.68, status.upper(), ha="left", va="center", fontsize=12.2, fontweight="bold", color=status_color)
+            cell = ax.text(
+                x + 0.12,
+                y + row_height * 0.31,
+                score_path,
+                ha="left",
+                va="center",
+                fontsize=14.2,
+                fontweight="bold",
+                color=INK,
+            )
+            cell.set_gid(point_label_gid("size-matrix", task, family))
+
+    counts = summary["direction"].value_counts().to_dict()
+    fig.text(0.045, 0.055, f"15 complete paths  ·  {counts['rising']} rising  ·  {counts['mixed']} mixed  ·  {counts['falling']} falling", fontsize=12.2, fontweight="bold")
+    fig.text(
+        0.045,
+        0.025,
+        "Exploratory aggregate only: no saved intervals or raw-log replay. Parameter order is not inference compute; served endpoint, quantization, and checkpoint revision are not retained.",
+        fontsize=10.6,
+        color=MUTED,
+    )
+    fig.subplots_adjust(left=0.035, right=0.99, top=0.89, bottom=0.105)
+    save_figure(fig, "03_size_paths")
+
+
+def plot_size_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: str) -> None:
+    fig, axes = plt.subplots(len(tasks), 1, figsize=(16, 13), sharex=True)
+    axes = np.atleast_1d(axes)
+    fig.suptitle(title, x=0.055, y=0.985, ha="left", fontsize=21, fontweight="bold")
+    fig.text(
+        0.055,
+        0.956,
+        "Audit detail · every observed point names the model and published B count · categorical total-B order",
+        color=MUTED,
+        fontsize=11.2,
+    )
     annotations: list[mpl.text.Annotation] = []
     label_lanes = {0: 0.84, 1: 0.16, 2: 0.66, 3: 0.34, 4: 0.88, 5: 0.12, 6: 0.68, 7: 0.32, 8: 0.84}
-    for ax, task in zip(axes, SIX_TASKS):
+    for ax, task in zip(axes, tasks):
         task_rows = points[points["task"] == task]
         for family, family_rows in task_rows.groupby("family"):
             if set(family_rows["tier"]) != {"S", "M", "L"}:
@@ -512,38 +633,34 @@ def plot_size_paths(points: pd.DataFrame, summary: pd.DataFrame) -> None:
         ax.set_title(label, loc="left", fontweight="bold")
         ax.set_ylabel(metric)
         ax.set_ylim(*SCALING_LIMITS[task])
-        axis_models = (
-            points[["model", "size_plot_position", "total_parameters_b"]]
-            .drop_duplicates()
-            .sort_values("size_plot_position")
-        )
+        axis_models = points[["model", "size_plot_position", "total_parameters_b"]].drop_duplicates().sort_values("size_plot_position")
         axis_labels = [f"{value:g}B" for value in axis_models["total_parameters_b"]]
         ax.set_xlim(-0.7, 8.7)
         ax.set_xticks(axis_models["size_plot_position"], axis_labels)
-        ax.tick_params(axis="x", which="both", labelbottom=True)
         ax.grid(axis="y", color=GRID, linewidth=0.8)
         ax.spines["left"].set_color(GRID)
         ax.spines["bottom"].set_color(GRID)
         incomplete = [family for family in ["Qwen", "Gemma", "Llama"] if set(task_rows.loc[task_rows["family"] == family, "tier"]) != {"S", "M", "L"}]
         if incomplete:
             ax.text(0.02, 0.03, "Incomplete: " + ", ".join(incomplete), transform=ax.transAxes, color=MUTED, fontsize=8)
+    for ax in axes[:-1]:
+        ax.tick_params(axis="x", labelbottom=False)
     axes[-1].set_xlabel("Published total B, ordered categories — horizontal gaps are not to scale")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle=FAMILY_LINESTYLES[f], linewidth=2.4, label=f)
         for f in ["Qwen", "Gemma", "Llama"]
     ]
     fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.985), ncol=3, frameon=False)
-    fig.text(0.055, 0.027, "Result: point-estimate direction changes by task and family. More total parameters do not produce one shared direction.", fontsize=10.2, fontweight="bold")
     fig.text(
         0.055,
-        0.011,
-        "Published named-model specs only; served provider, quantization, and checkpoint revision are not retained. Total-B order is not inference compute. No intervals; METEOR is separate.",
-        fontsize=8.9,
+        0.018,
+        "Named-model specifications only; no saved intervals or raw-log replay. METEOR remains separate from accuracy.",
+        fontsize=9.1,
         color=MUTED,
     )
-    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.945), h_pad=1.45)
-    assert_point_label_layout(fig, annotations, expected=45)
-    save_figure(fig, "03_size_paths")
+    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.925), h_pad=1.8)
+    assert_point_label_layout(fig, annotations, expected=len(points[points["task"].isin(tasks)]))
+    save_figure(fig, stem)
 
 
 def build_release_paths(results: pd.DataFrame) -> pd.DataFrame:
@@ -566,6 +683,53 @@ def build_release_paths(results: pd.DataFrame) -> pd.DataFrame:
     return points
 
 
+def build_release_summary(points: pd.DataFrame) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    for (family, task), group in points.groupby(["family", "task"], sort=True):
+        ordered = group.sort_values("release_period", key=lambda values: values.map(quarter_key))
+        first = ordered.iloc[0]
+        last = ordered.iloc[-1]
+        values = ordered["score"].to_numpy(dtype=float)
+        deltas = np.diff(values)
+        endpoint_delta = float(last.score - first.score)
+        endpoint_direction = "higher" if endpoint_delta > 0 else "lower" if endpoint_delta < 0 else "unchanged"
+        monotonic = bool(np.all(deltas > 0) or np.all(deltas < 0))
+        rows.append(
+            {
+                "family": family,
+                "task": task,
+                "task_label": TASKS[task][0],
+                "metric": TASKS[task][1],
+                "first_period": first.release_period,
+                "first_score": float(first.score),
+                "first_model": first.model,
+                "first_model_display": first.model_display,
+                "first_parameter_label": first.parameter_label,
+                "last_period": last.release_period,
+                "last_score": float(last.score),
+                "last_model": last.model,
+                "last_model_display": last.model_display,
+                "last_parameter_label": last.parameter_label,
+                "endpoint_delta": endpoint_delta,
+                "endpoint_direction": endpoint_direction,
+                "internal_reversal": len(values) > 2 and not monotonic,
+                "observed_points": len(ordered),
+                "evidence_status": "exploratory aggregate; no CI or raw-log replay",
+                "source_repository_head": SOURCE_HEAD,
+                "source_path": "evidence/source-results/result_summary.csv",
+            }
+        )
+    summary = pd.DataFrame(rows)
+    assert len(summary) == 12
+    assert summary.groupby(["family", "endpoint_direction"]).size().to_dict() == {
+        ("DeepSeek", "higher"): 3,
+        ("DeepSeek", "lower"): 3,
+        ("Qwen", "higher"): 5,
+        ("Qwen", "lower"): 1,
+    }
+    return summary
+
+
 def quarter_key(value: str) -> int:
     year, quarter = value.split("-Q")
     return int(year) * 4 + int(quarter)
@@ -577,31 +741,125 @@ def quarter_label(value: int) -> str:
     return f"{year}\nQ{quarter}"
 
 
-def plot_release_paths(points: pd.DataFrame) -> None:
+def plot_release_matrix(summary: pd.DataFrame) -> None:
+    families = ["Qwen", "DeepSeek"]
+    status_style = {
+        "higher": ("Higher endpoint", GREEN, SOFT_GREEN),
+        "lower": ("Lower endpoint", RED, SOFT_RED),
+        "unchanged": ("Unchanged endpoint", MUTED, SOFT_GRAY),
+    }
+    fig, ax = plt.subplots(figsize=(16, 11))
+    ax.set_xlim(0, 11.0)
+    ax.set_ylim(0, 7.45)
+    ax.axis("off")
+    fig.suptitle("Model release quarter is not a progress curve", x=0.045, y=0.982, ha="left", fontsize=22, fontweight="bold")
+    fig.text(
+        0.045,
+        0.947,
+        "All plotted evaluations ran May 28–29, 2026; the recorded release quarter changes model generation, route, size and architecture together.",
+        color=MUTED,
+        fontsize=11.2,
+    )
+
+    x_positions = {"Qwen": 2.35, "DeepSeek": 6.65}
+    cell_width = 4.05
+    row_height = 0.86
+    row_gap = 0.12
+    header_y = 7.04
+    family_metadata = {
+        "Qwen": "Qwen2.5-7B · 7.61B  →  Qwen3.5-9B · 9B",
+        "DeepSeek": (
+            "V3-0324 · 671B main / 37B active  →  V4 Flash · 284B main / 13B active\n"
+            "relevance ends at V3.2 · 671B main / 37B active"
+        ),
+    }
+    for family in families:
+        ax.text(
+            x_positions[family] + cell_width / 2,
+            header_y,
+            family,
+            ha="center",
+            va="center",
+            fontsize=14,
+            fontweight="bold",
+            color=FAMILY_COLORS[family],
+        )
+        ax.text(
+            x_positions[family] + cell_width / 2,
+            header_y - 0.34,
+            family_metadata[family],
+            ha="center",
+            va="center",
+            fontsize=12.0,
+            color=MUTED,
+            linespacing=1.25,
+        )
+
+    for row_index, task in enumerate(SIX_TASKS):
+        y = 5.55 - row_index * (row_height + row_gap)
+        task_label, metric, _, _ = TASKS[task]
+        ax.text(0.05, y + row_height * 0.62, task_label, ha="left", va="center", fontsize=13.0, fontweight="bold")
+        ax.text(0.05, y + row_height * 0.29, metric, ha="left", va="center", fontsize=12.0, color=MUTED)
+        for family in families:
+            row = summary[(summary["family"] == family) & (summary["task"] == task)].iloc[0]
+            status, status_color, fill = status_style[str(row.endpoint_direction)]
+            x = x_positions[family]
+            ax.add_patch(Rectangle((x, y), cell_width, row_height, facecolor=fill, edgecolor=PAPER, linewidth=3))
+            reversal = " · path bends" if bool(row.internal_reversal) else ""
+            ax.text(x + 0.12, y + row_height * 0.76, (status + reversal).upper(), ha="left", va="center", fontsize=12.0, fontweight="bold", color=status_color)
+            score_path = f"{compact_score(float(row.first_score))} → {compact_score(float(row.last_score))}  ({float(row.endpoint_delta):+.3f})"
+            cell = ax.text(
+                x + 0.12,
+                y + row_height * 0.47,
+                score_path,
+                ha="left",
+                va="center",
+                fontsize=14.2,
+                fontweight="bold",
+                color=INK,
+            )
+            cell.set_gid(point_label_gid("release-matrix", task, family))
+            period_path = f"{str(row.first_period).replace('-', ' ')}  →  {str(row.last_period).replace('-', ' ')}"
+            ax.text(x + 0.12, y + row_height * 0.17, period_path, ha="left", va="center", fontsize=12.0, color=MUTED)
+
+    fig.text(0.045, 0.055, "12 family × task paths  ·  Qwen 5 higher / 1 lower  ·  DeepSeek 3 higher / 3 lower", fontsize=12.2, fontweight="bold")
+    fig.text(
+        0.045,
+        0.025,
+        "Exploratory aggregate only: endpoint direction is not improvement, several changes are tiny, and no saved intervals or raw-log replay are available.",
+        fontsize=10.6,
+        color=MUTED,
+    )
+    fig.subplots_adjust(left=0.035, right=0.99, top=0.89, bottom=0.105)
+    save_figure(fig, "04_release_period_paths")
+
+
+def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: str) -> None:
     period_keys = points["release_period"].map(quarter_key)
     first_period = int(period_keys.min())
     last_period = int(period_keys.max())
     quarter_ticks = list(range(first_period, last_period + 1))
     xpos = {period: quarter_key(period) - first_period for period in points["release_period"].unique()}
-    fig, axes = plt.subplots(6, 1, figsize=(16, 21), sharex=True)
-    fig.suptitle("Newer-route point estimates move in both directions", x=0.055, y=0.985, ha="left", fontsize=22, fontweight="bold")
+    fig, axes = plt.subplots(len(tasks), 1, figsize=(16, 13), sharex=True)
+    axes = np.atleast_1d(axes)
+    fig.suptitle(title, x=0.055, y=0.985, ha="left", fontsize=21, fontweight="bold")
     fig.text(
         0.055,
-        0.964,
-        "Saved release period on the x-axis · every observed point names the model and published B count · lines only connect observations",
+        0.956,
+        "Audit detail · every observed point names the model and published B count · lines only connect observations",
         color=MUTED,
-        fontsize=11.0,
+        fontsize=11.2,
     )
     annotations: list[mpl.text.Annotation] = []
     release_offsets = {
         "qwen/qwen-2.5-7b-instruct": (9, 25),
         "deepseek/deepseek-chat-v3-0324": (9, -28),
-        "deepseek/deepseek-chat-v3.1": (9, 25),
-        "deepseek/deepseek-v3.2": (-9, -28),
+        "deepseek/deepseek-chat-v3.1": (9, 34),
+        "deepseek/deepseek-v3.2": (-9, -36),
         "qwen/qwen3.5-9b": (-9, 55),
         "deepseek/deepseek-v4-flash": (-9, -45),
     }
-    for ax, task in zip(axes, SIX_TASKS):
+    for ax, task in zip(axes, tasks):
         task_rows = points[points["task"] == task]
         for family, family_rows in task_rows.groupby("family"):
             ordered = family_rows.sort_values("release_period", key=lambda s: s.map(quarter_key))
@@ -633,30 +891,30 @@ def plot_release_paths(points: pd.DataFrame) -> None:
         ax.set_ylim(*SCALING_LIMITS[task])
         ax.set_xticks([value - first_period for value in quarter_ticks], [quarter_label(value) for value in quarter_ticks])
         ax.set_xlim(-0.35, last_period - first_period + 0.35)
-        ax.tick_params(axis="x", labelbottom=True)
         ax.grid(axis="y", color=GRID, linewidth=0.8)
         ax.spines["left"].set_color(GRID)
         ax.spines["bottom"].set_color(GRID)
+    for ax in axes[:-1]:
+        ax.tick_params(axis="x", labelbottom=False)
     axes[-1].set_xlabel("Saved release period")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle="--" if f == "Qwen" else ":", linewidth=2.4, label=f)
         for f in ["Qwen", "DeepSeek"]
     ]
     fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.985), ncol=2, frameon=False)
-    fig.text(0.055, 0.027, "Result: Qwen and DeepSeek endpoints move in both directions; release period does not isolate a model-size or architecture effect.", fontsize=10.2, fontweight="bold")
     fig.text(
         0.055,
-        0.011,
-        "DeepSeek B values are vendor-published main-model counts; auxiliary/MTP weights are excluded. Served provider, quantization, and checkpoint revision are not retained. No intervals.",
-        fontsize=8.8,
+        0.018,
+        "Release quarter is model metadata, not evaluation time. DeepSeek counts exclude auxiliary/MTP weights; no saved intervals or raw-log replay.",
+        fontsize=9.1,
         color=MUTED,
     )
-    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.945), h_pad=1.45)
-    assert_point_label_layout(fig, annotations, expected=35)
-    save_figure(fig, "04_release_period_paths")
+    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.925), h_pad=1.8)
+    assert_point_label_layout(fig, annotations, expected=len(points[points["task"].isin(tasks)]))
+    save_figure(fig, stem)
 
 
-def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame) -> None:
+def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame, release_summary: pd.DataFrame) -> None:
     table = pd.DataFrame(
         [
             {
@@ -681,10 +939,10 @@ def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame) -> None:
                 "source": "evidence/source-results/result_summary.csv",
             },
             {
-                "research_question": "Do newer-route point estimates all rise?",
-                "answer": "Qwen and DeepSeek point estimates rise on some task endpoints and fall on others; Gemma has no valid newer endpoint.",
+                "research_question": "Do later named-route endpoints all move higher?",
+                "answer": "No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints. All plotted evaluations ran May 28–29, 2026.",
                 "evidence_status": "exploratory aggregate; no CI or raw-log replay",
-                "decision": "Do not claim a causal year trend.",
+                "decision": "Treat release quarter as model metadata, not a longitudinal progress trend.",
                 "source": "evidence/source-results/result_summary.csv",
             },
             {
@@ -696,6 +954,12 @@ def save_takeaways(partition: pd.DataFrame, size_summary: pd.DataFrame) -> None:
             },
         ]
     )
+    assert release_summary.groupby(["family", "endpoint_direction"]).size().to_dict() == {
+        ("DeepSeek", "higher"): 3,
+        ("DeepSeek", "lower"): 3,
+        ("Qwen", "higher"): 5,
+        ("Qwen", "lower"): 1,
+    }
     save_csv(table, "research_question_takeaways.csv")
 
 
@@ -711,19 +975,45 @@ def main() -> None:
     size_points = attach_model_parameters(size_points, parameters)
     size_points = add_size_plot_positions(size_points)
     release_points = attach_model_parameters(release_points, parameters)
+    release_summary = build_release_summary(release_points)
 
     save_csv(common, "common_roster_primary.csv")
     save_csv(precision, "task_precision.csv")
     save_csv(size_points, "size_task_points.csv")
     save_csv(size_summary, "size_path_summary.csv")
     save_csv(release_points, "release_period_task_points.csv")
-    save_takeaways(partition, size_summary)
+    save_csv(release_summary, "release_path_summary.csv")
+    save_takeaways(partition, size_summary, release_summary)
 
     plot_common_roster(common)
     plot_precision(precision)
-    plot_size_paths(size_points, size_summary)
-    plot_release_paths(release_points)
-    print("Built 4 result figures and 6 machine-readable result tables.")
+    plot_size_matrix(size_points, size_summary)
+    plot_size_detail(
+        size_points,
+        SIX_TASKS[:3],
+        "03_size_paths_detail_a",
+        "Size detail · UniMoral classification",
+    )
+    plot_size_detail(
+        size_points,
+        SIX_TASKS[3:],
+        "03_size_paths_detail_b",
+        "Size detail · consequence and ValuePrism",
+    )
+    plot_release_matrix(release_summary)
+    plot_release_detail(
+        release_points,
+        SIX_TASKS[:3],
+        "04_release_period_paths_detail_a",
+        "Release-quarter detail · UniMoral classification",
+    )
+    plot_release_detail(
+        release_points,
+        SIX_TASKS[3:],
+        "04_release_period_paths_detail_b",
+        "Release-quarter detail · consequence and ValuePrism",
+    )
+    print("Built 8 result figures and 7 machine-readable result tables.")
 
 
 if __name__ == "__main__":

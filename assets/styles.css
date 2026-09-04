@@ -363,6 +363,146 @@ h3 {
   box-shadow: none;
 }
 
+.insight-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0.5rem;
+}
+
+.insight-table th,
+.insight-table td {
+  overflow-wrap: anywhere;
+}
+
+.insight-table thead th {
+  padding: 0.15rem 0.75rem 0.45rem;
+  text-align: center;
+  vertical-align: bottom;
+}
+
+.insight-table thead th:first-child {
+  width: 10.5rem;
+  text-align: left;
+}
+
+.insight-table thead span,
+.insight-table thead small {
+  display: block;
+}
+
+.insight-table thead span {
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.insight-table thead small,
+.matrix-metric,
+.matrix-status,
+.matrix-cell-meta,
+.matrix-file-link {
+  font-size: 0.8rem;
+}
+
+.insight-table thead small {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.insight-table tbody th {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.matrix-metric {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.matrix-cell {
+  padding: 0.8rem;
+  vertical-align: top;
+  border-top: 3px solid var(--line);
+  line-height: 1.35;
+}
+
+.matrix-cell.is-rising,
+.matrix-cell.is-higher {
+  background: var(--green-soft);
+  border-top-color: var(--green);
+}
+
+.matrix-cell.is-mixed {
+  background: var(--amber-soft);
+  border-top-color: var(--amber);
+}
+
+.matrix-cell.is-falling,
+.matrix-cell.is-lower {
+  background: var(--red-soft);
+  border-top-color: var(--red);
+}
+
+.matrix-cell.is-incomplete {
+  background: var(--paper);
+}
+
+.matrix-cell-family {
+  display: none;
+}
+
+.matrix-status,
+.matrix-score,
+.matrix-cell-meta {
+  display: block;
+}
+
+.matrix-status {
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font-weight: 780;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.matrix-score {
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.matrix-score em {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.matrix-cell-meta {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.size-insight-table .matrix-cell-meta {
+  display: none;
+}
+
+.matrix-file-link {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+}
+
+.result-figure .matrix-file-link a {
+  display: inline;
+}
+
 .decision-strip {
   display: grid;
   grid-template-columns: 8rem minmax(0, 1fr);
@@ -381,6 +521,42 @@ h3 {
 
 .decision-strip span {
   color: var(--muted);
+}
+
+.audit-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.audit-details summary {
+  cursor: pointer;
+  color: var(--blue);
+  font-weight: 720;
+}
+
+.detail-link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.detail-link-grid a {
+  padding: 0.9rem 1rem;
+  background: var(--canvas);
+  text-decoration: none;
+}
+
+.detail-link-grid strong,
+.detail-link-grid span {
+  display: block;
+}
+
+.detail-link-grid span {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .takeaway-table,
@@ -900,10 +1076,6 @@ footer {
     max-width: none;
   }
 
-  .labeled-point-chart img {
-    width: 1180px;
-  }
-
   .swipe-hint {
     position: sticky;
     left: 0;
@@ -921,6 +1093,56 @@ footer {
   .decision-strip {
     grid-template-columns: 1fr;
     gap: 0.3rem;
+  }
+
+  .detail-link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insight-table,
+  .insight-table tbody,
+  .insight-table tr,
+  .insight-table th,
+  .insight-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .insight-table {
+    border-spacing: 0;
+  }
+
+  .insight-table thead {
+    display: none;
+  }
+
+  .insight-table tbody tr {
+    margin-top: 1.15rem;
+  }
+
+  .insight-table tbody tr:first-child {
+    margin-top: 0;
+  }
+
+  .insight-table tbody th {
+    padding: 0 0 0.4rem;
+    font-size: 1rem;
+  }
+
+  .matrix-cell {
+    margin-top: 0.55rem;
+    padding: 0.85rem 0.9rem;
+  }
+
+  .matrix-cell-family {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.9rem;
+    font-weight: 780;
+  }
+
+  .size-insight-table .matrix-cell-meta {
+    display: block;
   }
 
   .stat,

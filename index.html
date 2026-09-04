@@ -17,7 +17,7 @@
       <nav class="nav-links" aria-label="Page sections">
         <a href="#results">Results</a>
         <a href="#precision">Precision</a>
-        <a href="#scaling">Size &amp; time</a>
+        <a href="#scaling">Size &amp; release</a>
         <a href="#decisions">Decisions</a>
         <a href="#evidence-summary">Evidence</a>
         <a href="#posters">Poster appendix</a>
@@ -30,7 +30,7 @@
       <div class="wrap">
         <p class="eyebrow">Research lead readout · 3 September 2026</p>
         <h1>What the benchmark results actually say</h1>
-        <p class="lede">There is substantial result data in the repository. It shows task-specific model differences, two low-precision comparison tasks with wide intervals, and mixed size and release-period patterns—not one stable moral ranking.</p>
+        <p class="lede">Two findings are ready to act on: point-estimate leaders change by task, and the two comparison tasks are the clear precision bottleneck. Size and release patterns are useful hypotheses, but they do not support a general scaling or progress claim.</p>
 
         <div class="decision-banner">
           <strong>Bottom line</strong>
@@ -116,45 +116,147 @@
     <section class="section result-section" id="scaling">
       <div class="wrap">
         <p class="eyebrow">Research questions 3–4 · exploratory</p>
-        <h2>Size and release period do not give a simple answer</h2>
-        <p class="section-intro">These panels use a separate selected-grid snapshot. They have no saved confidence intervals and none of the referenced successful raw logs is present in the fresh clone. Provider metadata also records 107,375 reasoning tokens across Qwen3-32B rows and 1,171,189 across DeepSeek V4 rows despite control attempts. These are descriptive hypotheses—not headline evidence.</p>
+        <h2>Size and release metadata are not shortcuts</h2>
+        <p class="section-intro">These views use a separate selected-grid snapshot with no saved confidence intervals or raw-log replay. The matrices answer the research questions in one screen; directly labeled model paths remain available as audit detail.</p>
 
         <div class="visual-stack">
           <article class="visual-card">
             <div class="question-head compact">
               <div>
                 <h3>Does bigger reliably score better?</h3>
-                <p>Only 5 of 15 complete family × task paths rise monotonically; 9 are mixed and 1 falls.</p>
+                <p>No. Of 15 complete family × task paths, 5 rise at every step, 9 change direction, and 1 falls.</p>
               </div>
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
-            <figure class="result-figure flush wide-chart labeled-point-chart">
-              <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-              <a href="assets/results/03_size_paths.png"><img src="assets/results/03_size_paths.png" width="3312" height="4549" loading="lazy" decoding="async" alt="Six task panels in which every size-path point names the Qwen, Gemma, or Llama model and its published parameter count in billions"></a>
-              <figcaption>Every marker names the model and its published B count. The x-axis orders models by total parameters with categorical spacing, so horizontal distance is not quantitative. MoE labels show total and active parameters; Qwen’s 32.8B dense-to-235B/22B MoE step raises total capacity while lowering active parameters per token, so “bigger” is not an inference-compute claim. These named-model specifications do not retain the served provider endpoint, quantization, or checkpoint revision. Missing paths are labeled incomplete and never drawn as zero. Accuracy panels share a scale; METEOR is separate.</figcaption>
+            <figure class="result-figure flush insight-matrix">
+              <table class="insight-table size-insight-table" data-matrix="size" aria-label="Direction of 15 complete model-size paths by task and family">
+                <thead>
+                  <tr>
+                    <th scope="col">Task and metric</th>
+                    <th scope="col"><span>Qwen</span><small>8.2B → 32.8B → 235B / 22B active</small></th>
+                    <th scope="col"><span>Gemma</span><small>4B → 12B → 27B</small></th>
+                    <th scope="col"><span>Llama</span><small>3B → 8B → 70B</small></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">UniMoral action<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-mixed" data-task="unimoral_action_prediction" data-family="Qwen" data-value=".649 → .479 → .634"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.649 → .479 → .634</strong><span class="matrix-cell-meta">8.2B → 32.8B → 235B / 22B active</span></td>
+                    <td class="matrix-cell is-mixed" data-task="unimoral_action_prediction" data-family="Gemma" data-value=".634 → .661 → .647"><span class="matrix-cell-family">Gemma</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.634 → .661 → .647</strong><span class="matrix-cell-meta">4B → 12B → 27B</span></td>
+                    <td class="matrix-cell is-rising" data-task="unimoral_action_prediction" data-family="Llama" data-value=".625 → .629 → .668"><span class="matrix-cell-family">Llama</span><span class="matrix-status">Rises</span><strong class="matrix-score">.625 → .629 → .668</strong><span class="matrix-cell-meta">3B → 8B → 70B</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">UniMoral typology<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-mixed" data-task="unimoral_moral_typology" data-family="Qwen" data-value=".564 → .597 → .521"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.564 → .597 → .521</strong><span class="matrix-cell-meta">8.2B → 32.8B → 235B / 22B active</span></td>
+                    <td class="matrix-cell is-falling" data-task="unimoral_moral_typology" data-family="Gemma" data-value=".597 → .579 → .570"><span class="matrix-cell-family">Gemma</span><span class="matrix-status">Falls</span><strong class="matrix-score">.597 → .579 → .570</strong><span class="matrix-cell-meta">4B → 12B → 27B</span></td>
+                    <td class="matrix-cell is-rising" data-task="unimoral_moral_typology" data-family="Llama" data-value=".521 → .595 → .599"><span class="matrix-cell-family">Llama</span><span class="matrix-status">Rises</span><strong class="matrix-score">.521 → .595 → .599</strong><span class="matrix-cell-meta">3B → 8B → 70B</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">UniMoral factor<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-mixed" data-task="unimoral_factor_attribution" data-family="Qwen" data-value=".554 → .607 → .564"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.554 → .607 → .564</strong><span class="matrix-cell-meta">8.2B → 32.8B → 235B / 22B active</span></td>
+                    <td class="matrix-cell is-rising" data-task="unimoral_factor_attribution" data-family="Gemma" data-value=".578 → .601 → .613"><span class="matrix-cell-family">Gemma</span><span class="matrix-status">Rises</span><strong class="matrix-score">.578 → .601 → .613</strong><span class="matrix-cell-meta">4B → 12B → 27B</span></td>
+                    <td class="matrix-cell is-mixed" data-task="unimoral_factor_attribution" data-family="Llama" data-value=".607 → .600 → .634"><span class="matrix-cell-family">Llama</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.607 → .600 → .634</strong><span class="matrix-cell-meta">3B → 8B → 70B</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">UniMoral consequence<span class="matrix-metric">METEOR</span></th>
+                    <td class="matrix-cell is-rising" data-task="unimoral_consequence_generation" data-family="Qwen" data-value=".113 → .120 → .133"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Rises</span><strong class="matrix-score">.113 → .120 → .133</strong><span class="matrix-cell-meta">8.2B → 32.8B → 235B / 22B active</span></td>
+                    <td class="matrix-cell is-mixed" data-task="unimoral_consequence_generation" data-family="Gemma" data-value=".096 → .100 → .092"><span class="matrix-cell-family">Gemma</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.096 → .100 → .092</strong><span class="matrix-cell-meta">4B → 12B → 27B</span></td>
+                    <td class="matrix-cell is-mixed" data-task="unimoral_consequence_generation" data-family="Llama" data-value=".128 → .125 → .141"><span class="matrix-cell-family">Llama</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.128 → .125 → .141</strong><span class="matrix-cell-meta">3B → 8B → 70B</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">ValuePrism relevance<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-incomplete" data-task="value_prism_relevance" data-family="Qwen" data-value="Not complete"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Not complete</span><strong class="matrix-score">No three-tier path</strong></td>
+                    <td class="matrix-cell is-mixed" data-task="value_prism_relevance" data-family="Gemma" data-value=".606 → .676 → .655"><span class="matrix-cell-family">Gemma</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.606 → .676 → .655</strong><span class="matrix-cell-meta">4B → 12B → 27B</span></td>
+                    <td class="matrix-cell is-rising" data-task="value_prism_relevance" data-family="Llama" data-value=".624 → .642 → .701"><span class="matrix-cell-family">Llama</span><span class="matrix-status">Rises</span><strong class="matrix-score">.624 → .642 → .701</strong><span class="matrix-cell-meta">3B → 8B → 70B</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">ValuePrism valence<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-incomplete" data-task="value_prism_valence" data-family="Qwen" data-value="Not complete"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Not complete</span><strong class="matrix-score">No three-tier path</strong></td>
+                    <td class="matrix-cell is-incomplete" data-task="value_prism_valence" data-family="Gemma" data-value="Not complete"><span class="matrix-cell-family">Gemma</span><span class="matrix-status">Not complete</span><strong class="matrix-score">No three-tier path</strong></td>
+                    <td class="matrix-cell is-mixed" data-task="value_prism_valence" data-family="Llama" data-value=".465 → .385 → .747"><span class="matrix-cell-family">Llama</span><span class="matrix-status">Mixed</span><strong class="matrix-score">.465 → .385 → .747</strong><span class="matrix-cell-meta">3B → 8B → 70B</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <figcaption>Each cell stays within one family, task, and metric. The clearest same-generation counterexample is Gemma: factor accuracy rises from .578 to .613 while typology falls from .597 to .570. The matrix is an exploratory pattern summary, not a causal estimate.</figcaption>
+              <p class="matrix-file-link">Static figure: <a href="assets/results/03_size_paths.png">PNG</a> · <a href="assets/results/03_size_paths.svg">SVG</a></p>
             </figure>
             <div class="decision-strip"><strong>Implication</strong><span>Treat size effects as family- and task-specific hypotheses, not a general law.</span></div>
+            <details class="audit-details">
+              <summary>Open directly labeled model + B path figures</summary>
+              <div class="detail-link-grid">
+                <a href="assets/results/03_size_paths_detail_a.svg"><strong>UniMoral classification</strong><span>3 landscape panels · 27 directly labeled points</span></a>
+                <a href="assets/results/03_size_paths_detail_b.svg"><strong>Consequence and ValuePrism</strong><span>3 landscape panels · 18 directly labeled points</span></a>
+              </div>
+            </details>
           </article>
 
           <article class="visual-card">
             <div class="question-head compact">
               <div>
-                <h3>Do newer-route point estimates all rise?</h3>
-                <p>Qwen and DeepSeek point estimates rise on some tasks and fall on others. Gemma lacks a valid newer endpoint.</p>
+                <h3>Does a later release quarter imply a higher score?</h3>
+                <p>No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints.</p>
               </div>
               <span class="evidence-pill exploratory">Exploratory</span>
             </div>
-            <figure class="result-figure flush wide-chart labeled-point-chart">
-              <span class="swipe-hint" aria-hidden="true">Scroll the chart horizontally →</span>
-              <a href="assets/results/04_release_period_paths.png"><img src="assets/results/04_release_period_paths.png" width="3319" height="4549" loading="lazy" decoding="async" alt="Six release-period panels in which every observed Qwen and DeepSeek point names the model and its published parameter count in billions; MoE labels also show active parameters"></a>
-              <figcaption>Every observed marker names the model and its published B count. For DeepSeek, the figure uses the vendor-published main-model count and active count; auxiliary/MTP weights are excluded. Quarter positions use actual spacing, while connecting lines are guides only. The saved run metadata does not retain the served provider endpoint, quantization, or checkpoint revision. DeepSeek relevance ends at 2025-Q4, and route, architecture, and size change with time, so this is not a causal trend.</figcaption>
+            <figure class="result-figure flush insight-matrix">
+              <table class="insight-table release-insight-table" data-matrix="release" aria-label="Endpoint direction for twelve model-release paths by task and family">
+                <thead>
+                  <tr>
+                    <th scope="col">Task and metric</th>
+                    <th scope="col"><span>Qwen</span><small>Qwen2.5-7B · 7.61B → Qwen3.5-9B · 9B</small></th>
+                    <th scope="col"><span>DeepSeek</span><small>V3-0324 · 671B main / 37B active → latest available</small></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">UniMoral action<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-higher" data-task="unimoral_action_prediction" data-family="Qwen" data-value=".635 → .653 (+0.018)"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Higher endpoint</span><strong class="matrix-score">.635 → .653 <em>(+0.018)</em></strong><span class="matrix-cell-meta">2024 Q4 · Qwen2.5-7B · 7.61B → 2026 Q1 · Qwen3.5-9B · 9B</span></td>
+                    <td class="matrix-cell is-higher" data-task="unimoral_action_prediction" data-family="DeepSeek" data-value=".453 → .639 (+0.187)"><span class="matrix-cell-family">DeepSeek</span><span class="matrix-status">Higher endpoint · path bends</span><strong class="matrix-score">.453 → .639 <em>(+0.187)</em></strong><span class="matrix-cell-meta">2025 Q1 · V3-0324 · 671B main / 37B active → 2026 Q2 · V4 Flash · 284B main / 13B active</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">UniMoral typology<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-higher" data-task="unimoral_moral_typology" data-family="Qwen" data-value=".556 → .598 (+0.042)"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Higher endpoint</span><strong class="matrix-score">.556 → .598 <em>(+0.042)</em></strong><span class="matrix-cell-meta">2024 Q4 · Qwen2.5-7B · 7.61B → 2026 Q1 · Qwen3.5-9B · 9B</span></td>
+                    <td class="matrix-cell is-lower" data-task="unimoral_moral_typology" data-family="DeepSeek" data-value=".582 → .579 (-0.003)"><span class="matrix-cell-family">DeepSeek</span><span class="matrix-status">Lower endpoint · path bends</span><strong class="matrix-score">.582 → .579 <em>(−0.003)</em></strong><span class="matrix-cell-meta">2025 Q1 · V3-0324 · 671B main / 37B active → 2026 Q2 · V4 Flash · 284B main / 13B active</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">UniMoral factor<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-higher" data-task="unimoral_factor_attribution" data-family="Qwen" data-value=".573 → .575 (+0.002)"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Higher endpoint</span><strong class="matrix-score">.573 → .575 <em>(+0.002)</em></strong><span class="matrix-cell-meta">2024 Q4 · Qwen2.5-7B · 7.61B → 2026 Q1 · Qwen3.5-9B · 9B</span></td>
+                    <td class="matrix-cell is-lower" data-task="unimoral_factor_attribution" data-family="DeepSeek" data-value=".629 → .592 (-0.038)"><span class="matrix-cell-family">DeepSeek</span><span class="matrix-status">Lower endpoint</span><strong class="matrix-score">.629 → .592 <em>(−0.038)</em></strong><span class="matrix-cell-meta">2025 Q1 · V3-0324 · 671B main / 37B active → 2026 Q2 · V4 Flash · 284B main / 13B active</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">UniMoral consequence<span class="matrix-metric">METEOR</span></th>
+                    <td class="matrix-cell is-lower" data-task="unimoral_consequence_generation" data-family="Qwen" data-value=".124 → .097 (-0.027)"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Lower endpoint</span><strong class="matrix-score">.124 → .097 <em>(−0.027)</em></strong><span class="matrix-cell-meta">2024 Q4 · Qwen2.5-7B · 7.61B → 2026 Q1 · Qwen3.5-9B · 9B</span></td>
+                    <td class="matrix-cell is-higher" data-task="unimoral_consequence_generation" data-family="DeepSeek" data-value=".120 → .139 (+0.019)"><span class="matrix-cell-family">DeepSeek</span><span class="matrix-status">Higher endpoint · path bends</span><strong class="matrix-score">.120 → .139 <em>(+0.019)</em></strong><span class="matrix-cell-meta">2025 Q1 · V3-0324 · 671B main / 37B active → 2026 Q2 · V4 Flash · 284B main / 13B active</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">ValuePrism relevance<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-higher" data-task="value_prism_relevance" data-family="Qwen" data-value=".624 → .673 (+0.049)"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Higher endpoint</span><strong class="matrix-score">.624 → .673 <em>(+0.049)</em></strong><span class="matrix-cell-meta">2024 Q4 · Qwen2.5-7B · 7.61B → 2026 Q1 · Qwen3.5-9B · 9B</span></td>
+                    <td class="matrix-cell is-higher" data-task="value_prism_relevance" data-family="DeepSeek" data-value=".653 → .675 (+0.022)"><span class="matrix-cell-family">DeepSeek</span><span class="matrix-status">Higher endpoint · path bends</span><strong class="matrix-score">.653 → .675 <em>(+0.022)</em></strong><span class="matrix-cell-meta">2025 Q1 · V3-0324 · 671B main / 37B active → 2025 Q4 · V3.2 · 671B main / 37B active</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">ValuePrism valence<span class="matrix-metric">Accuracy</span></th>
+                    <td class="matrix-cell is-higher" data-task="value_prism_valence" data-family="Qwen" data-value=".523 → .710 (+0.187)"><span class="matrix-cell-family">Qwen</span><span class="matrix-status">Higher endpoint</span><strong class="matrix-score">.523 → .710 <em>(+0.187)</em></strong><span class="matrix-cell-meta">2024 Q4 · Qwen2.5-7B · 7.61B → 2026 Q1 · Qwen3.5-9B · 9B</span></td>
+                    <td class="matrix-cell is-lower" data-task="value_prism_valence" data-family="DeepSeek" data-value=".689 → .627 (-0.062)"><span class="matrix-cell-family">DeepSeek</span><span class="matrix-status">Lower endpoint · path bends</span><strong class="matrix-score">.689 → .627 <em>(−0.062)</em></strong><span class="matrix-cell-meta">2025 Q1 · V3-0324 · 671B main / 37B active → 2026 Q2 · V4 Flash · 284B main / 13B active</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <figcaption>All plotted evaluations ran on May 28–29, 2026. The x metadata describes model release quarter—not evaluation time—and changes generation, route, size, and architecture together. Several endpoint changes are tiny, including Qwen factor +.002 and DeepSeek typology −.003.</figcaption>
+              <p class="matrix-file-link">Static figure: <a href="assets/results/04_release_period_paths.png">PNG</a> · <a href="assets/results/04_release_period_paths.svg">SVG</a></p>
             </figure>
-            <div class="decision-strip"><strong>Implication</strong><span>Do not use release year as a shortcut for expected moral-benchmark point estimates.</span></div>
+            <div class="decision-strip"><strong>Implication</strong><span>Do not present model release quarter as a longitudinal progress curve.</span></div>
+            <details class="audit-details">
+              <summary>Open directly labeled model + B path figures</summary>
+              <div class="detail-link-grid">
+                <a href="assets/results/04_release_period_paths_detail_a.svg"><strong>UniMoral classification</strong><span>3 landscape panels · 18 directly labeled points</span></a>
+                <a href="assets/results/04_release_period_paths_detail_b.svg"><strong>Consequence and ValuePrism</strong><span>3 landscape panels · 17 directly labeled points</span></a>
+              </div>
+            </details>
           </article>
         </div>
 
         <div class="source-links">
           <a href="data/results/size_path_summary.csv">15 complete size paths</a>
+          <a href="data/results/release_path_summary.csv">12 release endpoint paths</a>
           <a href="data/results/release_period_task_points.csv">Release-period points</a>
           <a href="evidence/model-parameter-sources.csv">Model-parameter sources</a>
           <a href="evidence/source-results/SOURCE_MANIFEST.csv">Selected-grid source manifest</a>

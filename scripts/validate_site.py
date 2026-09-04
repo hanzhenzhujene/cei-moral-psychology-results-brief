@@ -47,6 +47,14 @@ SCORE_METRICS = {
     "unimoral_factor_attribution": "accuracy",
     "unimoral_consequence_generation": "meteor",
 }
+SCALING_TASK_LABELS = {
+    "unimoral_action_prediction": ("UniMoral action", "Accuracy"),
+    "unimoral_moral_typology": ("UniMoral typology", "Accuracy"),
+    "unimoral_factor_attribution": ("UniMoral factor", "Accuracy"),
+    "unimoral_consequence_generation": ("UniMoral consequence", "METEOR"),
+    "value_prism_relevance": ("ValuePrism relevance", "Accuracy"),
+    "value_prism_valence": ("ValuePrism valence", "Accuracy"),
+}
 EXPECTED_PARAMETER_FACTS = {
     "qwen/qwen3-8b": ("Qwen3-8B", 8.2, None, "8.2B total", "dense", "https://huggingface.co/Qwen/Qwen3-8B"),
     "qwen/qwen3-32b": ("Qwen3-32B", 32.8, None, "32.8B total", "dense", "https://huggingface.co/Qwen/Qwen3-32B"),
@@ -323,12 +331,16 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
     check(pd.Series(directions).value_counts().to_dict() == {"mixed": 9, "rising": 5, "falling": 1}, "size direction totals drift")
 
     release = pd.read_csv(RESULT_DATA / "release_period_task_points.csv")
+    release_summary = pd.read_csv(RESULT_DATA / "release_path_summary.csv")
     check(len(release) == 35, f"release layer must contain 35 points, found {len(release)}")
+    check(len(release_summary) == 12, f"release summary must contain 12 paths, found {len(release_summary)}")
     check(release.groupby(["family", "task"]).ngroups == 12, "release layer must contain 12 family-task paths")
     check(set(release["family"]) == {"Qwen", "DeepSeek"}, "release family set drift")
     check(not release.duplicated(["family", "task", "release_period"]).any(), "duplicate family-task-quarter in release layer")
     check((release["run_status"] == "success").all() and release["score"].notna().all(), "release plot contains a failed or missing score")
     check(set(release["evidence_status"]) == {"exploratory aggregate; no CI or raw-log replay"}, "release evidence label drift")
+    run_dates = release["log_path"].str.extract(r"/(2026-05-(?:28|29))T", expand=False)
+    check(run_dates.notna().all() and set(run_dates) == {"2026-05-28", "2026-05-29"}, "release rows are not confined to the recorded two-day evaluation window")
 
     expected_size_candidates = selected[
         (selected["grid"] == "within-family scaling")
@@ -401,6 +413,61 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
         expected_labels = frame["model_display"] + "\n" + frame["parameter_label"]
         check(frame["point_label"].equals(expected_labels), f"{name} compound point labels drift from model plus parameter count")
 
+    expected_release_with_parameters = expected_release_source.merge(parameters, on="model", how="left", validate="many_to_one")
+    expected_summary_rows: list[dict[str, object]] = []
+    for (family, task), group in expected_release_with_parameters.groupby(["family", "task"], sort=True):
+        ordered = group.sort_values("release_period")
+        first = ordered.iloc[0]
+        last = ordered.iloc[-1]
+        values = ordered["score"].to_numpy(dtype=float)
+        deltas = np.diff(values)
+        endpoint_delta = float(last.score - first.score)
+        expected_summary_rows.append(
+            {
+                "family": family,
+                "task": task,
+                "task_label": SCALING_TASK_LABELS[task][0],
+                "metric": SCALING_TASK_LABELS[task][1],
+                "first_period": first.release_period,
+                "first_score": float(first.score),
+                "first_model": first.model,
+                "first_model_display": first.model_display,
+                "first_parameter_label": first.parameter_label,
+                "last_period": last.release_period,
+                "last_score": float(last.score),
+                "last_model": last.model,
+                "last_model_display": last.model_display,
+                "last_parameter_label": last.parameter_label,
+                "endpoint_delta": endpoint_delta,
+                "endpoint_direction": "higher" if endpoint_delta > 0 else "lower" if endpoint_delta < 0 else "unchanged",
+                "internal_reversal": len(values) > 2 and not (np.all(deltas > 0) or np.all(deltas < 0)),
+                "observed_points": len(ordered),
+                "evidence_status": "exploratory aggregate; no CI or raw-log replay",
+                "source_repository_head": SOURCE_HEAD,
+                "source_path": "evidence/source-results/result_summary.csv",
+            }
+        )
+    expected_release_summary = pd.DataFrame(expected_summary_rows)
+    check(list(release_summary.columns) == list(expected_release_summary.columns), "release summary schema drift")
+    observed_summary = release_summary.sort_values(["family", "task"]).reset_index(drop=True)
+    expected_release_summary = expected_release_summary.sort_values(["family", "task"]).reset_index(drop=True)
+    for column in ("first_score", "last_score", "endpoint_delta", "observed_points"):
+        check(
+            np.allclose(observed_summary[column], expected_release_summary[column], rtol=0, atol=1e-12),
+            f"release summary {column} differs from independently selected source rows",
+        )
+    for column in [name for name in release_summary.columns if name not in {"first_score", "last_score", "endpoint_delta", "observed_points"}]:
+        check(
+            observed_summary[column].astype("string").equals(expected_release_summary[column].astype("string")),
+            f"release summary {column} differs from independently selected source rows",
+        )
+    direction_counts = release_summary.groupby(["family", "endpoint_direction"]).size().to_dict()
+    check(
+        direction_counts == {("DeepSeek", "higher"): 3, ("DeepSeek", "lower"): 3, ("Qwen", "higher"): 5, ("Qwen", "lower"): 1},
+        f"release endpoint-direction totals drift: {direction_counts}",
+    )
+    check(int(release_summary["internal_reversal"].sum()) == 5, "release internal-reversal count drift")
+
     expected_size_counts = {model: count for model, count in [
         ("qwen/qwen3-8b", 4),
         ("qwen/qwen3-32b", 4),
@@ -457,9 +524,9 @@ def validate_derived_results(primary: pd.DataFrame, selected: pd.DataFrame, para
         "wide-interval claim must cite the cell-level primary interval table",
     )
     joined_answers = " ".join(takeaways["answer"])
-    for phrase in ("18 intervals", "5 of 15", "9 are mixed", "1 falls"):
+    for phrase in ("18 intervals", "5 of 15", "9 are mixed", "1 falls", "5 higher and 1 lower", "3 higher and 3 lower", "May 28–29, 2026"):
         check(phrase in joined_answers, f"takeaway table is missing expected result: {phrase}")
-    passed("derived results: 40 common cells; 28/28 and 45/45 compare overlaps; all 80 plotted rows match source and parameter metadata")
+    passed("derived results: 40 common cells; 28/28 and 45/45 compare overlaps; all 80 plotted rows and 12 release summaries match source and parameter metadata")
 
 
 def validate_legacy_firewalls() -> None:
@@ -527,16 +594,66 @@ def validate_site_and_links() -> None:
     check(local_refs >= 40, f"unexpectedly few local HTML references: {local_refs}")
 
     images = soup.find_all("img")
-    check(len(images) == 8, f"expected 8 site images, found {len(images)}")
+    check(len(images) == 6, f"expected 6 site images, found {len(images)}")
     for index, image in enumerate(images):
         check(str(image.get("alt", "")).strip() != "", f"image {index + 1} has no alt text")
         check(image.has_attr("width") and image.has_attr("height"), f"image {index + 1} lacks intrinsic dimensions")
         source = ROOT / str(image["src"])
-        with Image.open(source) as decoded:
+        decoded_source = source.with_suffix(".png") if source.suffix.lower() == ".svg" else source
+        check(decoded_source.is_file(), f"image raster companion does not resolve: {decoded_source.relative_to(ROOT)}")
+        with Image.open(decoded_source) as decoded:
             check(int(image["width"]) == decoded.width and int(image["height"]) == decoded.height, f"HTML dimensions drift for {image['src']}")
         if index > 0:
             check(image.get("loading") == "lazy", f"below-fold image is not lazy loaded: {image['src']}")
-    check(len(soup.select("figure.wide-chart")) == 4, "all four result charts must use the mobile scroll container")
+    check(len(soup.select("figure.wide-chart")) == 2, "only the two dense primary charts should use the mobile scroll container")
+    check(len(soup.select("figure.insight-matrix")) == 2, "size and release must use compact insight matrices")
+    check(not soup.select("figure.insight-matrix img"), "primary insight matrices must reflow as HTML instead of shrinking a fixed image")
+    matrix_tables = soup.select("table.insight-table")
+    check(len(matrix_tables) == 2, "expected two semantic responsive insight tables")
+
+    size_summary = pd.read_csv(RESULT_DATA / "size_path_summary.csv")
+    observed_size_cells = {
+        (str(cell.get("data-task")), str(cell.get("data-family"))): str(cell.get("data-value"))
+        for cell in soup.select('table[data-matrix="size"] td.matrix-cell')
+    }
+    expected_size_cells: dict[tuple[str, str], str] = {}
+    for task in SCALING_TASK_LABELS:
+        for family in ("Qwen", "Gemma", "Llama"):
+            match = size_summary[(size_summary["task"] == task) & (size_summary["family"] == family)]
+            expected_size_cells[(task, family)] = (
+                "Not complete"
+                if match.empty
+                else " → ".join(f"{float(value):.3f}".removeprefix("0") for value in match.iloc[0][["small", "medium", "large"]])
+            )
+    check(len(observed_size_cells) == 18 and observed_size_cells == expected_size_cells, "responsive size matrix values drift from the 15-path summary")
+
+    release_summary = pd.read_csv(RESULT_DATA / "release_path_summary.csv")
+    observed_release_cells = {
+        (str(cell.get("data-task")), str(cell.get("data-family"))): str(cell.get("data-value"))
+        for cell in soup.select('table[data-matrix="release"] td.matrix-cell')
+    }
+    expected_release_cells = {
+        (row.task, row.family): (
+            f"{float(row.first_score):.3f}".removeprefix("0")
+            + " → "
+            + f"{float(row.last_score):.3f}".removeprefix("0")
+            + f" ({float(row.endpoint_delta):+.3f})"
+        )
+        for row in release_summary.itertuples(index=False)
+    }
+    check(len(observed_release_cells) == 12 and observed_release_cells == expected_release_cells, "responsive release matrix values drift from the 12-path summary")
+    check(
+        all(cell.select_one(".matrix-status") and cell.select_one(".matrix-score") for cell in soup.select("td.matrix-cell")),
+        "responsive matrix cell lacks a visible status or score",
+    )
+    check(
+        all(cell.select_one(".matrix-cell-family") and cell.select_one(".matrix-cell-meta") for cell in soup.select('table[data-matrix="release"] td.matrix-cell')),
+        "responsive release cells must retain family, model, period, and B context",
+    )
+    check(len(soup.select("details.audit-details")) == 2, "size and release audit detail must be collapsed by default")
+    detail_links = [link for link in soup.select("details.audit-details a") if "_detail_" in str(link.get("href", ""))]
+    check(len(detail_links) == 4, "expected four split landscape audit-detail links")
+    check("labeled-point-chart" not in html, "dense point-label composites must not remain inline")
     check(html.index('id="decisions"') < html.index('id="posters"'), "decision surface must precede poster appendix")
     check('href="#evidence-summary"' in html, "navigation must target the release-boundary evidence section")
 
@@ -548,15 +665,19 @@ def validate_site_and_links() -> None:
             if path is not None:
                 markdown_links += 1
                 check(path.exists(), f"missing Markdown target in {md_path.relative_to(ROOT)}: {match.group(1)}")
-    passed(f"site structure: {local_refs} local HTML references, {markdown_links} local Markdown references, 8 dimensioned images, anchors resolved")
+    passed(f"site structure: {local_refs} local HTML references, {markdown_links} local Markdown references, 6 dimensioned images, responsive matrices and collapsed detail links resolved")
 
 
 def validate_visuals() -> None:
     expected = {
         "01_common_roster_task_results": ("No model is the point-estimate leader on every task", {"Haiku", "Opus", "GPT-5.4", "Mini", "Qwen"}),
         "02_precision_by_task": ("Available marginal intervals do not resolve a comparison-task model order", {".20 planning target", ".30 audit warning"}),
-        "03_size_paths": ("Bigger is not reliably better", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
-        "04_release_period_paths": ("Newer-route point estimates move in both directions", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active", "2025", "Q2"}),
+        "03_size_paths": ("Model size is not a reliable shortcut", {"15 complete paths", "5 rising", "9 mixed", "1 falling", "235B / 22B active"}),
+        "03_size_paths_detail_a": ("Size detail · UniMoral classification", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
+        "03_size_paths_detail_b": ("Size detail · consequence and ValuePrism", {"Qwen3-8B", "235B total / 22B active", "ValuePrism relevance", "ValuePrism valence"}),
+        "04_release_period_paths": ("Model release quarter is not a progress curve", {"May 28–29, 2026", "Qwen 5 higher / 1 lower", "DeepSeek 3 higher / 3 lower", "671B main / 37B active"}),
+        "04_release_period_paths_detail_a": ("Release-quarter detail · UniMoral classification", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "04_release_period_paths_detail_b": ("Release-quarter detail · consequence and ValuePrism", {"Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
     }
     for stem, (title, labels) in expected.items():
         png = ROOT / "assets" / "results" / f"{stem}.png"
@@ -566,6 +687,7 @@ def validate_visuals() -> None:
             image.verify()
         with Image.open(png) as image:
             check(image.width >= 2500 and image.height >= 1200, f"result PNG is unexpectedly small: {stem}")
+            check(image.width / image.height >= 1.15, f"result figure reverted to a compressed portrait composite: {stem}")
             stats = ImageStat.Stat(image.convert("L").resize((200, 200)))
             check(stats.var[0] > 25, f"result PNG appears blank: {stem}")
         tree = ET.parse(svg)
@@ -582,13 +704,15 @@ def validate_visuals() -> None:
                     check(not str(value).startswith(("http://", "https://", "//")), f"external SVG resource: {stem}")
 
     label_contracts = {
-        "03_size_paths": ("size", "size_task_points.csv", 45),
-        "04_release_period_paths": ("release", "release_period_task_points.csv", 35),
+        "size": (["03_size_paths_detail_a", "03_size_paths_detail_b"], "size_task_points.csv", 45),
+        "release": (["04_release_period_paths_detail_a", "04_release_period_paths_detail_b"], "release_period_task_points.csv", 35),
     }
-    for stem, (layer, csv_name, expected_count) in label_contracts.items():
+    for layer, (stems, csv_name, expected_count) in label_contracts.items():
         prefix = f"{layer}-point-label-"
-        root = ET.parse(ROOT / "assets" / "results" / f"{stem}.svg").getroot()
-        groups = [element for element in root.iter() if element.attrib.get("id", "").startswith(prefix)]
+        groups = []
+        for stem in stems:
+            root = ET.parse(ROOT / "assets" / "results" / f"{stem}.svg").getroot()
+            groups.extend(element for element in root.iter() if element.attrib.get("id", "").startswith(prefix))
         points = pd.read_csv(RESULT_DATA / csv_name)
         expected_map = {
             point_label_gid(layer, row.task, row.model): " ".join(str(row.point_label).split())
@@ -598,16 +722,75 @@ def validate_visuals() -> None:
             element.attrib["id"]: " ".join("".join(element.itertext()).split())
             for element in groups
         }
-        check(len(points) == expected_count and len(expected_map) == expected_count, f"{stem} expected point-label identities are not unique")
-        check(len(groups) == expected_count and observed_map == expected_map, f"{stem} model+B label is not attached to its exact task-model point")
+        check(len(points) == expected_count and len(expected_map) == expected_count, f"{layer} expected point-label identities are not unique")
+        check(len(groups) == expected_count and observed_map == expected_map, f"{layer} model+B label is not attached to its exact task-model point across split detail figures")
+
+    size_summary = pd.read_csv(RESULT_DATA / "size_path_summary.csv")
+    observed_size_matrix: dict[str, str] = {}
+    size_root = ET.parse(ROOT / "assets" / "results" / "03_size_paths.svg").getroot()
+    for element in size_root.iter():
+        if element.attrib.get("id", "").startswith("size-matrix-point-label-"):
+            observed_size_matrix[element.attrib["id"]] = " ".join("".join(element.itertext()).split())
+            font_sizes = [
+                float(match.group(1))
+                for child in element.iter()
+                if (match := re.search(r"font:\s+(?:\d+\s+)?([0-9.]+)px", str(child.attrib.get("style", ""))))
+            ]
+            check(font_sizes and min(font_sizes) >= 14.0, "static size matrix score text fell below the readability floor")
+    expected_size_matrix: dict[str, str] = {}
+    for task in SCALING_TASK_LABELS:
+        for family in ("Qwen", "Gemma", "Llama"):
+            key = point_label_gid("size-matrix", task, family)
+            match = size_summary[(size_summary["family"] == family) & (size_summary["task"] == task)]
+            expected_size_matrix[key] = (
+                "Not complete"
+                if match.empty
+                else " → ".join(f"{float(value):.3f}".removeprefix("0") for value in match.iloc[0][["small", "medium", "large"]])
+            )
+    check(len(observed_size_matrix) == 18 and observed_size_matrix == expected_size_matrix, "size matrix cell values or identities drift from the 15-path summary")
+
+    release_summary = pd.read_csv(RESULT_DATA / "release_path_summary.csv")
+    release_root = ET.parse(ROOT / "assets" / "results" / "04_release_period_paths.svg").getroot()
+    observed_release_matrix = {
+        element.attrib["id"]: " ".join("".join(element.itertext()).split())
+        for element in release_root.iter()
+        if element.attrib.get("id", "").startswith("release-matrix-point-label-")
+    }
+    for element in release_root.iter():
+        if element.attrib.get("id", "").startswith("release-matrix-point-label-"):
+            font_sizes = [
+                float(match.group(1))
+                for child in element.iter()
+                if (match := re.search(r"font:\s+(?:\d+\s+)?([0-9.]+)px", str(child.attrib.get("style", ""))))
+            ]
+            check(font_sizes and min(font_sizes) >= 14.0, "static release matrix score text fell below the readability floor")
+    expected_release_matrix = {
+        point_label_gid("release-matrix", row.task, row.family): (
+            f"{float(row.first_score):.3f}".removeprefix("0")
+            + " → "
+            + f"{float(row.last_score):.3f}".removeprefix("0")
+            + f" ({float(row.endpoint_delta):+.3f})"
+        )
+        for row in release_summary.itertuples(index=False)
+    }
+    check(len(observed_release_matrix) == 12 and observed_release_matrix == expected_release_matrix, "release matrix cell values or identities drift from the 12-path summary")
 
     builder = (ROOT / "scripts" / "build_result_visuals.py").read_text()
     check("MODEL_MARKERS" in builder and "FAMILY_LINESTYLES" in builder, "multi-series visuals lack non-color encodings")
     check("quarter_key(period) - first_period" in builder, "release plot is not using actual quarter spacing")
-    check("size_plot_position" in builder and "categorical spacing" in builder, "size plot does not disclose its parameter-ordered categorical axis")
+    check("size_plot_position" in builder and "horizontal gaps are not to scale" in builder, "size detail does not disclose its parameter-ordered categorical axis")
     check("assert_point_label_layout" in builder, "direct point labels lack build-time overlap and clipping checks")
     css = (ROOT / "assets" / "styles.css").read_text()
-    check(".wide-chart" in css and "overflow-x: auto" in css and ".labeled-point-chart img" in css and "width: 1180px" in css, "mobile chart readability contract missing")
+    check(".wide-chart" in css and "overflow-x: auto" in css, "dense primary charts lack contained mobile overflow")
+    check(
+        ".detail-link-grid" in css
+        and ".insight-table" in css
+        and ".matrix-cell-family" in css
+        and ".size-insight-table .matrix-cell-meta" in css
+        and ".labeled-point-chart img" not in css
+        and re.search(r"(?m)^\s*width:\s*1180px\s*;", css) is None,
+        "insight-first mobile chart contract drift",
+    )
 
     common = pd.read_csv(RESULT_DATA / "common_roster_primary.csv")
     axis_limits = {
@@ -628,7 +811,7 @@ def validate_visuals() -> None:
         for task, group in frame.groupby("task"):
             lower, upper = (0.05, 0.18) if task == "unimoral_consequence_generation" else (0.30, 0.80)
             check(group["score"].between(lower, upper).all(), f"{filename} axis would clip {task}")
-    passed("visuals: 4 PNG/SVG pairs decode; all 45/35 labels are bound to exact task-model GIDs; layout and scale contracts pass")
+    passed("visuals: 8 landscape PNG/SVG pairs decode; 18/12 matrix cells and all 45/35 detail labels bind to exact evidence identities")
 
 
 def validate_pdf_hashes() -> None:

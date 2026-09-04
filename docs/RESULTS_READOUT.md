@@ -7,7 +7,7 @@
 | Is there one stable model order? | No. The point-estimate leader changes across tasks. | Keep the eight task results separate. |
 | Where is precision weakest? | The two MoralBench comparison tasks. | Recover paired outcomes first; expand the item banks only if the order remains unresolved. |
 | Does bigger reliably perform better? | No. Only 5 of 15 complete paths rise from small to medium to large. | Treat size patterns as family- and task-specific. |
-| Do newer-route point estimates all rise? | No. Qwen and DeepSeek both show mixed endpoint directions. | Do not interpret release quarter as a causal trend. |
+| Do later named-route endpoints all move higher? | No. Qwen has 5 higher and 1 lower endpoint; DeepSeek has 3 higher and 3 lower endpoints. | Release quarter is model metadata, not a longitudinal progress trend. |
 
 ## 1. Common-roster task results
 
@@ -47,40 +47,37 @@ Sources: [`task_precision.csv`](../data/results/task_precision.csv) for the task
 
 ## 3. Model size paths
 
-![Task-specific size paths with every point labeled by model and published parameter count](../assets/results/03_size_paths.png)
+![Direction matrix for complete model-size paths](../assets/results/03_size_paths.png)
 
-| Family | Complete task paths | Rising | Mixed | Falling | Example counterpattern |
-|---|---:|---:|---:|---:|---|
-| Gemma | 5 | 1 | 3 | 1 | Typology falls from `.597` to `.579` to `.570`. |
-| Llama | 6 | 3 | 3 | 0 | Valence falls at medium size before rising sharply at large size. |
-| Qwen | 4 | 1 | 3 | 0 | Action falls from `.649` to `.479`, then recovers to `.634`. |
-| **Total** | **15** | **5** | **9** | **1** | A universal “bigger is better” claim is not supported. |
+| Concrete read | Exact result |
+|---|---|
+| Overall direction | Of 15 complete family × task paths, 5 rise at every step, 9 change direction, and 1 falls. |
+| Cleanest same-generation counterexample | Gemma factor accuracy rises `.578 → .601 → .613`, while Gemma typology falls `.597 → .579 → .570`. |
+| Memorable bend | Qwen action moves `.649 → .479 → .634`; the largest named model does not exceed the smallest endpoint. |
+| Coverage limit | Qwen has no complete ValuePrism path, and Gemma has no complete valence path. Missing rows are not zeros. |
 
-Every marker names the model and its published parameter count. The x-axis orders models by total parameters, but uses equal categorical spacing; distance on the axis is not a numeric size difference. MoE labels show both total and active parameters. Qwen’s 32.8B dense-to-235B/22B MoE step raises total capacity while lowering active parameters per token, so the chart is not an inference-compute comparison. These named-model specifications do not retain the served provider endpoint, quantization, or checkpoint revision.
+The matrix is the executive view. Exact point paths remain in two landscape audit figures: [UniMoral classification](../assets/results/03_size_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/03_size_paths_detail_b.svg). All 45 plotted points name the model and published B count.
 
-This selected-grid view is exploratory. It has no saved confidence intervals; Qwen and Llama tiers also change release period, and incomplete task paths are omitted rather than drawn as zero.
+This is exploratory aggregate evidence. It has no saved confidence intervals or raw-log replay. Qwen and Llama tiers also change model generation or release period, and Qwen’s largest tier changes from dense to a 235B-total / 22B-active MoE architecture. Published total B is therefore neither a controlled size intervention nor inference compute. Provider metadata also records 107,375 reasoning tokens across Qwen3-32B rows despite control attempts.
 
-Provider metadata records 107,375 reasoning tokens across Qwen3-32B rows despite control attempts. That protocol-budget drift is another reason not to interpret the size lines causally.
-
-Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv), [`size_task_points.csv`](../data/results/size_task_points.csv), and the official model-card ledger in [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
+Sources: [`size_path_summary.csv`](../data/results/size_path_summary.csv), [`size_task_points.csv`](../data/results/size_task_points.csv), and the revision-pinned model-card ledger in [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
 
 ## 4. Release-period paths
 
-![Task-specific release-period paths with every point labeled by model and published parameter count](../assets/results/04_release_period_paths.png)
+![Endpoint direction matrix by recorded model release quarter](../assets/results/04_release_period_paths.png)
 
-| Family | First to latest available point | Endpoint rises | Endpoint falls or little movement |
-|---|---|---|---|
-| Qwen | 2024-Q4 to 2026-Q1 | Action, typology, factor, relevance, and valence point estimates rise at the endpoints | Consequence METEOR falls from `.124` to `.097`; factor changes only slightly |
-| DeepSeek | 2025-Q1 to 2026-Q2, except relevance ending 2025-Q4 | Action and consequence point estimates rise; relevance rises through its latest available point | Factor, typology, and valence point estimates fall at the endpoints |
-| Gemma | No comparable newer scored route | None claimable | The newer route is blocked, so missingness is not a zero score |
+| Concrete read | Exact result |
+|---|---|
+| Qwen endpoints | 5 are higher and 1 is lower. Consequence METEOR moves `.124 → .097`; factor changes only `+.002`. |
+| DeepSeek endpoints | 3 are higher and 3 are lower. Action moves `.453 → .639`; factor moves `.629 → .592`; typology changes only `−.003`. |
+| Evaluation window | Every plotted row was evaluated on May 28–29, 2026. The quarter field describes the named model release, not evaluation time. |
+| Same-B releases | DeepSeek V3-0324, V3.1, and V3.2 all carry 671B-main / 37B-active specifications, yet their task point estimates differ. Parameter count alone is not a model identity. |
 
-Every observed point names its model and published parameter count. DeepSeek MoE labels show the vendor-published main-model and active counts; auxiliary/MTP weights are excluded. These are named-model specifications from revision-pinned official model cards. The saved run metadata does not retain the served provider endpoint, quantization, or checkpoint revision.
+The matrix is the executive view. Exact point paths remain in two landscape audit figures: [UniMoral classification](../assets/results/04_release_period_paths_detail_a.svg) and [consequence plus ValuePrism](../assets/results/04_release_period_paths_detail_b.svg). All 35 plotted points name the model and published B count.
 
-Release period is metadata, not an intervention. Route, architecture, and sometimes parameter count move with quarter, so this chart cannot isolate a pure time effect.
+Release quarter is descriptive metadata, not an intervention or progress timeline. Generation, route, architecture, and parameter count change together. DeepSeek relevance ends at V3.2 because the V4 route was cancelled; Gemma has no valid newer comparison. DeepSeek V4 rows record 1,171,189 reasoning tokens despite control attempts, and the saved metadata does not retain the served endpoint, quantization, or exact evaluated checkpoint revision.
 
-DeepSeek V4 rows record 1,171,189 reasoning tokens in total despite control attempts, including the cancelled relevance route and excluded CCD row. Together with the missing raw logs, this makes the latest-route comparison exploratory only.
-
-Sources: [`release_period_task_points.csv`](../data/results/release_period_task_points.csv) and [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
+Sources: [`release_path_summary.csv`](../data/results/release_path_summary.csv), [`release_period_task_points.csv`](../data/results/release_period_task_points.csv), and [`model-parameter-sources.csv`](../evidence/model-parameter-sources.csv).
 
 ## Evidence ladder
 
