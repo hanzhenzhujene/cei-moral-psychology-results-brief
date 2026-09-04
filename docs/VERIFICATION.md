@@ -4,6 +4,8 @@ Verified on 3 September 2026 for the results-first release.
 
 The research-lead slide deck was added and verified on 4 September 2026.
 
+Technical checks passed: the published files, charts, and slides match the saved evidence. Start with the [one-minute readout](ONE_MINUTE_READOUT.md) or the [slide gallery](../slides/README.md). This does not prove that the original runs can be repeated or that people agree the test measures moral judgment. Next, restore the original run files and complete human review.
+
 ## Result lineage
 
 | Check | Outcome |
@@ -56,7 +58,7 @@ Its report confirmed 31 manifested artifacts, 42 links, the `78/26/9/30` partiti
 
 | Surface | Outcome |
 |---|---|
-| Local references | 57 HTML and 52 Markdown references resolve |
+| Local references | 59 HTML and 66 Markdown references resolve |
 | Images | 8 of 8 `<img>` elements have alt text and correct intrinsic dimensions. The two headline charts also have dedicated, dimensioned mobile `<source>` images |
 | Desktop | Chrome/Playwright passed at `1440 × 1000`: the size and release charts select their desktop sources and render at `1084 px` wide; the page has no horizontal overflow; both audit tables start closed; all 30 cells fit when opened; the console is clean |
 | Mobile | Chrome/Playwright passed at `390 × 844`: the charts select dedicated portrait sources and render at `316 × 570` and `316 × 728`; the page has no horizontal overflow; all 30 audit cells fit when opened; the console is clean |
@@ -65,7 +67,7 @@ Its report confirmed 31 manifested artifacts, 42 links, the `78/26/9/30` partiti
 | Visual inspection | All ten PNGs were inspected at full resolution. The two headline figures and their mobile counterparts show no observed title, label, or edge clipping; the four audit-detail figures retain `45/45` and `35/35` direct labels |
 | Accessibility | Model and family series use marker shapes and line styles in addition to color. Headline figures have descriptive alt text, and the underlying audit views remain semantic HTML |
 
-The README preview points directly to the size-answer chart. The main site embeds the size and release answer charts; full-resolution PNG and SVG links sit immediately below each figure.
+The README preview shows the main task-by-task result. The site keeps the size and release charts as exploratory follow-up views, with full-resolution PNG and SVG links immediately below each figure.
 
 ## Slide deck QA
 
@@ -79,7 +81,7 @@ The README preview points directly to the size-answer chart. The main site embed
 | Package validation | Slide count, native-object ownership, relationship targets, nested workbook links, chart formulas, font policy, layout geometry, and first-party import checks pass |
 | Source-to-slide validation | The public repo validator independently opens the PPTX and recomputes the slide 2–6 table and chart values from CSV evidence |
 | Repeat build | The semantic validator runs before an atomic rename replaces the stable deck. The PPTX container SHA can change with generated package metadata, so the content contract is rechecked after every build |
-| Visual inspection | All 8 slides were rendered at 1280 × 720 and inspected at full resolution; no observed overlap, clipping, or compressed screenshots |
+| Visual inspection | All 8 share slides were rendered at 2560 × 1440 and inspected at full resolution; no observed overlap, clipping, or compressed screenshots |
 | Share copies | The repo includes an 8-page view-only PDF and eight 2560 × 1440 PNGs. Every page was rendered again and inspected at full resolution |
 | Portability | The PDF and PNGs use the verified slide render, so layout does not depend on the viewer's fonts or PowerPoint renderer |
 

@@ -12,6 +12,8 @@ The page also mixes three evidence systems that must stay separate:
 
 The benchmark CSVs listed under each poster do not contain the underlying MP-v2 poster evidence.
 
+Use the [current results brief](../README.md) for benchmark results. Keep each poster as a separate historical artifact, and use the onboarding page only as an August 27 snapshot—not as the completion tracker.
+
 ## Current status correction
 
 | Item | Onboarding page | Verified state |
@@ -48,7 +50,7 @@ The “Opus × UniMoral action prediction missing” blocker is obsolete. The ca
 | Family Profile | MFT radar | Wrong requested form | The poster already contains line profiles. The repository radar is a heterogeneous benchmark aggregate. |
 | Family Profile | Profile clustering | Not done | ICC and cosine similarity are proposal ideas only. |
 | Family Profile | Kohlberg schema bars | Static only | Bars exist in the poster; coder inputs are absent. |
-| Family Profile | Schwartz circumplex | Not available | No per-model profile passed the stated sample floor. The absence is the result. |
+| Family Profile | Schwartz circumplex | Not available | The original arm missed the sample floor. A later five-model arm reached it, but downstream recovery remained indeterminate, so no reproducible profile is available. |
 | Bidirectional Alignment | Judge-difference histogram | Static only | It exists in the Family C poster, not the current BiAlign poster. |
 | Bidirectional Alignment | School × setting difference | Static only | It exists beside the histogram in the Family C poster. |
 | Bidirectional Alignment | Channel reliability | Static only | Tables exist in Family P and BiAlign; source records are absent. |

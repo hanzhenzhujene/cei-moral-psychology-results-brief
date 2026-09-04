@@ -4,7 +4,7 @@
 
 | Poster | Current status | Preserve | Hold as numerical result |
 |---|---|---|---|
-| Family Competence | Unsupported and stale | Competence/profile separation; pipeline integrity; Gate M boundary | Score panels, judge deltas, cost, repair counts, route conclusions |
+| Family Competence | Unsupported and stale | Competence/profile separation; pipeline integrity; human-review boundary (Gate M) | Score panels, judge deltas, cost, repair counts, route conclusions |
 | Family Profile | Unsupported and stale | Profiles are not rankings; coder agreement is not validity | MFT/Kohlberg profiles, agreement and kappa, Schwartz gate counts, coder-run records |
 | Bidirectional Alignment | Stale | Validation architecture; judge agreement is not validity | All result counts, agreement, cost, coverage, seal, and judge numbers |
 | Administration | Stale | Administration is part of the measurement; no profile ranking | 189 score cells, bundle-gate numbers, all experiment values |
@@ -12,6 +12,8 @@
 Use this banner on every poster until the source packet is restored:
 
 > Legacy design artifact. Numerical results are not reproducible from this repository checkout.
+
+Next: recover the original test items, model outputs, grader records, scoring code, and source version before publishing any number.
 
 ## Provenance audit
 
@@ -48,7 +50,7 @@ The strongest communication is not which model scored highest. It is that a miss
 
 | Poster-reported claim | Internal check | Evidence status | Release correction |
 |---|---|---|---|
-| 38 Kohlberg + 32 MFT + 204 Schwartz = 274 values per model | Arithmetic passes | Source records absent | Use only as legacy administration design. |
+| 38 Kohlberg + 32 MFT + 204 Schwartz = 274 administered profile cells per seat | Arithmetic passes | Source records absent | Use only as legacy administration design. |
 | 204 / 274 = 74% never reaches a coder | Arithmetic passes | Source records absent | Describe the measurement pipeline, not model behavior. |
 | 18 MFT panels × two coders × six foundations | Figure exists | Unsupported | Gray out numerical profiles. |
 | 18 Kohlberg panels × two coders × three schemas | Figure exists | Unsupported | Gray out numerical profiles. |
@@ -111,4 +113,4 @@ For each poster result, restore:
 9. resolvable source commit and seal;
 10. current-seal regeneration log.
 
-Until then, the one-to-one machine-readable ledger is [`../data/poster_claims.csv`](../data/poster_claims.csv).
+Until then, the machine-readable summary ledger is [`../data/poster_claims.csv`](../data/poster_claims.csv).

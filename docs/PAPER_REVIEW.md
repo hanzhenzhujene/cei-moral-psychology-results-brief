@@ -1,5 +1,15 @@
 # Relevant benchmark paper review
 
+## Replication verdict
+
+| Exact | Approximate | Proxy-only | Unavailable |
+|---:|---|---|---|
+| **0** | MoralBench task families; UniMoral task families | MoReBench performance; MoralLens performance | UniMoral cue claims; MoReBench-Theory; MoralLens paper metrics and order-effect replication |
+
+Approximate means a similar question tested differently. Proxy-only means a rough substitute, not the paper's measure. Unavailable means not tested here.
+
+Use these papers to explain what each benchmark tests. Do not compare their scores with ours or describe the local runs as replications.
+
 ## Read status
 
 The four primary papers were downloaded and reviewed for methods, results, authors' interpretation, limitations, and fit to the local evaluator. The three newly retrieved external PDFs were used for review but are not redistributed in this repository.
@@ -22,12 +32,6 @@ The four primary papers were downloaded and reviewed for methods, results, autho
 
 The size and release-period charts in the results brief are local follow-up questions. They are not claims that the four papers asked or answered those questions. The headline views use only the four UniMoral task families; ValuePrism remains in the full audit tables.
 
-## Replication verdict
-
-| Exact | Approximate | Proxy-only | Unavailable |
-|---:|---|---|---|
-| **0** | MoralBench task families; UniMoral task families | MoReBench performance; MoralLens performance | UniMoral cue claims; MoReBench-Theory; MoralLens paper metrics and order-effect replication |
-
 ## Protocol comparison
 
 | Claim unit | Paper protocol | Local protocol | Match | Safe interpretation |
@@ -43,9 +47,9 @@ The size and release-period charts in the results brief are local follow-up ques
 | MoralLens dataset | 640 English trolley vignettes; 85 models; five samples; 425,600 responses | 672 rows including 32 Species extensions; one sample; temperature 0; different prompts | Approximate | Dataset overlap exists; administration differs materially. |
 | MoralLens performance | Gemini assigns 16 rationales; CDGAP and Utility; invalid-output retries | Keyword counts and a binary expected-direction pattern; think blocks removed | Proxy-only | Local values cannot establish consequentialist or deontological reasoning or reproduce the paper's order effect. |
 
-## Authors' interpretation and our safe wording
+## What the papers say—and what we can safely say
 
-| Benchmark | Authors' interpretation | Research-lead-safe wording |
+| Benchmark | Authors' interpretation | What we can safely say |
 |---|---|---|
 | MoralBench | Reports different model leaders across MFQ/vignette agreement and comparison, framed as moral identity and alignment. | Small forced-choice sets measure agreement with human-derived labels. The paper reports no intervals and does not establish moral identity or deep understanding. |
 | UniMoral | Contextual cues improve performance; some languages perform better; psychological scenarios outperform Reddit; MTC/FAA remain difficult. | These are protocol-specific descriptive patterns. The paper lacks a no-context counterfactual and does not document tests behind several “significant” statements. |
@@ -61,7 +65,7 @@ The size and release-period charts in the results brief are local follow-up ques
 
 ## What this changes in Poster 1
 
-The four papers are separate measurement coordinates, not one interchangeable “competence” family:
+The four papers test different things. They should not be treated as one “competence” benchmark:
 
 - MoralBench: preference agreement and forced comparison;
 - UniMoral: annotator-label prediction and consequence similarity;
