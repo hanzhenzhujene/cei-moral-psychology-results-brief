@@ -277,7 +277,7 @@ function setNotes(slide, lines) {
   }, { fontSize: 15, color: C.muted });
   setNotes(slide, [
     "Each row shows the highest saved point estimate for that task among Claude Haiku 4.5, Claude Opus 4.8, GPT-5.4, GPT-5.4 mini, and Qwen3 8B.",
-    "Sources: data/results/common_roster_primary.csv; docs/RESULTS_READOUT.md section 1; docs/PAPER_REVIEW.md protocol comparison; evidence/canonical-audit/CLAIM_BOUNDARIES.md.",
+    "Sources: data/results/common_roster_primary.csv; docs/PAPER_REVIEW.md protocol comparison; evidence/canonical-audit/CLAIM_BOUNDARIES.md.",
     "The MFQ compare top value is shared by Claude Haiku 4.5 and Qwen3 8B. The vignette compare top value is shared by Claude Haiku 4.5 and GPT-5.4.",
     "The UniMoral action, typology, and factor rows match saved annotator-specific labels under no-persona prompts; the consequence row matches generated text to saved human references. None infers a person's stable moral identity.",
     "Values belong to different metrics. Agreement, accuracy, and text match stay separate and should not be averaged.",

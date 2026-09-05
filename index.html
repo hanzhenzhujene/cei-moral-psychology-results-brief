@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Research-lead visual readout of CEI moral psychology benchmark results, uncertainty, scaling patterns, and evidence limits.">
+  <meta name="description" content="Supporting evidence and audit details for the CEI moral psychology visual results.">
   <title>CEI Moral Psychology — Results Brief</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="assets/styles.css">
@@ -19,8 +19,8 @@
         <a href="#precision">Comparison tests</a>
         <a href="#scaling">Size &amp; release</a>
         <a href="#decisions">Decisions</a>
-        <a href="#evidence-summary">Evidence</a>
-        <a href="#posters">Poster appendix</a>
+        <a href="slides/">Slide gallery</a>
+        <a href="docs/PAPER_REVIEW.md">Papers</a>
       </nav>
     </div>
   </header>
@@ -29,12 +29,12 @@
     <section class="hero" id="top">
       <div class="wrap">
         <p class="eyebrow">Detailed evidence view · 4 September 2026</p>
-        <h1>What the benchmark results actually say</h1>
-        <p class="lede">Two findings are ready to use: the highest saved score changes by task, and both comparison tests leave the model order unclear. Selected bigger or later model versions do not score higher on every task. Treat those patterns as early clues, not a rule.</p>
+        <h1>What these results support</h1>
+        <p class="lede">The highest saved score changes by task. The two comparison tests do not resolve model order. Larger or later versions do not score higher on every task.</p>
 
         <div class="decision-banner">
           <strong>Decision</strong>
-          Publish each task result with its limits. Do not rank the models overall. For the short version, open the <a href="docs/ONE_MINUTE_READOUT.md">one-minute result</a> or <a href="slides/README.md">slide gallery</a>. This page keeps the detailed evidence and audit appendices.
+          Publish each task result with its limits. Do not rank the models overall. For the main results, open the <a href="slides/README.md">33-slide gallery</a>. This page contains supporting evidence and audit details.
         </div>
 
         <div class="stat-line" aria-label="Key status summary">
@@ -75,11 +75,7 @@
           <figcaption>Five models with primary results on all eight text tasks. Matched task blocks share scales; normalized preference, accuracy, and METEOR remain separate. “Current” here means tracked aggregate evidence, not raw replay or human validity. Click for full size.</figcaption>
         </figure>
 
-        <div class="answer-grid">
-          <div><strong>Result</strong><span>The highest saved score changes across the eight tasks.</span></div>
-          <div><strong>Implication</strong><span>Use task-specific results; do not publish one model leaderboard.</span></div>
-          <div><strong>Limit</strong><span>Intervals do not cover route drift, contamination, construct error, or human validity.</span></div>
-        </div>
+        <div class="decision-strip"><strong>Why it matters</strong><span>Use task-specific results. These ranges do not include every source of uncertainty or human review.</span></div>
         <div class="source-links">
           <a href="data/results/common_roster_primary.csv">40 plotted rows</a>
           <a href="evidence/canonical-audit/figures/data/primary_confidence_intervals.csv">All 78 primary rows</a>
@@ -104,11 +100,7 @@
           <figcaption>Both cards show one accuracy test. They report the share of model pairs whose saved marginal 95% ranges overlap; they are not paired model-difference tests.</figcaption>
         </figure>
 
-        <div class="answer-grid">
-          <div><strong>Result</strong><span>All 28 MFQ and all 45 vignette model-pair ranges overlap: 100% on both tests.</span></div>
-          <div><strong>Implication</strong><span>Restore every model's answer and score for each question. Check scoring and labels, then compare models directly. Ask people whether the test matches human judgment.</span></div>
-          <div><strong>Limit</strong><span>These are marginal ranges, not paired model-difference tests. Cluster-aware uncertainty is unavailable.</span></div>
-        </div>
+        <div class="decision-strip"><strong>Why it matters</strong><span>Check each question's answers and scores before comparing models directly. These ranges show each model separately, not direct model-to-model differences.</span></div>
         <div class="source-links"><a href="evidence/canonical-audit/figures/data/primary_confidence_intervals.csv">Primary intervals</a><a href="data/results/task_precision.csv">Supporting width table</a></div>
       </div>
     </section>
@@ -116,8 +108,8 @@
     <section class="section result-section" id="scaling">
       <div class="wrap">
         <p class="eyebrow">Research questions 3–4 · exploratory</p>
-        <h2>Size and release metadata are not shortcuts</h2>
-        <p class="section-intro">These views use a separate exploratory dataset with no saved uncertainty estimates or original run files. The main charts use the four UniMoral task families; the full six-task tables and every named-model path remain available as audit detail.</p>
+        <h2>Larger and later models do not score higher on every task</h2>
+        <p class="section-intro">These views use a separate exploratory dataset with no saved uncertainty estimates or resolvable raw run archives in this checkout. The main charts use the four UniMoral task families; the full six-task tables and every named-model path remain available as audit detail.</p>
 
         <div class="visual-stack">
           <article class="visual-card">
@@ -313,10 +305,13 @@
       </div>
     </section>
 
+    <details class="audit-details appendix-disclosure">
+      <summary>Open supporting evidence and audits</summary>
+
     <section class="section" id="evidence-summary">
       <div class="wrap">
         <p class="eyebrow">Release boundary</p>
-        <h2>Four facts keep the story honest</h2>
+        <h2>Evidence limits</h2>
         <p class="section-intro">Each statement below is tied to a distinct evidence layer. The layers must not be merged.</p>
 
         <table class="takeaway-table">
@@ -339,8 +334,8 @@
               <td data-label="Decision">Keep design lessons. Label every poster number as legacy and unverified until the packet is restored.</td>
             </tr>
             <tr>
-              <td data-label="Finding"><span class="plain-status status-context">Context only</span><br>The four papers are not direct numeric baselines.</td>
-              <td data-label="What it means">MoralBench and UniMoral are approximate matches. MoReBench and MoralLens local scores are proxies for different targets.</td>
+              <td data-label="Finding"><span class="plain-status status-context">Context only</span><br>The five papers are not direct numeric baselines.</td>
+              <td data-label="What it means">The local tests use different models, prompts, data, or scores. None is documented as an exact paper replication.</td>
               <td data-label="Decision">Compare methods and interpretations, not scores.</td>
             </tr>
             <tr>
@@ -427,7 +422,7 @@
     <section class="section" id="posters">
       <div class="wrap">
         <p class="eyebrow">Four-poster audit</p>
-        <h2>Keep the design. Quarantine the numbers.</h2>
+        <h2>Poster numbers remain unverified</h2>
         <p class="section-intro">The PDFs are real artifacts, but the evidence state they cite cannot be resolved in the current source history. “Poster-reported” below means visible in the PDF and internally checked where possible, not independently reproduced.</p>
 
         <div class="poster-list">
@@ -568,8 +563,8 @@
     <section class="section" id="papers">
       <div class="wrap">
         <p class="eyebrow">Poster 1 · relevant benchmarks</p>
-        <h2>Four papers, four different measurement targets</h2>
-        <p class="section-intro">All four primary papers were obtained and reviewed. The original onboarding table flattened their methods into misleading metric labels.</p>
+        <h2>Five papers, different measurement targets</h2>
+        <p class="section-intro">All five primary papers were reviewed. Their questions and scores remain separate from the CEI results.</p>
 
         <div class="table-wrap">
           <table class="paper-table">
@@ -584,32 +579,39 @@
             </thead>
             <tbody>
               <tr>
-                <td data-label="Paper"><a href="https://arxiv.org/pdf/2406.04428">MoralBench</a></td>
+                <td data-label="Paper"><a href="https://arxiv.org/pdf/2406.04428v2">MoralBench</a></td>
                 <td data-label="What the paper asks">Do model choices track human ratings, and can a model choose the statement people rated higher?</td>
                 <td data-label="What our current run can answer">Fresh agreement and forced-choice results, with saved intervals, under a different administration.</td>
                 <td data-label="Match" class="match approx">Approximate</td>
                 <td data-label="Research lead interpretation">Same task family, different scale and administration. Do not compare values numerically.</td>
               </tr>
               <tr>
-                <td data-label="Paper"><a href="https://aclanthology.org/2025.acl-long.294/">UniMoral</a></td>
+                <td data-label="Paper"><a href="https://aclanthology.org/2025.acl-long.294.pdf">UniMoral</a></td>
                 <td data-label="What the paper asks">Can a model predict actions, moral frameworks, influencing factors, and plausible consequences? Do cues change the result?</td>
                 <td data-label="What our current run can answer">No-cue label accuracy for three tasks and consequence METEOR. It cannot answer the cue question.</td>
                 <td data-label="Match" class="match approx">Approximate</td>
                 <td data-label="Research lead interpretation">The local run does not test the paper's cue effect, personalized prediction, or language ordering.</td>
               </tr>
               <tr>
-                <td data-label="Paper"><a href="https://arxiv.org/pdf/2510.16380">MoReBench</a></td>
+                <td data-label="Paper"><a href="https://arxiv.org/pdf/2510.16380v2">MoReBench</a></td>
                 <td data-label="What the paper asks">Does the reasoning process cover expert-defined considerations, trade-offs, logic, and outcomes?</td>
                 <td data-label="What our current run can answer">Only whether four generic reasoning-word groups appear.</td>
                 <td data-label="Match" class="match proxy">Proxy only</td>
                 <td data-label="Research lead interpretation">Local values detect generic reasoning words. They are not MoReBench scores.</td>
               </tr>
               <tr>
-                <td data-label="Paper"><a href="https://aclanthology.org/2025.emnlp-main.1563/">MoralLens</a></td>
+                <td data-label="Paper"><a href="https://aclanthology.org/2025.emnlp-main.1563.pdf">MoralLens</a></td>
                 <td data-label="What the paper asks">Which rationales appear, and do they change when reasoning comes before versus after the decision?</td>
                 <td data-label="What our current run can answer">Only keyword detectability and a binary expected-direction check.</td>
                 <td data-label="Match" class="match proxy">Proxy only</td>
                 <td data-label="Research lead interpretation">The local adapter cannot establish an ethical theory or reproduce the paper's order effect.</td>
+              </tr>
+              <tr>
+                <td data-label="Paper"><a href="https://arxiv.org/pdf/2309.00779v2">Value Kaleidoscope</a></td>
+                <td data-label="What the paper asks">How do value relevance, valence, generation, and explanation change with Kaleido model size?</td>
+                <td data-label="What our current run can answer">Related ValuePrism relevance and valence tasks with different models and scoring.</td>
+                <td data-label="Match" class="match approx">Approximate</td>
+                <td data-label="Research lead interpretation">Use the paper for method context, not as a direct score baseline.</td>
               </tr>
             </tbody>
           </table>
@@ -617,7 +619,7 @@
 
         <div class="decision-banner">
           <strong>Shared implication</strong>
-          These benchmarks describe different coordinates: preference agreement, label prediction, procedural rubric fulfillment, and rationale classification. They must remain separate panels, not one “moral competence” score.
+          These benchmarks measure different things. Keep them in separate panels, not one “moral competence” score.
         </div>
 
         <div class="source-links">
@@ -630,10 +632,9 @@
     <section class="section" id="appendix">
       <div class="wrap">
         <p class="eyebrow">Evidence appendix</p>
-        <h2>Everything needed for handoff</h2>
+        <h2>Supporting files</h2>
         <div class="appendix-links">
-          <a href="docs/RESULTS_READOUT.md"><strong>Results readout</strong><span>Question, result, implication, and limit for every chart</span></a>
-          <a href="docs/RESEARCH_LEAD_BRIEF.md"><strong>Research lead brief</strong><span>Decision, findings, and next action</span></a>
+          <a href="slides/"><strong>Visual results</strong><span>Complete 33-slide gallery, PDF, and PowerPoint</span></a>
           <a href="data/results/research_question_takeaways.csv"><strong>Research-question table</strong><span>Machine-readable answers and evidence status</span></a>
           <a href="docs/ONBOARDING_AUDIT.md"><strong>Onboarding audit</strong><span>Completion matrix and stale-page corrections</span></a>
           <a href="docs/POSTER_AUDIT.md"><strong>Poster claim audit</strong><span>Result-by-result evidence review</span></a>
@@ -646,11 +647,12 @@
         </div>
       </div>
     </section>
+    </details>
   </main>
 
   <footer>
     <div class="wrap">
-      Prepared from a currently clean pinned analysis checkout and user-provided documents. Original run provenance is different: 63 of 78 primary cells record a dirty run state and 15 are blank. No model evaluation or paid provider call was run. Absence means “not reproducible from this checkout,” not “never existed.”
+      Built from saved results and checked source files. Missing evidence is described as not reproducible from this checkout, not as never existing.
     </div>
   </footer>
 </body>

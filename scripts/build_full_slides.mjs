@@ -343,7 +343,7 @@ await addCoreSlide(6, "Later Qwen and DeepSeek releases move UniMoral tasks in d
   }, { fontSize: 19, bold: true, color: C.ink, alignment: "center" });
   setNotes(slide, [
     "Sources: data/paper_protocol_map.csv; data/paper_visual_results.csv; evidence/canonical-audit/PAPER_REPO_EVIDENCE_LEDGER.csv; docs/PAPER_REVIEW.md.",
-    "The five papers are MoralBench, UniMoral, MoReBench, MoralLens, and Value Kaleidoscope / ValuePrism.",
+    "The five papers are MoralBench, UniMoral, MoReBench, MoralLens, and Value Kaleidoscope. ValuePrism is the related CEI benchmark.",
     "No exact local result replication is documented for any of the five. Evidence classes and missing identity fields differ by paper.",
     "The 37-row 0/17/4/16 crosswalk on slide 26 covers UniMoral and ValuePrism only; it is not a five-paper status count.",
   ]);
@@ -511,7 +511,7 @@ await addEvidenceImageSlide({
 });
 
 await addEvidenceImageSlide({
-  title: "UniMoral and ValuePrism size: 3 of 5 comparisons change direction",
+  title: "UniMoral + ValuePrism: 3 of 5 size paths change direction",
   subtitle: "Exploratory CEI result. x = published size category, ordered only; y = named metric; labels = model + B.",
   sourcePath: "assets/results/03_size_consequence_relevance_detail.png",
   alt: "Detailed size paths for UniMoral consequence METEOR and ValuePrism relevance accuracy.",
@@ -1054,7 +1054,7 @@ await addEvidenceImageSlide({
     left: 90, top: 658, width: 1100, height: 30,
   }, { fontSize: 18, bold: true, color: C.coral, alignment: "center" });
   setNotes(slide, [
-    "Source: Value Kaleidoscope / ValuePrism paper, Table 13; data/paper_visual_results.csv.",
+    "Source: Value Kaleidoscope paper, Table 13; data/paper_visual_results.csv.",
     "Relevance and valence are accuracy. Generation and explanation are perplexity where lower is better. They remain separate panels.",
     "The paper reports no confidence intervals or pre-defined saturation threshold; the claim is descriptive, not 'saturation'.",
     "The local ValuePrism route uses different models and protocols. Paper and local scores must not share a comparison axis.",
@@ -1117,50 +1117,7 @@ await addEvidenceImageSlide({
   }, { fontSize: 13, color: C.muted, alignment: "center" });
 }
 
-// Slide 27: readable action order.
-{
-  const slide = presentation.slides.add();
-  addSlideFrame(
-    slide,
-    "Next: check the current evidence before buying more model runs",
-    "Research priority, not a model result. Read from top to bottom.",
-    null,
-  );
-  const actions = [
-    ["Review 12 cases where parsing may be wrong", "no new model runs", C.teal],
-    ["Check duplicate labels and verify scores using the paper's method", "no new model runs", C.teal],
-    ["Run human validation", "human study", "#C878A7"],
-    ["Add MoralBench comparison items", "new items + reruns", C.blue],
-    ["Rerun 14 answers that hit the length limit, using one fixed limit", "targeted runs", C.gold],
-    ["Complete 30 image and text results only if needed", "high cost", "#9AA2AA"],
-    ["Repeat Kaleido and UniMoral paper conditions only if we plan a replication claim", "model access + scoring", "#D65A00"],
-  ];
-  actions.forEach(([action, cost, color], index) => {
-    const top = 164 + index * 66;
-    addText(slide, String(index + 1), { left: 84, top: top + 1, width: 42, height: 34 }, {
-      fontSize: 22,
-      bold: true,
-      color,
-      alignment: "center",
-    });
-    addText(slide, action, { left: 145, top, width: 785, height: 34 }, {
-      fontSize: 18,
-      bold: true,
-    });
-    addText(slide, cost, { left: 960, top: top + 1, width: 235, height: 32 }, {
-      fontSize: 16,
-      bold: true,
-      color,
-      alignment: "right",
-    });
-    if (index < actions.length - 1) addRule(slide, 145, top + 49, 1050, C.grid, 1);
-  });
-  addText(slide, "Run paid models only after these checks.", {
-    left: 145, top: 646, width: 1050, height: 30,
-  }, { fontSize: 18, bold: true, color: C.coral });
-}
-
-// Slides 28-32: zoomed panels keep every model and B label legible at presentation size.
+// Slides 27-31: zoomed panels keep every model and B label legible at presentation size.
 await addEvidenceImageSlide({
   title: "UniMoral: different models have the highest saved score",
   subtitle: "CEI local result. x = model; y = task score; dot = score; line = saved 95% range.",
@@ -1225,6 +1182,49 @@ await addEvidenceImageSlide({
   cropTop: 0.12,
   cropBottom: 0.08,
 });
+
+// Slide 32: readable action order after the evidence appendix.
+{
+  const slide = presentation.slides.add();
+  addSlideFrame(
+    slide,
+    "Next: check the current evidence before buying more model runs",
+    "Research priority, not a model result. Read from top to bottom.",
+    null,
+  );
+  const actions = [
+    ["Review 12 cases where parsing may be wrong", "no new model runs", C.teal],
+    ["Check duplicate labels and verify scores using the paper's method", "no new model runs", C.teal],
+    ["Run human validation", "human study", "#C878A7"],
+    ["Add MoralBench comparison items", "new items + reruns", C.blue],
+    ["Rerun 14 answers that hit the length limit, using one fixed limit", "targeted runs", C.gold],
+    ["Complete 30 image and text results only if needed", "high cost", "#9AA2AA"],
+    ["Repeat Kaleido and UniMoral paper conditions only if we plan a replication claim", "model access + scoring", "#D65A00"],
+  ];
+  actions.forEach(([action, cost, color], index) => {
+    const top = 164 + index * 66;
+    addText(slide, String(index + 1), { left: 84, top: top + 1, width: 42, height: 34 }, {
+      fontSize: 22,
+      bold: true,
+      color,
+      alignment: "center",
+    });
+    addText(slide, action, { left: 145, top, width: 785, height: 34 }, {
+      fontSize: 18,
+      bold: true,
+    });
+    addText(slide, cost, { left: 960, top: top + 1, width: 235, height: 32 }, {
+      fontSize: 16,
+      bold: true,
+      color,
+      alignment: "right",
+    });
+    if (index < actions.length - 1) addRule(slide, 145, top + 49, 1050, C.grid, 1);
+  });
+  addText(slide, "Run paid models only after these checks.", {
+    left: 145, top: 646, width: 1050, height: 30,
+  }, { fontSize: 18, bold: true, color: C.coral });
+}
 
 await addCoreSlide(8, "MoralBench and UniMoral: what we can report now.");
 

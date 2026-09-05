@@ -4,7 +4,7 @@ Verified on 3 September 2026 for the results-first release.
 
 The research-lead slide deck was added and verified on 4 September 2026.
 
-Technical checks passed: the published files, charts, and slides match the saved evidence. Start with the [one-minute readout](ONE_MINUTE_READOUT.md) or the [slide gallery](../slides/README.md). This does not prove that the original runs can be repeated or that people agree the test measures moral judgment. Next, restore the original run files and complete human review.
+Technical checks passed: the published files, charts, and slides match the saved evidence. Start with the [slide gallery](../slides/README.md). This does not prove that the original runs can be repeated or that people agree the test measures moral judgment. Next, restore the original run files and complete human review.
 
 ## Result lineage
 
@@ -58,7 +58,7 @@ Its report confirmed 31 manifested artifacts, 42 links, the `78/26/9/30` partiti
 
 | Surface | Outcome |
 |---|---|
-| Local references | 60 HTML and 104 Markdown references resolve |
+| Local references | 60 HTML and 82 Markdown references resolve |
 | Images | 8 of 8 `<img>` elements have alt text and correct intrinsic dimensions. The two headline charts also have dedicated, dimensioned mobile `<source>` images |
 | Desktop | Chrome/Playwright passed at `1440 × 1000`: the size and release charts select their desktop sources and render at `1084 px` wide; the page has no horizontal overflow; both audit tables start closed; all 30 cells fit when opened; the console is clean |
 | Mobile | Chrome/Playwright passed at `390 × 844`: the charts select dedicated portrait sources and render at `316 × 570` and `316 × 728`; the page has no horizontal overflow; all 30 audit cells fit when opened; the console is clean |

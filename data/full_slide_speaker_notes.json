@@ -13,7 +13,7 @@
     "read": "Each row is one task. The last column names the highest saved score. Check the score type in that row.",
     "meaning": "No model has the highest saved score on all eight tasks. The top model changes with the task.",
     "limit": "The rows use different measures. Do not combine agreement, accuracy, and text match into one score.",
-    "sources": "data/results/common_roster_primary.csv, docs/RESULTS_READOUT.md"
+    "sources": "data/results/common_roster_primary.csv, evidence/canonical-audit/CLAIM_BOUNDARIES.md"
   },
   {
     "slide": 3,
@@ -209,14 +209,6 @@
   },
   {
     "slide": 27,
-    "context": "This is a CEI research priority, not a model result. It asks which work would reduce the most uncertainty.",
-    "read": "Read from top to bottom.",
-    "meaning": "Review parsing, labels, and scoring first. Then add human review before broad new runs.",
-    "limit": "This order is our research judgment. Run paid models only after these checks.",
-    "sources": "evidence/canonical-audit/figures/05_evidence_acquisition_priority.png, evidence/canonical-audit/RERUN_PRIORITY.md"
-  },
-  {
-    "slide": 28,
     "context": "These are CEI UniMoral results for the same five models on four tasks.",
     "read": "Each panel has its own score. A dot is a saved score. A line is its saved 95% range.",
     "meaning": "The highest saved score belongs to different models on different UniMoral tasks.",
@@ -224,7 +216,7 @@
     "sources": "assets/results/01_common_roster_task_results.png, data/results/common_roster_primary.csv"
   },
   {
-    "slide": 29,
+    "slide": 28,
     "context": "These are exploratory CEI UniMoral factor results for Qwen, Gemma, and Llama at three model sizes.",
     "read": "Move left to right within one family. Each point names the model and its published size.",
     "meaning": "Gemma rises at both size steps. Qwen and Llama change direction across the three saved sizes.",
@@ -232,7 +224,7 @@
     "sources": "assets/results/03_size_factor_detail.png, data/results/size_task_points.csv"
   },
   {
-    "slide": 30,
+    "slide": 29,
     "context": "These are exploratory CEI ValuePrism valence results across saved Llama model sizes.",
     "read": "Move left to right along the Llama line. Each point names the model and its published size.",
     "meaning": "The complete Llama path falls from 3B to 8B, then rises at 70B.",
@@ -240,7 +232,7 @@
     "sources": "assets/results/03_size_valence_detail.png, data/results/size_task_points.csv"
   },
   {
-    "slide": 31,
+    "slide": 30,
     "context": "These are exploratory CEI UniMoral factor results across saved Qwen and DeepSeek release quarters.",
     "read": "Move left to right within one family. Each point names the model and its published size.",
     "meaning": "From first to last, DeepSeek is lower by .038. Qwen changes by only .002.",
@@ -248,12 +240,20 @@
     "sources": "assets/results/04_release_factor_detail.png, data/results/release_period_task_points.csv"
   },
   {
-    "slide": 32,
+    "slide": 31,
     "context": "These are exploratory CEI ValuePrism valence results across saved Qwen and DeepSeek release quarters.",
     "read": "Move left to right within one family. Each point names the model and its published size.",
     "meaning": "From first to last, Qwen is higher by .187 and DeepSeek is lower by .062.",
     "limit": "Release quarter is model metadata, not test time. It does not explain the score change. CEI ValuePrism is not the paper test. The available files have no saved uncertainty ranges or raw run archive.",
     "sources": "assets/results/04_release_valence_detail.png, data/results/release_period_task_points.csv"
+  },
+  {
+    "slide": 32,
+    "context": "This is a CEI research priority, not a model result. It asks which work would reduce the most uncertainty.",
+    "read": "Read from top to bottom.",
+    "meaning": "Review parsing, labels, and scoring first. Then add human review before broad new runs.",
+    "limit": "This order is our research judgment. Run paid models only after these checks.",
+    "sources": "evidence/canonical-audit/figures/05_evidence_acquisition_priority.png, evidence/canonical-audit/RERUN_PRIORITY.md"
   },
   {
     "slide": 33,

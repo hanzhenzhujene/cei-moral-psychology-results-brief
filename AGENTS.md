@@ -9,7 +9,7 @@ Maintain a readable research-lead results brief without overstating what the cur
 Before changing the site or any conclusion, read:
 
 1. `README.md`
-2. `docs/RESULTS_READOUT.md`
+2. `slides/README.md`
 3. `docs/RESEARCH_LEAD_BRIEF.md`
 4. `evidence/canonical-audit/CLAIM_BOUNDARIES.md`
 5. `evidence/canonical-audit/TECHNICAL_AUDIT.md`

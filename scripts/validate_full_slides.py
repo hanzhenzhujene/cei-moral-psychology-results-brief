@@ -290,11 +290,12 @@ def validate_pptx(expected_speaker_notes: list[dict[str, object]]) -> str:
                 24: ["MoralLens paper: reasoning first shifts reasons and choices", "Reason score: .230 to .052", "Larger-group choices: .641 to .792", "toward duty-based reasons", "larger-group rate is not moral quality", "CEI keyword check cannot repeat this test"],
                 25: ["Value Kaleidoscope paper: most gains occur before 3B", "Paper question:", "CEI ValuePrism uses different models and tests", "Relevance compares a GPT-4 example for this situation with one from another", "Supports / Opposes / Either", "Not human judgments", "Size labels are evenly spaced, not numeric distance", "3B to 11B"],
                 26: ["CEI has 0 exact repeats of UniMoral or Value Kaleidoscope", "Across 37 paper-to-CEI comparison rows", "17 are related but different", "4 are indirect", "16 cannot be compared", "13 UniMoral rows + 24 ValuePrism rows"],
-                28: ["UniMoral: different models have the highest saved score", "x = model", "dot = score", "saved 95% range"],
-                29: ["UniMoral factor size: Gemma rises", "Qwen and Llama reverse", "published size category, ordered only", "labels = model + B"],
-                30: ["ValuePrism valence size: Llama falls, then rises", "published size category, ordered only", "labels = model + B", "available files"],
-                31: ["UniMoral factor releases: DeepSeek falls .038", "Qwen changes .002", "model release quarter", "metadata, not test time", "labels = model + B"],
-                32: ["ValuePrism valence releases: Qwen +.187", "DeepSeek -.062", "model release quarter", "metadata, not test time", "labels = model + B", "available files"],
+                27: ["UniMoral: different models have the highest saved score", "x = model", "dot = score", "saved 95% range"],
+                28: ["UniMoral factor size: Gemma rises", "Qwen and Llama reverse", "published size category, ordered only", "labels = model + B"],
+                29: ["ValuePrism valence size: Llama falls, then rises", "published size category, ordered only", "labels = model + B", "available files"],
+                30: ["UniMoral factor releases: DeepSeek falls .038", "Qwen changes .002", "model release quarter", "metadata, not test time", "labels = model + B"],
+                31: ["ValuePrism valence releases: Qwen +.187", "DeepSeek -.062", "model release quarter", "metadata, not test time", "labels = model + B", "available files"],
+                32: ["Next: check the current evidence before buying more model runs", "Review 12 cases", "Run human validation", "Run paid models only after these checks"],
             }
             for slide_number, phrases in required_slide_text.items():
                 combined = slide_text(archive, slide_number) + "\n" + slide_text_from_notes(archive, slide_number)
@@ -379,7 +380,7 @@ def manifest_rows(pptx_hash: str) -> list[dict[str, str | int]]:
 def write_manifest(pptx_hash: str) -> None:
     fieldnames = ["path", "kind", "bytes", "sha256", "width_px", "height_px", "pages", "source_pptx_sha256"]
     with MANIFEST.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(manifest_rows(pptx_hash))
 

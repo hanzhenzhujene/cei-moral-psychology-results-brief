@@ -536,6 +536,15 @@ h3 {
   font-weight: 720;
 }
 
+.appendix-disclosure > summary {
+  max-width: var(--content-width);
+  margin: 2rem auto;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
 .exact-table[open] summary {
   margin-bottom: 0.9rem;
 }

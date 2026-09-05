@@ -41,7 +41,7 @@ Restore the question-level answers and scores, check scoring and labels, and com
 | Canonical audit | 84 valid, 19 review, 39 invalid, 1 missing | 78 primary, 26 sensitivity, 9 multimodal extension, 30 excluded | Replace the stale categories rather than mapping them cell by cell. |
 | Benchmark results | Appeared incomplete in the earlier review | Substantial aggregate and some sample-level evidence exists under `results/` | Use the current aggregate result layer; name the raw archives that remain absent. |
 | Poster completion | Rendered visuals appeared as open tasks | The PDFs exist, but their original run files do not | Separate visual completion from numerical verification. |
-| Relevant papers | Titles and simplified metrics only | Four primary papers reviewed; no exact replication | Compare methods and interpretations, not scores. |
+| Relevant papers | Titles and simplified metrics only | Five primary papers reviewed; no exact replication | Compare methods and interpretations, not scores. |
 
 ## Poster appendix decision
 

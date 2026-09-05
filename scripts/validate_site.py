@@ -1195,7 +1195,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
                 "UniMoral": {"approximate", "unavailable"},
                 "MoReBench": {"approximate", "proxy_only", "unavailable"},
                 "MoralLens": {"approximate", "proxy_only"},
-                "Value Kaleidoscope / ValuePrism": {"approximate", "unavailable"},
+                "Value Kaleidoscope paper / CEI ValuePrism": {"approximate", "unavailable"},
             },
             "paper evidence composition drift",
         )
@@ -1412,12 +1412,14 @@ def validate_site_and_links() -> None:
         all(cell.select_one(".matrix-cell-family") and cell.select_one(".matrix-cell-meta") for cell in soup.select('table[data-matrix="release"] td.matrix-cell')),
         "responsive release cells must retain family, model, period, and B context",
     )
-    check(len(soup.select("details.audit-details")) == 4, "size and release exact tables and path figures must be collapsed by default")
-    detail_links = [link for link in soup.select("details.audit-details a") if "_detail_" in str(link.get("href", ""))]
+    check(len(soup.select("details.audit-details:not(.appendix-disclosure)")) == 4, "size and release exact tables and path figures must be collapsed by default")
+    check(len(soup.select("details.appendix-disclosure:not([open])")) == 1, "supporting audits must be collapsed by default")
+    detail_links = [link for link in soup.select("details.audit-details:not(.appendix-disclosure) a") if "_detail_" in str(link.get("href", ""))]
     check(len(detail_links) == 4, "expected four split landscape audit-detail links")
     check("labeled-point-chart" not in html, "dense point-label composites must not remain inline")
     check(html.index('id="decisions"') < html.index('id="posters"'), "decision surface must precede poster appendix")
-    check('href="#evidence-summary"' in html, "navigation must target the release-boundary evidence section")
+    check('href="slides/"' in html, "navigation must link to the canonical slide gallery")
+    check(len(soup.select("#papers table.paper-table tbody tr")) == 5, "paper table must contain all five reviewed papers")
 
     markdown_links = 0
     markdown_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
@@ -1752,7 +1754,6 @@ def validate_language_and_hygiene() -> None:
         ROOT / "README.md",
         ROOT / "index.html",
         ROOT / "docs" / "ONE_MINUTE_READOUT.md",
-        ROOT / "docs" / "RESULTS_READOUT.md",
         ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md",
         ROOT / "docs" / "VERIFICATION.md",
     ]
@@ -1771,7 +1772,33 @@ def validate_language_and_hygiene() -> None:
     for phrase, description in forbidden_claims.items():
         check(phrase.lower() not in combined.lower(), f"authored surface contains {description}: {phrase!r}")
     check(CANONICAL_SHA in (ROOT / "README.md").read_text(), "README lacks the resolvable canonical SHA")
-    check("malformed 41-character" in (ROOT / "README.md").read_text(), "README does not explain the upstream malformed SHA")
+    check("malformed 41-character" in (CANONICAL / "TECHNICAL_AUDIT.md").read_text(), "technical audit does not explain the upstream malformed SHA")
+    check(not (ROOT / "docs" / "RESULTS_READOUT.md").exists(), "retired results readout still exists")
+    public_entry_paths = [ROOT / "README.md", ROOT / "slides" / "README.md", ROOT / "index.html", ROOT / "AGENTS.md"]
+    public_entry_text = "\n".join(path.read_text(errors="replace") for path in public_entry_paths)
+    check("RESULTS_READOUT" not in public_entry_text, "public reader path still references the retired results readout")
+    reader_entry_text = "\n".join(path.read_text(errors="replace") for path in public_entry_paths[:3])
+    check("ONE_MINUTE_READOUT" not in reader_entry_text and "RESEARCH_LEAD_BRIEF" not in reader_entry_text, "reader entry points must use the 33-slide gallery as the single main result surface")
+    slide_gallery_text = (ROOT / "slides" / "README.md").read_text()
+    slide_alt_numbers = {
+        int(number)
+        for number in re.findall(r"!\[Slide (\d+): [^\]]+\]\(full-rendered/slide-\d{2}\.png\)", slide_gallery_text)
+    }
+    check(slide_alt_numbers == set(range(1, 34)), "all 33 gallery images must have claim-based alt text")
+    paper_pdf_urls = {
+        "https://arxiv.org/pdf/2406.04428v2",
+        "https://aclanthology.org/2025.acl-long.294.pdf",
+        "https://arxiv.org/pdf/2510.16380v2",
+        "https://aclanthology.org/2025.emnlp-main.1563.pdf",
+        "https://arxiv.org/pdf/2309.00779v2",
+    }
+    for path in [ROOT / "README.md", ROOT / "slides" / "README.md", ROOT / "index.html"]:
+        text = path.read_text(errors="replace")
+        check(paper_pdf_urls <= set(re.findall(r"https://[^\s)\"<>]+", text)), f"{path.relative_to(ROOT)} lacks one or more reviewed-paper PDF links")
+    slides_readme = (ROOT / "slides" / "README.md").read_text(errors="replace")
+    gallery_slides = set(re.findall(r"full-rendered/slide-(\d{2})\.png", slides_readme))
+    check(gallery_slides == {f"{number:02d}" for number in range(1, 34)}, "slides gallery must link every full-deck render exactly by slide number")
+    check("Core executive deck" not in slides_readme, "slides gallery still duplicates the eight-slide core deck")
 
     text_suffixes = {
         ".md", ".html", ".css", ".py", ".mjs", ".js", ".cjs", ".ts",
