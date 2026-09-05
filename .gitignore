@@ -6,6 +6,7 @@ __pycache__/
 .pytest_cache/
 tmp/
 .codex-slides-build/
+.codex-full-slides-build/
 .codex-slide-release-*/
 .codex-result-visuals.lock
 .chart-data-*/

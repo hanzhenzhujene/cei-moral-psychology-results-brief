@@ -151,10 +151,17 @@ def validate_generated_result_manifest() -> None:
         "03_size_paths_mobile",
         "03_size_paths_detail_a",
         "03_size_paths_detail_b",
+        "03_size_action_typology_detail",
+        "03_size_consequence_relevance_detail",
+        "03_size_factor_detail",
+        "03_size_valence_detail",
         "04_release_period_paths",
         "04_release_period_paths_mobile",
         "04_release_period_paths_detail_a",
         "04_release_period_paths_detail_b",
+        "04_release_action_typology_detail",
+        "04_release_factor_detail",
+        "04_release_valence_detail",
     }
     table_names = {
         "common_roster_primary.csv",
@@ -172,7 +179,7 @@ def validate_generated_result_manifest() -> None:
         list(manifest.columns) == ["path", "sha256", "bytes", "builder_sha256", "requirements_sha256"],
         "generated-result manifest schema drift",
     )
-    check(len(manifest) == 27 and manifest["path"].is_unique, "generated-result manifest must contain 27 unique paths")
+    check(len(manifest) == 41 and manifest["path"].is_unique, "generated-result manifest must contain 41 unique paths")
     check(set(manifest["path"]) == expected, "generated-result manifest path set drift")
     check(
         set(manifest["builder_sha256"]) == {sha256(ROOT / "scripts" / "build_result_visuals.py")},
@@ -187,7 +194,7 @@ def validate_generated_result_manifest() -> None:
         check(path.is_file(), f"missing manifested result file: {row.path}")
         check(path.stat().st_size == int(row.bytes), f"manifested result size drift: {row.path}")
         check(sha256(path) == row.sha256, f"manifested result hash drift: {row.path}")
-    passed("generated results: 27 figure/table files match the builder- and requirements-bound release manifest")
+    passed("generated results: 41 figure/table files match the builder- and requirements-bound release manifest")
 
 
 def within_root(path: Path) -> bool:
@@ -1072,7 +1079,7 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         check(slide_tables(slide_roots[2])[0] == expected_leaders, "slide 2 leader table does not recompute from the common roster")
         slide_2_text = " ".join(node.text or "" for node in slide_roots[2].iter(f"{A_NS}t"))
         check(
-            "Marginal ranges overlap on both comparison tasks; paired question results are unavailable" in slide_2_text,
+            "Every 95% range overlaps on both MoralBench comparison tasks. The apparent leaders are unresolved." in slide_2_text,
             "slide 2 hides the marginal/non-paired comparison boundary",
         )
 
@@ -1088,20 +1095,18 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         check(overlap_results == [("MFQ compare", 28, 28), ("Vignette compare", 45, 45)], f"slide 3 overlap-card data drift: {overlap_results}")
         slide_3_text = " ".join(node.text or "" for node in slide_roots[3].iter(f"{A_NS}t"))
         for phrase in (
-            "Saved ranges overlap for every model pair on both tests",
-            "MFQ = 8 models × 20 questions",
-            "Vignette = 10 × 24",
-            "Each card = share of model pairs whose saved marginal 95% ranges overlap",
-            "MFQ compare",
-            "28 of 28 model pairs",
-            "Vignette compare",
-            "45 of 45 model pairs",
-            "100% of model pairs overlap on both tests. This does not resolve a leader",
-            "not paired model-difference tests",
-            "Question-level results are unavailable",
-            "cluster-aware uncertainty is unavailable",
-            "restore every model's answer and score for each question",
-            "Check scoring and labels. Then compare models and have people review the test",
+            "MoralBench: each pair of models has overlapping 95% score ranges",
+            "CEI local result",
+            "MFQ uses 8 models and 20 questions",
+            "Vignettes use 10 models and 24 questions",
+            "MFQ value statements",
+            "28 / 28",
+            "Moral vignettes",
+            "45 / 45",
+            "model pairs have overlapping 95% score ranges",
+            "These saved results do not separate a leader",
+            "not a direct model-pair test",
+            "Question-level scores and stronger uncertainty estimates are unavailable",
         ):
             check(phrase in slide_3_text, f"slide 3 hides the full-primary denominator or claim boundary: {phrase}")
 
@@ -1133,8 +1138,10 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             })
         check_chart_equal(chart_series[5], gemma_expected, "slide 5 Gemma chart")
         slide_5_text = " ".join(node.text or "" for node in slide_roots[5].iter(f"{A_NS}t"))
+        check("factor accuracy +.034" in slide_5_text, "slide 5 must round the exact Gemma factor change to +.034")
+        check("factor accuracy +.035" not in slide_5_text, "slide 5 retains the incorrect +.035 Gemma factor change")
         check(
-            "Its uncertainty range and raw run archive are unavailable." in slide_5_text,
+            "No uncertainty range or raw run archive is available." in slide_5_text,
             "slide 5 overstates the missing selected-grid run evidence",
         )
 
@@ -1161,18 +1168,18 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
 
         consequence_callout = (
             "Separate metric · Consequence text match (METEOR): "
-            f"Qwen {slide_signed(float(consequence_rows.loc['Qwen', 'endpoint_delta']))}; "
+            f"Qwen {slide_signed(float(consequence_rows.loc['Qwen', 'endpoint_delta']))} · "
             f"DeepSeek {slide_signed(float(consequence_rows.loc['DeepSeek', 'endpoint_delta']))}"
         )
         for phrase in (
-            "2024-Q3 · Qwen2.5 7B Instruct (7.61B) → 2026-Q1 · Qwen3.5 9B (9B)",
-            "2025-Q1 · V3-0324 (671B main, 37B active) → 2026-Q2 · V4 Flash (284B main, 13B active)",
-            "main = published main-model parameters (auxiliary/MTP excluded); active = parameters used per token",
-            "Across all four tasks: Qwen 3 higher / 1 lower · DeepSeek 2 higher / 2 lower",
+            "Qwen: Qwen2.5 7B Instruct · 2024-09-19 · 7.61B total to Qwen3.5 9B · 2026-02-27 · 9B total",
+            "DeepSeek: V3-0324 · 2025-03-24 · 671B main / 37B active to V4 Flash · 2026-04-22 · 284B main / 13B active",
+            "DeepSeek labels show published main-model B and active B used per token",
+            "Across all 4 tasks: Qwen is higher on 3 and lower on 1. DeepSeek is higher on 2 and lower on 2",
             consequence_callout,
-            "28–29 May 2026",
-            "saved uncertainty is unavailable",
-            "METEOR stays separate from accuracy",
+            "All scores were tested 28–29 May 2026",
+            "Release date describes the model, not the test date",
+            "No uncertainty ranges were saved",
         ):
             check(phrase in slide_6_text, f"slide 6 lacks required endpoint, date, or metric text: {phrase}")
 
@@ -1188,19 +1195,21 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
                 "UniMoral": {"approximate", "unavailable"},
                 "MoReBench": {"approximate", "proxy_only", "unavailable"},
                 "MoralLens": {"approximate", "proxy_only"},
+                "Value Kaleidoscope / ValuePrism": {"approximate", "unavailable"},
             },
             "paper evidence composition drift",
         )
         expected_paper_table = [
-            ["Paper", "Plain-language question", "How close is our test?"],
-            ["MoralBench", "Do model choices match human ratings?", "Similar question"],
-            ["UniMoral", "Can models predict choices, moral categories, influences, and what happens next?", "Some similar tasks"],
-            ["MoReBench", "Does reasoning cover expert criteria?", "Related question, different test"],
-            ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Related question, different test"],
+            ["Paper", "What it asks", "Closest local evidence"],
+            ["MoralBench", "Do model choices match human ratings?", "Related tasks, different setup"],
+            ["UniMoral", "Can models predict actions, types, factors, and consequences?", "Narrower versions of four tasks"],
+            ["MoReBench", "Does reasoning meet expert criteria?", "Keyword check only"],
+            ["MoralLens", "Does reasoning order change reasons and choices?", "Keyword check only"],
+            ["Value Kaleidoscope", "How do value tasks change with model size?", "Different models and scoring"],
         ]
         check(slide_tables(slide_roots[7])[0] == expected_paper_table, "slide 7 paper question and local-fit table drift")
         slide_7_text = " ".join(node.text or "" for node in slide_roots[7].iter(f"{A_NS}t"))
-        check("0of4papersrepeatedexactly" in re.sub(r"\s+", "", slide_7_text), "slide 7 no longer states that zero of four reviewed papers were repeated exactly")
+        check("None of the five is reproduced exactly" in slide_7_text, "slide 7 no longer states that none of the five papers is reproduced exactly")
 
         brief_text = (ROOT / "docs" / "RESEARCH_LEAD_BRIEF.md").read_text().lower()
         priority_text = (ROOT / "evidence" / "canonical-audit" / "RERUN_PRIORITY.md").read_text().lower()
@@ -1220,9 +1229,8 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
         ]
         check(slide_tables(slide_roots[8])[0] == expected_action_table, "slide 8 decision order drift")
         slide_8_text = " ".join(node.text or "" for node in slide_roots[8].iter(f"{A_NS}t"))
-        check("Best research next move" in slide_8_text, "slide 8 no longer distinguishes the research next move from the communication action")
         check(
-            "Restore answers and scores. Check scoring and labels. Compare models. Then have people review the test." in slide_8_text,
+            "Next: restore answers and scores, check scoring, compare models, and get human review." in slide_8_text,
             "slide 8 bottom line drops or reorders a research step",
         )
 
@@ -1244,10 +1252,10 @@ def validate_slide_deck(slide_deck: Path = SLIDE_DECK) -> None:
             2: "Values belong to different metrics",
             3: "not a paired model-difference test",
             4: "Accuracy and METEOR stay separate",
-            5: "No saved intervals or raw-log replay",
-            6: "Consequence uses METEOR and is not mixed into this accuracy chart",
-            7: "They are not direct score baselines",
-            8: "Benchmark agreement is not human validity",
+            5: "No saved uncertainty ranges or raw run archive",
+            6: "Consequence uses a separate text-match score",
+            7: "Paper scores and CEI scores should stay separate",
+            8: "Benchmark agreement does not prove that the test matches human judgment",
         }
         for slide_number, phrase in required_caveats.items():
             check(phrase.lower() in combined_by_slide[slide_number].lower(), f"slide {slide_number} evidence boundary drift: {phrase}")
@@ -1271,7 +1279,7 @@ def validate_legacy_firewalls() -> None:
     check(status.groupby("snapshot")["evidence_status"].nunique().eq(1).all(), "snapshot evidence labels are mixed")
 
     papers = pd.read_csv(ROOT / "data" / "paper_protocol_map.csv")
-    check(papers.shape == (10, 6) and papers["match_status"].value_counts().to_dict() == {"approximate": 6, "unavailable": 2, "proxy_only": 2}, "paper protocol map drift")
+    check(papers.shape == (12, 6) and papers["match_status"].value_counts().to_dict() == {"approximate": 7, "unavailable": 3, "proxy_only": 2}, "paper protocol map drift")
     check("exact" not in set(papers["match_status"]), "paper protocol map unexpectedly claims an exact match")
 
     posters = pd.read_csv(ROOT / "data" / "poster_claims.csv")
@@ -1283,7 +1291,7 @@ def validate_legacy_firewalls() -> None:
     check(legacy.shape == (21, 13) and len(score_columns) == 9, "legacy administration score table drift")
     check(len(legacy) * len(score_columns) == 189, "legacy administration geometry no longer equals 189 score cells")
     check(set(legacy["evidence_status"]) == {"poster_reported_unverified"}, "legacy administration evidence label drift")
-    passed("legacy firewalls: two 143-cell snapshots; 10 paper-protocol rows; 21 poster claims; 189 unverified poster score cells")
+    passed("legacy firewalls: two 143-cell snapshots; 12 paper-protocol rows; 21 poster claims; 189 unverified poster score cells")
 
 
 def resolve_local_reference(base: Path, raw: str) -> Path | None:
@@ -1429,9 +1437,16 @@ def validate_visuals() -> None:
         "03_size_paths": ("Bigger models do not score higher consistently on UniMoral", {"4 of 12", "7 of 12", "1 of 12", "Gemma 3-4B-IT", "4B total", "Gemma 3-27B-IT", "27B total"}),
         "03_size_paths_detail_a": ("How model size relates to UniMoral classification scores", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
         "03_size_paths_detail_b": ("How model size relates to consequence and ValuePrism scores", {"Qwen3-8B", "235B total / 22B active", "ValuePrism relevance", "ValuePrism valence"}),
+        "03_size_action_typology_detail": ("UniMoral action and typology accuracy by model size", {"UniMoral action", "UniMoral typology", "Qwen3-8B", "235B total / 22B active", "Gemma", "Llama"}),
+        "03_size_consequence_relevance_detail": ("UniMoral consequence and ValuePrism relevance by model size", {"UniMoral consequence", "ValuePrism relevance", "Qwen3-8B", "235B total / 22B active", "Gemma", "Llama"}),
+        "03_size_factor_detail": ("UniMoral factor accuracy by model size", {"Qwen3-8B", "32.8B total", "235B total / 22B active", "Gemma", "Llama"}),
+        "03_size_valence_detail": ("ValuePrism valence accuracy by model size", {"Llama 3.2-3B Instruct", "3B total", "Llama 3.3-70B Instruct", "70B total"}),
         "04_release_period_paths": ("Newer named releases do not move every UniMoral task up", {"May 28–29, 2026", "Qwen endpoints: 3 higher, 1 lower", "DeepSeek endpoints: 2 higher, 2 lower", "671B main / 37B active"}),
         "04_release_period_paths_detail_a": ("How named model releases move across UniMoral classification tasks", {"2024", "Q3", "Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
         "04_release_period_paths_detail_b": ("How named model releases move on consequence and ValuePrism", {"2024", "Q3", "Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "04_release_action_typology_detail": ("UniMoral action and typology accuracy by model release", {"UniMoral action", "UniMoral typology", "2024", "Q3", "Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "04_release_factor_detail": ("UniMoral factor accuracy by model release", {"2024", "Q3", "Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
+        "04_release_valence_detail": ("ValuePrism valence accuracy by model release", {"2024", "Q3", "Qwen3.5-9B", "671B main model / 37B active", "284B main model / 13B active"}),
     }
     for stem, (title, labels) in expected.items():
         png = ROOT / "assets" / "results" / f"{stem}.png"
@@ -1514,6 +1529,32 @@ def validate_visuals() -> None:
         }
         check(len(points) == expected_count and len(expected_map) == expected_count, f"{layer} expected point-label identities are not unique")
         check(len(groups) == expected_count and observed_map == expected_map, f"{layer} model+B label is not attached to its exact task-model point across split detail figures")
+
+    subset_label_contracts = [
+        ("size", "03_size_action_typology_detail", "size_task_points.csv", ["unimoral_action_prediction", "unimoral_moral_typology"]),
+        ("size", "03_size_consequence_relevance_detail", "size_task_points.csv", ["unimoral_consequence_generation", "value_prism_relevance"]),
+        ("release", "04_release_action_typology_detail", "release_period_task_points.csv", ["unimoral_action_prediction", "unimoral_moral_typology"]),
+    ]
+    for layer, stem, csv_name, tasks in subset_label_contracts:
+        root = ET.parse(ROOT / "assets" / "results" / f"{stem}.svg").getroot()
+        prefix = f"{layer}-point-label-"
+        observed = {
+            element.attrib["id"]: " ".join("".join(element.itertext()).split())
+            for element in root.iter()
+            if element.attrib.get("id", "").startswith(prefix)
+        }
+        points = pd.read_csv(RESULT_DATA / csv_name)
+        points = points[points["task"].isin(tasks)]
+        if layer == "size":
+            complete = points.groupby(["family", "task"])["tier"].transform(
+                lambda values: set(values) == {"S", "M", "L"}
+            )
+            points = points[complete]
+        expected = {
+            point_label_gid(layer, row.task, row.model): " ".join(str(row.point_label).split())
+            for row in points.itertuples(index=False)
+        }
+        check(observed == expected, f"{stem} model+B labels drift from their exact source points")
 
     size_points = pd.read_csv(RESULT_DATA / "size_task_points.csv")
     size_root = ET.parse(ROOT / "assets" / "results" / "03_size_paths.svg").getroot()
@@ -1624,7 +1665,7 @@ def validate_visuals() -> None:
         for task, group in frame.groupby("task"):
             lower, upper = (0.05, 0.18) if task == "unimoral_consequence_generation" else (0.30, 0.80)
             check(group["score"].between(lower, upper).all(), f"{filename} axis would clip {task}")
-    passed("visuals: 8 landscape and 2 portrait mobile PNG/SVG pairs decode; desktop/mobile 6/8 answer labels, 18/12 audit-table cells, and all 45/35 detail labels bind to exact evidence identities")
+    passed("visuals: 15 landscape and 2 portrait mobile PNG/SVG pairs decode; desktop/mobile 6/8 answer labels, 18/12 audit-table cells, and all full plus slide-detail labels bind to exact evidence identities")
 
 
 def validate_slide_exports(

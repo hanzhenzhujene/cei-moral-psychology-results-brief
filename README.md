@@ -7,21 +7,21 @@ This private repository turns the benchmark outputs into a visual readout for a 
 ## Start here
 
 1. Read the [`one-minute result`](docs/ONE_MINUTE_READOUT.md).
-2. Open the [`slide gallery`](slides/README.md) or [`view-only PDF`](slides/cei-moral-psychology-results-deck.pdf).
-3. Use the [`editable PowerPoint`](slides/cei-moral-psychology-results-deck.pptx) only when the deck needs to change.
+2. Open the [`full 33-slide gallery`](slides/README.md), [`full PDF`](slides/cei-moral-psychology-results-full-deck.pdf), or [`full PowerPoint`](slides/cei-moral-psychology-results-full-deck.pptx).
+3. Use the separate [`eight-slide core PowerPoint`](slides/cei-moral-psychology-results-deck.pptx) for the shortest executive readout.
 
-![Task-by-task leaders across five models with main audited results on all eight tasks](slides/rendered/slide-02.png)
+![Bubble chart showing model release date, UniMoral action accuracy, and published model size](slides/full-rendered/slide-20.png)
 
 ## What the results say
 
 | Research question | Result | Implication | Evidence level |
 |---|---|---|---|
 | Among the five models with main audited results on all eight tasks, is there one stable order? | No. The highest saved score belongs to different models on different tasks. | Report task results separately. Do not publish one moral leaderboard. | Main audited results |
-| Can the two comparison tests tell us which model leads? | No. Marginal score ranges overlap for all 28 MFQ and all 45 vignette model pairs. These are one-model-at-a-time ranges, not paired comparisons. | Restore every model's answer and score for each question. Check scoring and labels, then compare models directly. | Main audited results |
-| Do scores keep rising as selected model variants get bigger? | Only 4 of 12 UniMoral score paths rise after both size steps; 7 switch direction and 1 falls twice. | Bigger is not always better. Treat size as an exploratory clue. | Exploratory dataset; no saved uncertainty |
+| Can the two comparison tests tell us which model leads? | No. For every pair of models, the two saved 95% score ranges overlap: 28 of 28 MFQ pairs and 45 of 45 vignette pairs. This is not a direct test of the difference between two models. | Restore every model's answer and score for each question. Check scoring and labels, then compare models directly. | Main audited results |
+| Do scores keep rising as selected model variants get bigger? | Only 4 of 12 family and task comparisons rise at both size steps; 7 change direction and 1 falls twice. | Bigger is not always better. Treat size as an exploratory clue. | Exploratory dataset; no saved uncertainty |
 | Do later Qwen and DeepSeek versions score higher on every UniMoral task? | No. Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. All were evaluated May 28–29, 2026. | Newer is not always better. Release period is model metadata, not a progress trend. | Exploratory dataset; no saved uncertainty |
 
-The first two findings use the main audited results. The size and version findings use a separate dataset that has no saved uncertainty estimates or original run files in the fresh clone.
+The first two findings use the main audited results. The size and version findings use a separate dataset. The available files have no saved uncertainty estimates or raw run archive for those comparisons.
 
 ## Evidence boundaries
 
@@ -30,7 +30,7 @@ The first two findings use the main audited results. The size and version findin
 | Main audited benchmark set | 78 primary text, 26 sensitivity text, 9 multimodal extension, and 30 excluded cells | Current task results, saved uncertainty, status, and claim boundaries |
 | Exploratory model snapshot | 102 scored aggregate rows plus 17-model metadata | Exploratory family, size, and release-period patterns only |
 | Four MP-v2 posters | Four static PDFs | Design history and poster-reported observations; the original run files are absent |
-| Four external papers | Primary papers reviewed; 0 exact local replications | Method and interpretation context, not direct score baselines |
+| Five benchmark papers | Primary papers reviewed; 0 exact local replications | Method and interpretation context, not direct score baselines |
 
 The repository has aggregate benchmark results, but it lacks original raw run archives, the old poster run files, clustered uncertainty estimates, and representative human review. Agreement among automated judges is not proof of moral correctness.
 
@@ -39,8 +39,8 @@ The repository has aggregate benchmark results, but it lacks original raw run ar
 | Location | Purpose |
 |---|---|
 | `index.html` | Detailed visual evidence and audit appendices |
-| `slides/` | Editable PowerPoint, view-only PDF, and eight 2560 × 1440 slide images |
-| `assets/results/` | Four headline charts plus four landscape audit-detail charts in PNG and SVG |
+| `slides/` | Separate eight-slide core and 33-slide full decks, PDFs, manifests, and rendered galleries |
+| `assets/results/` | Seventeen result figure sets in PNG and SVG |
 | `data/results/` | Exact plotted rows, direction summaries, and research-question tables |
 | `docs/RESULTS_READOUT.md` | Chart-by-chart interpretation for a research lead |
 | `docs/POSTER_AUDIT.md` | Poster claim audit and corrections |
@@ -66,11 +66,22 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/build_result_visuals.py
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/validate_site.py
 ```
 
-The chart builder allows one writer at a time, stages each file before replacement, and writes `data/results/GENERATED_MANIFEST.csv` last. The validator checks all 27 payload hashes and binds them to the current builder and locked requirements, so a partial or stale rebuild cannot pass.
+The chart builder allows one writer at a time, stages each file before replacement, and writes `data/results/GENERATED_MANIFEST.csv` last. The validator checks all 41 payload hashes and binds them to the current builder and locked requirements, so a partial or stale rebuild cannot pass.
 
 The repo validator also opens the PPTX. It checks the native tables, charts, embedded workbooks, notes, and the slide 2–6 values against the CSV evidence.
 
-### Rebuild all 11 slide files
+### Validate the full 33-slide deck
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 /absolute/path/to/bundled-python \
+  scripts/validate_full_slides.py
+```
+
+The full-deck validator checks 33 slides, 10 native charts, two native tables, 33 rendered images, the PDF, paper-result values, model labels and chart geometry, evidence-boundary wording, and `slides/FULL_RENDER_MANIFEST.csv`. It also confirms that the original eight-slide release still matches its manifest.
+
+The full PowerPoint preserves the approved eight core pages as full-slide images and leaves the new result charts and table editable. The separate eight-slide core PowerPoint remains the editable source for those original pages.
+
+### Rebuild the 8-slide core release
 
 Use one command for the complete slide release:
 

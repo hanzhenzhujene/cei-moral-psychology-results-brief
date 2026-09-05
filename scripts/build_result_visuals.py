@@ -55,10 +55,17 @@ RESULT_FIGURE_STEMS = [
     "03_size_paths_mobile",
     "03_size_paths_detail_a",
     "03_size_paths_detail_b",
+    "03_size_action_typology_detail",
+    "03_size_consequence_relevance_detail",
+    "03_size_factor_detail",
+    "03_size_valence_detail",
     "04_release_period_paths",
     "04_release_period_paths_mobile",
     "04_release_period_paths_detail_a",
     "04_release_period_paths_detail_b",
+    "04_release_action_typology_detail",
+    "04_release_factor_detail",
+    "04_release_valence_detail",
 ]
 RESULT_TABLE_NAMES = [
     "common_roster_primary.csv",
@@ -215,7 +222,7 @@ def save_csv(frame: pd.DataFrame, name: str) -> None:
 def write_generated_manifest(builder_sha256: str, requirements_sha256: str) -> None:
     paths = [DATA / name for name in RESULT_TABLE_NAMES]
     paths.extend(FIGURES / f"{stem}.{suffix}" for stem in RESULT_FIGURE_STEMS for suffix in ("png", "svg"))
-    assert len(paths) == 27 and all(path.is_file() for path in paths)
+    assert len(paths) == 41 and all(path.is_file() for path in paths)
     if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != builder_sha256:
         raise RuntimeError("result-visual builder changed during the build")
     if hashlib.sha256((ROOT / "requirements-release.txt").read_bytes()).hexdigest() != requirements_sha256:
@@ -316,7 +323,7 @@ def plot_common_roster(common: pd.DataFrame) -> None:
         ax.set_ylim(*ylim)
         ax.set_ylabel(metric)
         ax.set_xticks(range(len(COMMON_MODELS)))
-        ax.set_xticklabels(MODEL_SHORT_LABELS, rotation=28, ha="right", fontsize=7.5)
+        ax.set_xticklabels(MODEL_SHORT_LABELS, rotation=28, ha="right", fontsize=10)
         ax.grid(axis="y", color=GRID, linewidth=0.8, zorder=0)
         ax.spines["left"].set_color(GRID)
         ax.spines["bottom"].set_color(GRID)
@@ -327,7 +334,7 @@ def plot_common_roster(common: pd.DataFrame) -> None:
         plt.Line2D([0], [0], marker=MODEL_MARKERS[m], color="none", markerfacecolor=MODEL_COLORS[m], markeredgecolor=MODEL_COLORS[m], markersize=8, label=MODEL_LABELS[m])
         for m in COMMON_MODELS
     ]
-    fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.53, 0.91), ncol=5, frameon=False, fontsize=10)
+    fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.53, 0.91), ncol=5, frameon=False, fontsize=12)
     fig.text(0.055, 0.035, "Result: point-estimate leaders change by task. Compare-task intervals overlap pairwise, so those panels do not establish a model order.", fontsize=10.2, fontweight="bold")
     fig.text(0.055, 0.012, "Panel scales differ: compare models within a task, not vertical distance across tasks. Intervals omit route drift, contamination, construct error, and human validity.", fontsize=9.1, color=MUTED)
     fig.tight_layout(rect=(0.04, 0.07, 0.99, 0.89), w_pad=1.2, h_pad=2.0)
@@ -382,7 +389,7 @@ def plot_precision(primary: pd.DataFrame) -> None:
         ax.text(x + 0.20, 0.505, f"{overlapping} of {pairs} model pairs", transform=ax.transAxes, ha="center", va="center", fontsize=15, fontweight="bold")
         ax.text(x + 0.20, 0.435, f"{models} models · {questions} questions", transform=ax.transAxes, ha="center", va="center", fontsize=11, color=MUTED)
 
-    fig.text(0.07, 0.265, "Result: the saved marginal ranges do not resolve a leader.", fontsize=12.5, fontweight="bold", color=RED)
+    fig.text(0.07, 0.265, "Result: the saved 95% score ranges do not identify a leader.", fontsize=12.5, fontweight="bold", color=RED)
     fig.text(0.07, 0.205, "Limit: these are not paired model-difference tests. Question-level results and cluster-aware uncertainty are unavailable.", fontsize=10.5, color=INK)
     fig.text(0.07, 0.125, "Next: restore each answer and score, check scoring and labels, then compare models directly and run human review.", fontsize=11, fontweight="bold")
     fig.subplots_adjust(left=0.03, right=0.99, top=0.90, bottom=0.05)
@@ -538,7 +545,7 @@ def add_point_annotation(
         textcoords="offset points",
         ha=horizontal,
         va="center",
-        fontsize=10.5,
+        fontsize=12,
         linespacing=1.08,
         color=INK,
         bbox={"boxstyle": "round,pad=0.18", "facecolor": PAPER, "edgecolor": GRID, "linewidth": 0.55, "alpha": 0.94},
@@ -565,7 +572,7 @@ def add_laned_point_annotation(
         textcoords=ax.get_xaxis_transform(),
         ha="center",
         va="center",
-        fontsize=10.5,
+        fontsize=13,
         linespacing=1.08,
         color=INK,
         bbox={"boxstyle": "round,pad=0.18", "facecolor": PAPER, "edgecolor": GRID, "linewidth": 0.55, "alpha": 0.94},
@@ -902,13 +909,14 @@ def plot_size_answer_mobile(points: pd.DataFrame, summary: pd.DataFrame) -> None
 
 
 def plot_size_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: str) -> None:
-    fig, axes = plt.subplots(len(tasks), 1, figsize=(16, 13), sharex=True)
+    height = 7 if len(tasks) == 1 else 9.5 if len(tasks) == 2 else 13
+    fig, axes = plt.subplots(len(tasks), 1, figsize=(16, height), sharex=True)
     axes = np.atleast_1d(axes)
-    fig.suptitle(title, x=0.055, y=0.985, ha="left", fontsize=21, fontweight="bold")
+    fig.suptitle(title, x=0.055, y=0.975, ha="left", fontsize=20, fontweight="bold")
     fig.text(
         0.055,
-        0.956,
-        "Each point is one saved task score for a named model; each line joins that family's small, medium, and large variants. Published-B spacing is ordinal, not proportional.",
+        0.915,
+        "Each point = one named model's saved score. Lines join small, medium, and large models in one family. X-axis spacing is ordered, not proportional.",
         color=MUTED,
         fontsize=11.2,
     )
@@ -950,20 +958,20 @@ def plot_size_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: s
         axis_labels = [f"{value:g}B" for value in axis_models["total_parameters_b"]]
         ax.set_xlim(-0.7, 8.7)
         ax.set_xticks(axis_models["size_plot_position"], axis_labels)
+        ax.tick_params(axis="x", labelsize=11, labelbottom=True)
+        ax.tick_params(axis="y", labelsize=10.5)
         ax.grid(axis="y", color=GRID, linewidth=0.8)
         ax.spines["left"].set_color(GRID)
         ax.spines["bottom"].set_color(GRID)
         incomplete = [family for family in ["Qwen", "Gemma", "Llama"] if set(task_rows.loc[task_rows["family"] == family, "tier"]) != {"S", "M", "L"}]
         if incomplete:
             ax.text(0.02, 0.03, "Incomplete: " + ", ".join(incomplete), transform=ax.transAxes, color=MUTED, fontsize=8)
-    for ax in axes[:-1]:
-        ax.tick_params(axis="x", labelbottom=False)
     axes[-1].set_xlabel("Published total B categories — ordered only; horizontal gaps are not to scale")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle=FAMILY_LINESTYLES[f], linewidth=2.4, label=f)
         for f in ["Qwen", "Gemma", "Llama"]
     ]
-    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.985), ncol=3, frameon=False)
+    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.875), ncol=3, frameon=False)
     fig.text(
         0.055,
         0.018,
@@ -971,7 +979,7 @@ def plot_size_detail(points: pd.DataFrame, tasks: list[str], stem: str, title: s
         fontsize=9.1,
         color=MUTED,
     )
-    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.925), h_pad=1.8)
+    fig.tight_layout(rect=(0.04, 0.055, 0.99, 0.80), h_pad=1.8)
     assert_point_label_layout(fig, annotations, expected=len(points[points["task"].isin(tasks)]))
     save_figure(fig, stem)
 
@@ -1320,22 +1328,23 @@ def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title
     last_period = int(period_keys.max())
     quarter_ticks = list(range(first_period, last_period + 1))
     xpos = {period: quarter_key(period) - first_period for period in points["release_period"].unique()}
-    fig, axes = plt.subplots(len(tasks), 1, figsize=(16, 13), sharex=True)
+    height = 7 if len(tasks) == 1 else 9.5 if len(tasks) == 2 else 13
+    fig, axes = plt.subplots(len(tasks), 1, figsize=(16, height), sharex=True)
     axes = np.atleast_1d(axes)
-    fig.suptitle(title, x=0.055, y=0.985, ha="left", fontsize=21, fontweight="bold")
+    fig.suptitle(title, x=0.055, y=0.975, ha="left", fontsize=20, fontweight="bold")
     fig.text(
         0.055,
-        0.956,
-        "Each point is one saved task score for a different named model; lines join models within a family. All scores were evaluated May 28–29, 2026.",
+        0.915,
+        "Each point = one named model's saved score. Lines join releases in one family. Every score was run May 28–29, 2026.",
         color=MUTED,
         fontsize=11.2,
     )
     annotations: list[mpl.text.Annotation] = []
     release_offsets = {
         "qwen/qwen-2.5-7b-instruct": (9, 25),
-        "deepseek/deepseek-chat-v3-0324": (9, -28),
-        "deepseek/deepseek-chat-v3.1": (9, 34),
-        "deepseek/deepseek-v3.2": (-9, -36),
+        "deepseek/deepseek-chat-v3-0324": (9, -18),
+        "deepseek/deepseek-chat-v3.1": (-9, 62),
+        "deepseek/deepseek-v3.2": (-9, -62),
         "qwen/qwen3.5-9b": (-9, 55),
         "deepseek/deepseek-v4-flash": (-9, -45),
     }
@@ -1355,13 +1364,16 @@ def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title
                 zorder=3,
             )
             for row in ordered.itertuples(index=False):
+                offset = release_offsets[row.model]
+                if task == "value_prism_valence" and row.model == "deepseek/deepseek-chat-v3.1":
+                    offset = (-9, 90)
                 annotations.append(
                     add_point_annotation(
                         ax,
                         float(xpos[row.release_period]),
                         float(row.score),
                         row.point_label,
-                        release_offsets[row.model],
+                        offset,
                         point_label_gid("release", task, row.model),
                     )
                 )
@@ -1370,18 +1382,18 @@ def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title
         ax.set_ylabel(metric)
         ax.set_ylim(*SCALING_LIMITS[task])
         ax.set_xticks([value - first_period for value in quarter_ticks], [quarter_label(value) for value in quarter_ticks])
+        ax.tick_params(axis="x", labelsize=11, labelbottom=True)
+        ax.tick_params(axis="y", labelsize=10.5)
         ax.set_xlim(-0.35, last_period - first_period + 0.35)
         ax.grid(axis="y", color=GRID, linewidth=0.8)
         ax.spines["left"].set_color(GRID)
         ax.spines["bottom"].set_color(GRID)
-    for ax in axes[:-1]:
-        ax.tick_params(axis="x", labelbottom=False)
     axes[-1].set_xlabel("Named model release quarter — metadata, not evaluation time")
     handles = [
         plt.Line2D([0], [0], color=FAMILY_COLORS[f], marker=FAMILY_MARKERS[f], linestyle="--" if f == "Qwen" else ":", linewidth=2.4, label=f)
         for f in ["Qwen", "DeepSeek"]
     ]
-    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.985), ncol=2, frameon=False)
+    fig.legend(handles=handles, loc="upper right", bbox_to_anchor=(0.96, 0.875), ncol=2, frameon=False)
     fig.text(
         0.055,
         0.018,
@@ -1389,7 +1401,7 @@ def plot_release_detail(points: pd.DataFrame, tasks: list[str], stem: str, title
         fontsize=9.1,
         color=MUTED,
     )
-    fig.tight_layout(rect=(0.04, 0.045, 0.99, 0.925), h_pad=1.8)
+    fig.tight_layout(rect=(0.04, 0.055, 0.99, 0.80), h_pad=1.8)
     assert_point_label_layout(fig, annotations, expected=len(points[points["task"].isin(tasks)]))
     save_figure(fig, stem)
 
@@ -1487,6 +1499,30 @@ def build_result_visuals() -> None:
         "03_size_paths_detail_b",
         "How model size relates to consequence and ValuePrism scores",
     )
+    plot_size_detail(
+        size_points,
+        SIX_TASKS[:2],
+        "03_size_action_typology_detail",
+        "UniMoral action and typology accuracy by model size",
+    )
+    plot_size_detail(
+        size_points,
+        ["unimoral_consequence_generation", "value_prism_relevance"],
+        "03_size_consequence_relevance_detail",
+        "UniMoral consequence and ValuePrism relevance by model size",
+    )
+    plot_size_detail(
+        size_points,
+        ["unimoral_factor_attribution"],
+        "03_size_factor_detail",
+        "UniMoral factor accuracy by model size",
+    )
+    plot_size_detail(
+        size_points,
+        ["value_prism_valence"],
+        "03_size_valence_detail",
+        "ValuePrism valence accuracy by model size",
+    )
     plot_release_answer(release_summary)
     plot_release_answer_mobile(release_summary)
     plot_release_detail(
@@ -1501,8 +1537,26 @@ def build_result_visuals() -> None:
         "04_release_period_paths_detail_b",
         "How named model releases move on consequence and ValuePrism",
     )
+    plot_release_detail(
+        release_points,
+        SIX_TASKS[:2],
+        "04_release_action_typology_detail",
+        "UniMoral action and typology accuracy by model release",
+    )
+    plot_release_detail(
+        release_points,
+        ["unimoral_factor_attribution"],
+        "04_release_factor_detail",
+        "UniMoral factor accuracy by model release",
+    )
+    plot_release_detail(
+        release_points,
+        ["value_prism_valence"],
+        "04_release_valence_detail",
+        "ValuePrism valence accuracy by model release",
+    )
     write_generated_manifest(builder_sha256, requirements_sha256)
-    print("Built 10 result figures, 7 machine-readable result tables, and their release manifest.")
+    print("Built 17 result figures, 7 machine-readable result tables, and their release manifest.")
 
 
 def main() -> None:

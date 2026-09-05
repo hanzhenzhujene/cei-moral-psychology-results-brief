@@ -162,7 +162,7 @@ function addTag(slide, label, fill, color) {
 
 function addSlideFrame(slide, title, subtitle, tag) {
   slide.background.fill = C.bg;
-  addText(slide, title, { left: 72, top: 36, width: 910, height: 62 }, {
+  addText(slide, title, { left: 72, top: 36, width: 1136, height: 62 }, {
     name: "slide-title",
     fontSize: 36,
     bold: true,
@@ -175,7 +175,6 @@ function addSlideFrame(slide, title, subtitle, tag) {
       color: C.muted,
     });
   }
-  if (tag) addTag(slide, tag.label, tag.fill, tag.color);
   addRule(slide, 72, 142, 1136, C.grid, 1);
 }
 
@@ -201,26 +200,33 @@ function setNotes(slide, lines) {
 {
   const slide = presentation.slides.add();
   slide.background.fill = C.bg;
-  addText(slide, "Publish task results.\nDo not rank the models.", {
-    left: 88, top: 132, width: 930, height: 178,
-  }, { name: "cover-title", fontSize: 54, bold: true, autoFit: "shrinkText" });
-  addText(slide, "CEI moral psychology benchmark", {
-    left: 92, top: 334, width: 720, height: 40,
-  }, { fontSize: 24, color: C.teal, bold: true });
-  addText(slide, "Research lead readout · 4 September 2026", {
-    left: 92, top: 382, width: 760, height: 34,
-  }, { fontSize: 18, color: C.muted });
-  addRule(slide, 92, 474, 720, C.grid, 2);
-  addText(slide, "Why: the highest saved score changes by task, and saved ranges overlap on both comparison tests.", {
-    left: 92, top: 500, width: 965, height: 72,
+  addText(slide, "MoralBench + UniMoral", {
+    left: 88, top: 100, width: 1080, height: 70,
+  }, { name: "cover-title", fontSize: 52, bold: true, autoFit: "shrinkText" });
+  addText(slide, "No model has the highest saved score on all 8 tasks.", {
+    left: 92, top: 200, width: 1050, height: 72,
+  }, { fontSize: 34, color: C.teal, bold: true });
+  addRule(slide, 92, 304, 1040, C.grid, 2);
+  addText(slide, "MoralBench comparison", {
+    left: 92, top: 344, width: 330, height: 30,
+  }, { fontSize: 18, color: C.muted, bold: true });
+  addText(slide, "For every model pair, the two models' 95% score ranges overlap: 28 of 28 MFQ pairs and 45 of 45 vignette pairs.", {
+    left: 92, top: 380, width: 1010, height: 52,
   }, { fontSize: 24, color: C.ink, autoFit: "shrinkText" });
-  addText(slide, "Share the task results with their limits. Size and release slides are early clues, not final answers.", {
-    left: 92, top: 602, width: 980, height: 36,
+  addText(slide, "UniMoral model size and release date", {
+    left: 92, top: 466, width: 410, height: 30,
+  }, { fontSize: 18, color: C.muted, bold: true });
+  addText(slide, "Scores move up and down across tasks. Bigger or newer is not consistently higher here.", {
+    left: 92, top: 502, width: 1010, height: 52,
+  }, { fontSize: 24, color: C.ink, autoFit: "shrinkText" });
+  addText(slide, "CEI research lead readout · 4 September 2026", {
+    left: 92, top: 626, width: 760, height: 30,
   }, { fontSize: 17, color: C.muted });
   setNotes(slide, [
-    "Claim: publish task-level results, but do not create an overall model ranking.",
+    "This is a CEI MoralBench and UniMoral summary for a research lead.",
     "Sources: docs/RESEARCH_LEAD_BRIEF.md; data/results/research_question_takeaways.csv.",
-    "Boundary: current task aggregates and saved uncertainty do not establish human validity, causal effects, or one cross-metric moral score.",
+    "No model has the highest saved score on all eight tasks. The MoralBench comparison ranges do not identify a clear leader.",
+    "These tasks do not show that one model is morally better or support one overall score.",
   ]);
 }
 
@@ -229,8 +235,8 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "No model has the highest saved score on all eight tasks",
-    "Highest saved score for each task, using the same five models",
+    "MoralBench + UniMoral: no model has the top saved score on all 8 tasks",
+    "CEI local result. Same five models; each row keeps its own score type.",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
   const values = [
@@ -259,19 +265,11 @@ function setNotes(slide, lines) {
     textStyle: { typeface: family, fontSize: 13, color: C.ink },
     margins: { left: 12, right: 12, top: 4, bottom: 4 },
   });
-  table.cells.block({ row: 1, column: 3, rowCount: 2, columnCount: 1 }).assign({
-    fill: C.tealSoft,
-    textStyle: { typeface: family, fontSize: 17, color: C.teal, bold: true },
+  table.cells.block({ row: 1, column: 3, rowCount: 8, columnCount: 1 }).assign({
+    fill: C.white,
+    textStyle: { typeface: family, fontSize: 17, color: C.ink, bold: true },
   });
-  table.cells.block({ row: 3, column: 3, rowCount: 2, columnCount: 1 }).assign({
-    fill: C.goldSoft,
-    textStyle: { typeface: family, fontSize: 17, color: "#8B5F00", bold: true },
-  });
-  table.cells.block({ row: 5, column: 3, rowCount: 4, columnCount: 1 }).assign({
-    fill: C.purpleSoft,
-    textStyle: { typeface: family, fontSize: 17, color: C.purple, bold: true },
-  });
-  addText(slide, "† Marginal ranges overlap on both comparison tasks; paired question results are unavailable, so no leader is resolved.", {
+  addText(slide, "† Every 95% range overlaps on both MoralBench comparison tasks. The apparent leaders are unresolved.", {
     left: 96, top: 620, width: 1080, height: 30,
   }, { fontSize: 16, color: C.coral, autoFit: "shrinkText" });
   addText(slide, "Each task uses its own score. Do not compare numbers from different rows.", {
@@ -281,10 +279,8 @@ function setNotes(slide, lines) {
     "Each row shows the highest saved point estimate for that task among Claude Haiku 4.5, Claude Opus 4.8, GPT-5.4, GPT-5.4 mini, and Qwen3 8B.",
     "Sources: data/results/common_roster_primary.csv; docs/RESULTS_READOUT.md section 1; docs/PAPER_REVIEW.md protocol comparison; evidence/canonical-audit/CLAIM_BOUNDARIES.md.",
     "The MFQ compare top value is shared by Claude Haiku 4.5 and Qwen3 8B. The vignette compare top value is shared by Claude Haiku 4.5 and GPT-5.4.",
-    "Each task cell keeps the formal task name on the first line and explains what it tests on the second.",
     "The UniMoral action, typology, and factor rows match saved annotator-specific labels under no-persona prompts; the consequence row matches generated text to saved human references. None infers a person's stable moral identity.",
-    "Values belong to different metrics. The visible labels translate normalized preference and METEOR into plain language.",
-    "Do not average preference, accuracy, and METEOR or treat this table as a moral leaderboard.",
+    "Values belong to different metrics. Agreement, accuracy, and text match stay separate and should not be averaged.",
   ]);
 }
 
@@ -293,59 +289,45 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Saved ranges overlap for every model pair on both tests",
-    "Full primary panels: MFQ = 8 models × 20 questions; Vignette = 10 × 24.",
+    "MoralBench: each pair of models has overlapping 95% score ranges",
+    "CEI local result. MFQ uses 8 models and 20 questions. Vignettes use 10 models and 24 questions.",
     { label: "MAIN RESULTS", fill: C.tealSoft, color: C.teal },
   );
-  addText(slide, "Each card = share of model pairs whose saved marginal 95% ranges overlap.", {
-    left: 120, top: 149, width: 1030, height: 22,
-  }, { fontSize: 15, color: C.muted });
-  for (const card of [
-    { left: 120, task: "MFQ compare", pairs: "28 of 28 model pairs" },
-    { left: 650, task: "Vignette compare", pairs: "45 of 45 model pairs" },
-  ]) {
-    slide.shapes.add({
-      geometry: "roundRect",
-      position: { left: card.left, top: 187, width: 480, height: 235 },
-      fill: C.coralSoft,
-      line: { style: "solid", fill: C.coral, width: 2 },
-      borderRadius: 18,
-    });
-    addText(slide, card.task, { left: card.left + 30, top: 210, width: 420, height: 34 }, {
-      fontSize: 23, bold: true, color: C.ink, alignment: "center",
-    });
-    addText(slide, "100%", { left: card.left + 30, top: 250, width: 420, height: 76 }, {
-      fontSize: 54, bold: true, color: C.coral, alignment: "center",
-    });
-    addText(slide, card.pairs, { left: card.left + 30, top: 330, width: 420, height: 32 }, {
-      fontSize: 19, bold: true, color: C.ink, alignment: "center",
-    });
-    addText(slide, "saved marginal ranges overlap", { left: card.left + 30, top: 368, width: 420, height: 26 }, {
-      fontSize: 15, color: C.muted, alignment: "center",
-    });
-  }
-  addText(slide, "100% of model pairs overlap on both tests. This does not resolve a leader.", {
-    left: 120, top: 449, width: 1030, height: 32,
-  }, { fontSize: 21, bold: true, color: C.coral });
-  addText(slide, "These are marginal ranges, not paired model-difference tests. Question-level results are unavailable.", {
-    left: 120, top: 492, width: 1030, height: 26,
-  }, { fontSize: 15, color: C.ink });
-  addText(slide, "Intervals are nominal; cluster-aware uncertainty is unavailable.", {
-    left: 120, top: 524, width: 1030, height: 24,
-  }, { fontSize: 14, color: C.muted });
-  addText(slide, "Next: restore every model's answer and score for each question.", {
-    left: 120, top: 580, width: 1030, height: 32,
-  }, { fontSize: 20, bold: true, color: C.ink });
-  addText(slide, "Check scoring and labels. Then compare models and have people review the test.", {
-    left: 120, top: 618, width: 1030, height: 28,
-  }, { fontSize: 16, color: C.muted });
+  addText(slide, "MFQ value statements", { left: 110, top: 200, width: 460, height: 34 }, {
+    fontSize: 23, bold: true, alignment: "center",
+  });
+  addText(slide, "28 / 28", { left: 110, top: 252, width: 460, height: 80 }, {
+    fontSize: 58, bold: true, color: C.coral, alignment: "center",
+  });
+  addText(slide, "model pairs have overlapping 95% score ranges", { left: 110, top: 342, width: 460, height: 42 }, {
+    fontSize: 18, color: C.ink, alignment: "center",
+  });
+  addText(slide, "Moral vignettes", { left: 710, top: 200, width: 460, height: 34 }, {
+    fontSize: 23, bold: true, alignment: "center",
+  });
+  addText(slide, "45 / 45", { left: 710, top: 252, width: 460, height: 80 }, {
+    fontSize: 58, bold: true, color: C.coral, alignment: "center",
+  });
+  addText(slide, "model pairs have overlapping 95% score ranges", { left: 710, top: 342, width: 460, height: 42 }, {
+    fontSize: 18, color: C.ink, alignment: "center",
+  });
+  slide.shapes.add({
+    geometry: "line",
+    position: { left: 640, top: 205, width: 0, height: 175 },
+    fill: "none",
+    line: { style: "solid", fill: C.grid, width: 2 },
+  });
+  addText(slide, "These saved results do not separate a leader.", {
+    left: 120, top: 456, width: 1040, height: 42,
+  }, { fontSize: 27, bold: true, color: C.ink, alignment: "center" });
+  addText(slide, "The ranges are not a direct model-pair test. Question-level scores and stronger uncertainty estimates are unavailable.", {
+    left: 120, top: 522, width: 1040, height: 45,
+  }, { fontSize: 16, color: C.muted, alignment: "center" });
   setNotes(slide, [
     "Source: evidence/canonical-audit/figures/data/primary_confidence_intervals.csv.",
-    "All 18 individual intervals wider than .30 occur in the two MoralBench comparison tasks.",
-    "Denominator: all available primary models—8 on MFQ compare and 10 on vignette compare—not the five-model common roster.",
-    "Within each comparison task, every model pair has overlapping marginal intervals: 28 of 28 MFQ pairs and 45 of 45 vignette pairs.",
-    "This is not a paired model-difference test. The visible cards compare only the two accuracy tasks; they do not rank interval widths across different metrics.",
-    "The saved intervals are nominal row-level estimates and do not establish cluster-aware uncertainty or human validity.",
+    "The MFQ test has 8 models and 20 questions. The vignette test has 10 models and 24 questions.",
+    "For every model pair, the two models' saved 95% score ranges overlap. This covers all 28 MFQ pairs and all 45 vignette pairs.",
+    "This is not a paired model-difference test. Question-level scores and stronger uncertainty estimates are missing.",
   ]);
 }
 
@@ -354,8 +336,8 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Only 4 of 12 model-and-task cases rise twice",
-    "Qwen, Gemma, and Llama × four tasks; model versions differ in more than size",
+    "UniMoral: only 4 of 12 family and task comparisons rise twice",
+    "Exploratory CEI result. Each comparison follows one model family on one task across three sizes.",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
   const chart = slide.charts.add("bar", {
@@ -378,7 +360,7 @@ function setNotes(slide, lines) {
     hasLegend: false,
     xAxis: {
       visible: true,
-      title: "Model-family and task cases (12 total)",
+      title: "Family and task combinations (12 total)",
       min: 0,
       max: 12,
       majorUnit: 3,
@@ -402,21 +384,20 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "Each bar counts model-family × task cases (12 total).", {
+  addText(slide, "Each bar counts one model family on one task across three saved sizes.", {
     left: 150, top: 526, width: 900, height: 24,
   }, { fontSize: 14, color: C.muted });
-  addText(slide, "Size is one clue, not a general rule.", {
+  addText(slide, "4 rise twice · 7 change direction · 1 falls twice", {
     left: 150, top: 568, width: 860, height: 40,
   }, { fontSize: 26, bold: true, color: C.ink });
-  addText(slide, "Each case follows one model family on one task. Different score types stay separate.", {
+  addText(slide, "This is exploratory. Model versions also differ in training and release, and no confidence ranges were saved.", {
     left: 150, top: 618, width: 920, height: 30,
   }, { fontSize: 16, color: C.muted });
   setNotes(slide, [
     "Sources: data/results/size_path_summary.csv; data/results/size_task_points.csv.",
-    "Denominator: 12 complete paths equals three model families times four UniMoral tasks. Each path contains three named variants.",
-    "Counts: 4 rise at both steps, 7 change direction, and 1 falls at both steps.",
-    "Accuracy and METEOR stay separate.",
-    "This slide counts within-task direction only. It does not average accuracy and METEOR. The selected grid has no saved confidence intervals or raw-log replay.",
+    "The 12 checks cover three model families and four UniMoral tasks. Each check follows three model sizes.",
+    "Four checks rise twice, seven change direction, and one falls twice.",
+    "Accuracy and METEOR stay separate. No saved uncertainty ranges or raw run archive are available.",
   ]);
 }
 
@@ -425,8 +406,8 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Gemma scores rise on one task and fall on another",
-    "",
+    "UniMoral Gemma: factor rises while typology falls",
+    "Exploratory CEI result. Gemma 3 at 4B, 12B, and 27B; the vertical axis is zoomed.",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
   const chart = slide.charts.add("line", {
@@ -486,18 +467,17 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "The larger named variants do not score higher on both tasks.", {
+  addText(slide, "4B to 27B: factor accuracy +.034 · moral typology accuracy −.027", {
     left: 118, top: 612, width: 730, height: 34,
-  }, { fontSize: 22, bold: true, color: C.purple });
-  addText(slide, "Each point is one stored task score. Its uncertainty range and raw run archive are unavailable.", {
+  }, { fontSize: 21, bold: true, color: C.ink });
+  addText(slide, "Each point is one saved task score. No uncertainty range or raw run archive is available.", {
     left: 118, top: 650, width: 920, height: 26,
   }, { fontSize: 15, color: C.muted });
   setNotes(slide, [
     "Sources: data/results/size_path_summary.csv; data/results/size_task_points.csv; evidence/model-parameter-sources.csv.",
     "Exact values: factor attribution .578 to .601 to .613; moral typology .597 to .579 to .570.",
-    "Across Qwen, Gemma, and Llama on four UniMoral tasks, 4 of 12 complete paths rise twice, 7 change direction, and 1 falls twice.",
-    "No saved intervals or raw-log replay are available for this selected grid.",
-    "This is exploratory selected-grid evidence. Parameter tier is descriptive metadata, not a controlled intervention. Qwen and Llama paths also change model generation or release period.",
+    "Factor accuracy rises while moral typology accuracy falls as the named Gemma variants get larger.",
+    "No saved uncertainty ranges or raw run archive are available. The versions also differ in training.",
   ]);
 }
 
@@ -506,17 +486,17 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Later model versions score higher on some tasks and lower on others",
-    "Accuracy change on three UniMoral tasks; consequence text match stays separate",
+    "UniMoral releases: Qwen rises on 3 tasks, DeepSeek on 2",
+    "Exploratory CEI result. Later score minus earlier score; consequence uses text match.",
     { label: "EXPLORATORY", fill: C.goldSoft, color: "#8B5F00" },
   );
-  addText(slide, "Qwen: 2024-Q3 · Qwen2.5 7B Instruct (7.61B) → 2026-Q1 · Qwen3.5 9B (9B)", {
+  addText(slide, "Qwen: Qwen2.5 7B Instruct · 2024-09-19 · 7.61B total to Qwen3.5 9B · 2026-02-27 · 9B total", {
     left: 110, top: 158, width: 1000, height: 26,
   }, { fontSize: 14, color: C.teal, bold: true, autoFit: "shrinkText" });
-  addText(slide, "DeepSeek: 2025-Q1 · V3-0324 (671B main, 37B active) → 2026-Q2 · V4 Flash (284B main, 13B active)", {
+  addText(slide, "DeepSeek: V3-0324 · 2025-03-24 · 671B main / 37B active to V4 Flash · 2026-04-22 · 284B main / 13B active", {
     left: 110, top: 186, width: 1060, height: 26,
   }, { fontSize: 14, color: C.purple, bold: true, autoFit: "shrinkText" });
-  addText(slide, "main = published main-model parameters (auxiliary/MTP excluded); active = parameters used per token", {
+  addText(slide, "DeepSeek labels show published main-model B and active B used per token.", {
     left: 110, top: 212, width: 980, height: 20,
   }, { fontSize: 12, color: C.muted });
   const chart = slide.charts.add("bar", {
@@ -573,26 +553,20 @@ function setNotes(slide, lines) {
     plotAreaLine: { fill: "none", width: 0 },
   });
   applyPresentationChartFont(chart, { fontFamily: family });
-  addText(slide, "Across all four tasks: Qwen 3 higher / 1 lower · DeepSeek 2 higher / 2 lower", {
+  addText(slide, "Across all 4 tasks: Qwen is higher on 3 and lower on 1. DeepSeek is higher on 2 and lower on 2.", {
     left: 120, top: 560, width: 1030, height: 28,
   }, { fontSize: 18, bold: true, color: C.ink });
-  addText(slide, "Separate metric · Consequence text match (METEOR): Qwen −.027; DeepSeek +.019", {
+  addText(slide, "Separate metric · Consequence text match (METEOR): Qwen −.027 · DeepSeek +.019", {
     left: 120, top: 590, width: 1030, height: 26,
   }, { fontSize: 16, bold: true, color: C.coral });
-  addText(slide, "All endpoint runs were evaluated on 28–29 May 2026.", {
-    left: 120, top: 620, width: 900, height: 26,
-  }, { fontSize: 17, bold: true, color: C.ink });
-  addText(slide, "Release period is model metadata, not a progress timeline.", {
-    left: 120, top: 650, width: 940, height: 22,
-  }, { fontSize: 13, color: C.muted });
-  addText(slide, "Exploratory: saved uncertainty is unavailable. METEOR stays separate from accuracy.", {
-    left: 120, top: 676, width: 940, height: 20,
-  }, { fontSize: 12, color: C.muted });
+  addText(slide, "All scores were tested 28–29 May 2026. Release date describes the model, not the test date. No uncertainty ranges were saved.", {
+    left: 120, top: 628, width: 1030, height: 30,
+  }, { fontSize: 14, color: C.muted });
   setNotes(slide, [
     "Sources: data/results/release_path_summary.csv; data/results/release_period_task_points.csv; data/model_release_periods.csv; evidence/model-parameter-sources.csv.",
     "Classification accuracy deltas shown: Qwen action +.017873, typology +.042383, factor +.002005; DeepSeek action +.186589, typology -.003150, factor -.037514.",
-    "Consequence uses METEOR and is not mixed into this accuracy chart. Its endpoint deltas are Qwen -.026780 and DeepSeek +.018985.",
-    "Every plotted selected-grid score was evaluated on 28 or 29 May 2026. Release quarter is descriptive model metadata, not observation time or a causal intervention.",
+    "Consequence uses a separate text-match score. Its changes are Qwen -.026780 and DeepSeek +.018985.",
+    "Every shown score was tested on 28 or 29 May 2026. Release date describes the model and does not show a cause.",
   ]);
 }
 
@@ -601,47 +575,38 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "We did not exactly repeat any paper's experiment",
-    "The papers help explain our questions. Their scores cannot be compared with ours.",
+    "How the local tests relate to five papers",
+    "MoralBench, UniMoral, MoReBench, MoralLens, and Value Kaleidoscope",
     { label: "PAPER REVIEW", fill: C.purpleSoft, color: C.purple },
   );
-  addText(slide, "0 of 4", { left: 88, top: 230, width: 230, height: 105 }, {
-    fontSize: 60, bold: true, color: C.coral, alignment: "center",
-  });
-  addText(slide, "papers repeated\nexactly", { left: 88, top: 342, width: 230, height: 80 }, {
-    fontSize: 24, bold: true, color: C.ink, alignment: "center",
-  });
   const values = [
-    ["Paper", "Plain-language question", "How close is our test?"],
-    ["MoralBench", "Do model choices match human ratings?", "Similar question"],
-    ["UniMoral", "Can models predict choices, moral categories, influences, and what happens next?", "Some similar tasks"],
-    ["MoReBench", "Does reasoning cover expert criteria?", "Related question, different test"],
-    ["MoralLens", "Do reasons change when a model explains before or after choosing?", "Related question, different test"],
+    ["Paper", "What it asks", "Closest local evidence"],
+    ["MoralBench", "Do model choices match human ratings?", "Related tasks, different setup"],
+    ["UniMoral", "Can models predict actions, types, factors, and consequences?", "Narrower versions of four tasks"],
+    ["MoReBench", "Does reasoning meet expert criteria?", "Keyword check only"],
+    ["MoralLens", "Does reasoning order change reasons and choices?", "Keyword check only"],
+    ["Value Kaleidoscope", "How do value tasks change with model size?", "Different models and scoring"],
   ];
   const table = slide.tables.add({
     rows: values.length,
     columns: 3,
-    left: 355,
-    top: 180,
-    width: 845,
-    height: 360,
-    columnWidths: [175, 470, 200],
+    left: 82,
+    top: 174,
+    width: 1116,
+    height: 402,
+    columnWidths: [210, 590, 316],
     values,
   });
-  styleTable(table, values.length, 3, { bodySize: 17, headerSize: 16, headerFill: C.purple });
-  table.cells.block({ row: 1, column: 2, rowCount: 4, columnCount: 1 }).textStyle.bold = true;
-  addText(slide, "Use the papers to explain our questions—not to compare scores.", {
-    left: 355, top: 570, width: 845, height: 40,
-  }, { fontSize: 21, bold: true, color: C.purple });
-  addText(slide, "Our UniMoral run does not test prompt hints, language differences, or where the stories came from.", {
-    left: 355, top: 618, width: 845, height: 28,
-  }, { fontSize: 15, color: C.muted });
+  styleTable(table, values.length, 3, { bodySize: 16, headerSize: 16, headerFill: C.purple });
+  table.cells.block({ row: 1, column: 0, rowCount: 5, columnCount: 1 }).textStyle.bold = true;
+  addText(slide, "None of the five is reproduced exactly. Paper scores and local scores stay separate.", {
+    left: 92, top: 610, width: 1096, height: 34,
+  }, { fontSize: 20, bold: true, color: C.ink, alignment: "center" });
   setNotes(slide, [
     "Sources: docs/PAPER_REVIEW.md; data/paper_protocol_map.csv.",
-    "MoralBench and UniMoral share approximate task families with the local evaluator, but model, data, prompt, metric, scorer, or aggregation identities differ.",
-    "MoReBench and MoralLens local performance surfaces are proxy-only. Their paper metrics and judges are not reproduced.",
-    "They are not direct score baselines. The visible status labels translate the protocol evidence into plain language.",
-    "Do not use the canonical 37-row UniMoral and ValuePrism crosswalk as the denominator for all four papers. That ledger covers a different evidence scope.",
+    "The five papers ask different questions and use different models, data, prompts, or scores.",
+    "None is reproduced exactly by the CEI tests. Paper scores and CEI scores should stay separate.",
+    "The 37-row comparison in the full deck covers UniMoral and ValuePrism only.",
   ]);
 }
 
@@ -650,8 +615,8 @@ function setNotes(slide, lines) {
   const slide = presentation.slides.add();
   addSlideFrame(
     slide,
-    "Share task results now. Strengthen the test next.",
-    "Better evidence makes the current results more useful",
+    "MoralBench and UniMoral: what we can report now",
+    "Report the 8 task results now. Do not publish one overall model rank.",
     { label: "DECISION", fill: C.coralSoft, color: C.coral },
   );
   const values = [
@@ -673,17 +638,14 @@ function setNotes(slide, lines) {
   });
   styleTable(table, values.length, 3, { bodySize: 18, headerSize: 16, headerFill: C.coral });
   table.cells.block({ row: 1, column: 0, rowCount: 4, columnCount: 1 }).textStyle.bold = true;
-  addText(slide, "Best research next move", { left: 92, top: 582, width: 300, height: 30 }, {
-    fontSize: 17, color: C.muted, bold: true,
-  });
-  addText(slide, "Restore answers and scores. Check scoring and labels. Compare models. Then have people review the test.", {
-    left: 92, top: 614, width: 1096, height: 46,
+  addText(slide, "Next: restore answers and scores, check scoring, compare models, and get human review.", {
+    left: 92, top: 600, width: 1096, height: 46,
   }, { fontSize: 24, color: C.ink, bold: true, autoFit: "shrinkText" });
   setNotes(slide, [
     "Sources: docs/RESEARCH_LEAD_BRIEF.md; evidence/canonical-audit/RERUN_PRIORITY.md; evidence/canonical-audit/SELF_CRITIQUE.md.",
     "The order shown is a decision recommendation, not a statistical theorem.",
-    "Benchmark agreement is not human validity. The visible wording translates that evidence boundary into plain language.",
-    "The saved evidence still lacks canonical raw archives, clustered uncertainty, complete model and dataset identity, contamination testing, and representative human validation.",
+    "Benchmark agreement does not prove that the test matches human judgment.",
+    "We still need the original answers and scores, better uncertainty estimates, exact model and dataset records, leakage checks, and representative human review.",
   ]);
 }
 

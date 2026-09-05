@@ -1,0 +1,61 @@
+paper,panel,item,value,metric,source_locator,interpretation_boundary
+MoralBench,MFQ binary,Zephyr,54.2,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,MFQ binary,LLaMA-2,58.5,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,MFQ binary,Gemma-1.1,49.9,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,MFQ binary,GPT-3.5,54.7,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,MFQ binary,GPT-4,56.6,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,Vignette binary,Zephyr,48.1,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,Vignette binary,LLaMA-2,52.6,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,Vignette binary,Gemma-1.1,44.4,raw total,Table 1,Displayed total used; six printed subscores sum to 51.8; not comparable to local normalized preference
+MoralBench,Vignette binary,GPT-3.5,50.3,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,Vignette binary,GPT-4,52.8,raw total,Table 1,Paper score; not comparable to local normalized preference
+MoralBench,MFQ comparison,Zephyr,8.2,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,MFQ comparison,LLaMA-2,8.0,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,MFQ comparison,Gemma-1.1,9.6,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,MFQ comparison,GPT-3.5,12.4,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,MFQ comparison,GPT-4,9.8,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,Vignette comparison,Zephyr,10.4,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,Vignette comparison,LLaMA-2,13.2,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,Vignette comparison,Gemma-1.1,10.8,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,Vignette comparison,GPT-3.5,14.2,correct points,Table 2,Paper score; no confidence intervals reported
+MoralBench,Vignette comparison,GPT-4,13.8,correct points,Table 2,Paper score; no confidence intervals reported
+UniMoral,RQ1 AP weighted F1 range,Lower,0.5057,weighted F1,Appendix Table 4,Llama-only range across displayed language and cue conditions; not a no-cue baseline
+UniMoral,RQ1 AP weighted F1 range,Upper,0.6617,weighted F1,Appendix Table 4,Llama-only range across displayed language and cue conditions; not a no-cue baseline
+UniMoral,RQ2 MTC weighted F1 range,Lower,0.1742,weighted F1,Appendix Table 5,Llama-only range across displayed language and cue conditions; local metric is accuracy
+UniMoral,RQ2 MTC weighted F1 range,Upper,0.5701,weighted F1,Appendix Table 5,Llama-only range across displayed language and cue conditions; local metric is accuracy
+UniMoral,RQ3 FAA weighted F1 range,Lower,0.0630,weighted F1,Appendix Table 6,Llama-only range across displayed language and cue conditions; local metric is accuracy
+UniMoral,RQ3 FAA weighted F1 range,Upper,0.3859,weighted F1,Appendix Table 6,Llama-only range across displayed language and cue conditions; local metric is accuracy
+UniMoral,RQ4 consequence derived mean,BLEU,0.0138,derived unweighted mean,Appendix Table 7,Llama-only value derived from six displayed language cells; the paper does not report this aggregate or evaluation N
+UniMoral,RQ4 consequence derived mean,METEOR,0.0968,derived unweighted mean,Appendix Table 7,Llama-only value derived from six displayed language cells; the paper does not report this aggregate or evaluation N
+UniMoral,RQ4 consequence derived mean,BERTScore,0.7193,derived unweighted mean,Appendix Table 7,Llama-only value derived from six displayed language cells; encoder and package versions are unpinned
+UniMoral,RQ1 contextual-cue AP means,Lower,0.5518,derived weighted F1 mean,Figure 5 and Appendix Table 4,No no-context paper row or documented significance test
+UniMoral,RQ1 contextual-cue AP means,Upper,0.5700,derived weighted F1 mean,Figure 5 and Appendix Table 4,No no-context paper row or documented significance test
+MoReBench,Table 2 displayed average,Identify / recall,52.7,percent of expert criteria satisfied,Table 2,Paper prose nearby reports conflicting summary numbers
+MoReBench,Table 2 displayed average,Process clear,53.6,percent of expert criteria satisfied,Table 2,Paper prose nearby reports conflicting summary numbers
+MoReBench,Table 2 displayed average,Process logical,47.9,percent of expert criteria satisfied,Table 2,Paper prose nearby reports conflicting summary numbers
+MoReBench,Table 2 displayed average,Outcome helpful,50.1,percent of expert criteria satisfied,Table 2,Paper prose nearby reports conflicting summary numbers
+MoReBench,Table 2 displayed average,Outcome harmless,81.1,percent of expert criteria satisfied,Table 2,Paper prose nearby reports conflicting summary numbers
+MoralLens,Reasoning order,CD GAP post-decision,0.230,CD GAP (-1 deontological; +1 consequentialist),Table 2,Reasoning first shifts the mean toward deontology; both means remain slightly positive
+MoralLens,Reasoning order,CD GAP pre-decision,0.052,CD GAP (-1 deontological; +1 consequentialist),Table 2,Reasoning first shifts the mean toward deontology; both means remain slightly positive
+MoralLens,Reasoning order,Utility post-decision,0.641,share choosing the larger group,Table 2,Utility is a choice frequency; not moral quality
+MoralLens,Reasoning order,Utility pre-decision,0.792,share choosing the larger group,Table 2,Utility is a choice frequency; not moral quality
+Value Kaleidoscope,Relevance accuracy,60M,0.660,accuracy,Table 13,Contrastive synthetic target: GPT-4 positive for this situation versus a negative from other situations; not human or normative accuracy
+Value Kaleidoscope,Relevance accuracy,220M,0.835,accuracy,Table 13,Contrastive synthetic target: GPT-4 positive for this situation versus a negative from other situations; not human or normative accuracy
+Value Kaleidoscope,Relevance accuracy,770M,0.872,accuracy,Table 13,Contrastive synthetic target: GPT-4 positive for this situation versus a negative from other situations; not human or normative accuracy
+Value Kaleidoscope,Relevance accuracy,3B,0.884,accuracy,Table 13,Contrastive synthetic target: GPT-4 positive for this situation versus a negative from other situations; not human or normative accuracy
+Value Kaleidoscope,Relevance accuracy,11B,0.891,accuracy,Table 13,Contrastive synthetic target: GPT-4 positive for this situation versus a negative from other situations; not human or normative accuracy
+Value Kaleidoscope,Valence accuracy,60M,0.597,accuracy,Table 13,GPT-4 Supports/Opposes/Either target; not human or normative accuracy
+Value Kaleidoscope,Valence accuracy,220M,0.745,accuracy,Table 13,GPT-4 Supports/Opposes/Either target; not human or normative accuracy
+Value Kaleidoscope,Valence accuracy,770M,0.792,accuracy,Table 13,GPT-4 Supports/Opposes/Either target; not human or normative accuracy
+Value Kaleidoscope,Valence accuracy,3B,0.808,accuracy,Table 13,GPT-4 Supports/Opposes/Either target; not human or normative accuracy
+Value Kaleidoscope,Valence accuracy,11B,0.819,accuracy,Table 13,GPT-4 Supports/Opposes/Either target; not human or normative accuracy
+Value Kaleidoscope,Generation perplexity,60M,2.86,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Generation perplexity,220M,2.53,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Generation perplexity,770M,2.34,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Generation perplexity,3B,2.23,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Generation perplexity,11B,2.22,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Explanation perplexity,60M,5.70,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Explanation perplexity,220M,4.23,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Explanation perplexity,770M,3.52,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Explanation perplexity,3B,3.14,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route
+Value Kaleidoscope,Explanation perplexity,11B,2.99,perplexity (lower is better),Table 13,Paper Kaleido model; not the local ValuePrism selected-grid route

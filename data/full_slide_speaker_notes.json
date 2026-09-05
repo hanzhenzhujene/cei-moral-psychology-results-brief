@@ -1,0 +1,266 @@
+[
+  {
+    "slide": 1,
+    "context": "These are CEI MoralBench and UniMoral results. The question is what the saved results can support now.",
+    "read": "Slides 2 to 6 give the main CEI findings. Later slides explain the papers and evidence limits.",
+    "meaning": "Different models have the highest saved score on different tasks. The two MoralBench comparison tasks do not identify a clear leader.",
+    "limit": "These tasks do not show that one model is morally better or that the findings apply outside the benchmark.",
+    "sources": "slides/cei-moral-psychology-results-deck.pptx, docs/RESEARCH_LEAD_BRIEF.md"
+  },
+  {
+    "slide": 2,
+    "context": "These are CEI MoralBench and UniMoral results for five models that completed all eight tasks.",
+    "read": "Each row is one task. The last column names the highest saved score. Check the score type in that row.",
+    "meaning": "No model has the highest saved score on all eight tasks. The top model changes with the task.",
+    "limit": "The rows use different measures. Do not combine agreement, accuracy, and text match into one score.",
+    "sources": "data/results/common_roster_primary.csv, docs/RESULTS_READOUT.md"
+  },
+  {
+    "slide": 3,
+    "context": "These are CEI MoralBench comparison results. The question is whether the saved scores separate the models.",
+    "read": "The two counts cover 28 MFQ model pairs and 45 vignette model pairs.",
+    "meaning": "For every pair of models, their separate 95% score ranges overlap. The saved results do not show a clear leader.",
+    "limit": "This does not directly test the score difference between two models. The saved scores for each question are missing.",
+    "sources": "evidence/canonical-audit/figures/data/primary_confidence_intervals.csv"
+  },
+  {
+    "slide": 4,
+    "context": "These are exploratory CEI UniMoral results for Gemma, Llama, and Qwen. The question is whether scores rise at both size steps.",
+    "read": "Each comparison follows one model family on one task across three sizes.",
+    "meaning": "Four of 12 comparisons rise at both steps. Seven change direction. One falls at both steps.",
+    "limit": "Size is only one difference between the model versions. These scores have no saved uncertainty ranges.",
+    "sources": "data/results/size_path_summary.csv, data/results/size_task_points.csv"
+  },
+  {
+    "slide": 5,
+    "context": "These are exploratory CEI UniMoral results for Gemma 3 at 4B, 12B, and 27B.",
+    "read": "Model size runs from left to right. Each line shows accuracy for one UniMoral task.",
+    "meaning": "Factor accuracy rises from .578 to .613. Moral typology accuracy falls from .597 to .570.",
+    "limit": "The vertical scale is zoomed. The versions also differ in training, and no uncertainty ranges are saved.",
+    "sources": "data/results/size_task_points.csv, evidence/model-parameter-sources.csv"
+  },
+  {
+    "slide": 6,
+    "context": "These are exploratory CEI UniMoral results for earlier and later Qwen and DeepSeek models.",
+    "read": "Bars show changes in three accuracy tasks. The separate line shows the change in consequence text match.",
+    "meaning": "Qwen is higher on three tasks and lower on one. DeepSeek is higher on two and lower on two.",
+    "limit": "Release date describes the model, not the test date. All shown scores were run on May 28 or 29, 2026.",
+    "sources": "data/results/release_path_summary.csv, data/results/release_period_task_points.csv"
+  },
+  {
+    "slide": 7,
+    "context": "This map covers MoralBench, UniMoral, MoReBench, MoralLens, and Value Kaleidoscope.",
+    "read": "Read each row from the paper question to the paper result and the closest CEI evidence.",
+    "meaning": "None of the CEI tests is documented as an exact repeat of a paper experiment.",
+    "limit": "The 37 row count on Slide 26 covers only UniMoral and ValuePrism, not all five papers.",
+    "sources": "data/paper_protocol_map.csv, data/paper_visual_results.csv, evidence/canonical-audit/PAPER_REPO_EVIDENCE_LEDGER.csv"
+  },
+  {
+    "slide": 8,
+    "context": "This evidence audit covers 143 saved model and task results. It asks which results may support the main findings.",
+    "read": "The ring divides the results into four groups. The green group contains 78 main text results.",
+    "meaning": "Seventy eight of 143 results, or 55%, meet the rules for main findings.",
+    "limit": "This does not prove that we can reproduce the raw runs or that the tasks match human judgment. Excluded does not mean model failure.",
+    "sources": "evidence/canonical-audit/figures/data/audit_partition.csv"
+  },
+  {
+    "slide": 9,
+    "context": "The same 143 CEI results are divided by how they may be used.",
+    "read": "Follow each result group to the type of claim it can support.",
+    "meaning": "Main text results support task findings. Other groups support checks, a separate extension, or exclusion records.",
+    "limit": "Confirming that the files are intact does not make weak evidence stronger.",
+    "sources": "evidence/canonical-audit/figures/01_audit_partition_flow.png"
+  },
+  {
+    "slide": 10,
+    "context": "These are CEI MoralBench results for the same five models on four tasks.",
+    "read": "Each panel has its own score. A dot is a saved score. A line is its saved 95% range.",
+    "meaning": "The highest saved score belongs to different models on different MoralBench tasks.",
+    "limit": "Agreement and accuracy are different measures. The ranges do not directly test the gap between two models.",
+    "sources": "assets/results/01_common_roster_task_results.png, data/results/common_roster_primary.csv"
+  },
+  {
+    "slide": 11,
+    "context": "These are CEI MoralBench forced-choice results. The question is whether the two tests identify a model leader.",
+    "read": "Each count shows how many model pairs have overlapping score ranges.",
+    "meaning": "For each pair of models, their separate 95% score ranges overlap. The saved results do not show a clear leader.",
+    "limit": "This does not directly test the difference between two models. The saved scores for each question are missing.",
+    "sources": "assets/results/02_precision_by_task.png, evidence/canonical-audit/figures/data/primary_confidence_intervals.csv"
+  },
+  {
+    "slide": 12,
+    "context": "These are CEI MoralBench accuracy results based on 20 MFQ questions and 24 vignettes per model.",
+    "read": "The dot is accuracy. The horizontal line is the saved 95% range.",
+    "meaning": "The available ranges are wide and do not resolve the small score gaps.",
+    "limit": "The saved data do not let us compare two models on the same questions. They also do not show whether the benchmark matches human judgment.",
+    "sources": "evidence/canonical-audit/figures/03_primary_uncertainty.png"
+  },
+  {
+    "slide": 13,
+    "context": "Eight CEI MoralBench and UniMoral tasks use different kinds of scores. The question is whether they can form one overall score.",
+    "read": "Each line runs from the lowest to the highest saved score for one task. Read the three score types separately.",
+    "meaning": "Models are closer on some tasks and farther apart on others. Averaging these panels would mix different measures.",
+    "limit": "A high score in one panel cannot be compared with a high score in another. There is no supported overall moral score.",
+    "sources": "evidence/canonical-audit/figures/04_task_diagnostic_spread.png"
+  },
+  {
+    "slide": 14,
+    "context": "These are exploratory CEI UniMoral results across three model families and four tasks.",
+    "read": "The top chart counts 12 family and task comparisons. The lower chart shows Gemma at three sizes.",
+    "meaning": "Only four comparisons rise at both steps. Gemma moves in opposite directions on two tasks.",
+    "limit": "Size is not isolated from training and release changes. No uncertainty ranges are saved.",
+    "sources": "assets/results/03_size_paths.png, data/results/size_path_summary.csv"
+  },
+  {
+    "slide": 15,
+    "context": "These are exploratory CEI UniMoral action and typology results for Qwen, Gemma, and Llama.",
+    "read": "Move left to right within one family. Each point names the model and its published size.",
+    "meaning": "Three of six comparisons change direction. Larger versions are not consistently more accurate on these two tasks.",
+    "limit": "The chart has no saved uncertainty ranges or raw run archive. The model versions differ in more than size.",
+    "sources": "assets/results/03_size_action_typology_detail.png, data/results/size_task_points.csv"
+  },
+  {
+    "slide": 16,
+    "context": "These are exploratory CEI UniMoral consequence and ValuePrism relevance results across model sizes.",
+    "read": "Move left to right within one family. Read consequence text match and relevance accuracy separately.",
+    "meaning": "Three of five complete comparisons change direction. No one size pattern holds across both tasks.",
+    "limit": "Text match and accuracy cannot be compared directly. CEI ValuePrism is not the Value Kaleidoscope paper test.",
+    "sources": "assets/results/03_size_consequence_relevance_detail.png, data/results/size_task_points.csv"
+  },
+  {
+    "slide": 17,
+    "context": "This is an exploratory CEI UniMoral comparison of the first and last Qwen and DeepSeek models.",
+    "read": "The horizontal value is later score minus earlier score. Right is higher. Left is lower.",
+    "meaning": "Qwen is higher on three of four tasks. DeepSeek is higher on two of four.",
+    "limit": "All scores were tested in May 2026. Looking only at first and last models can hide changes in between.",
+    "sources": "assets/results/04_release_period_paths.png, data/results/release_path_summary.csv"
+  },
+  {
+    "slide": 18,
+    "context": "These are exploratory CEI UniMoral action and typology results across saved Qwen and DeepSeek release quarters.",
+    "read": "Move left to right within one family. Each point names the model and its published size.",
+    "meaning": "DeepSeek changes direction on both tasks. The reported score depends on which saved model version is used.",
+    "limit": "Release quarter is model metadata, not test time. Training, size, architecture, and provider details can also differ. The available files have no saved uncertainty ranges or raw run archive.",
+    "sources": "assets/results/04_release_action_typology_detail.png, data/results/release_period_task_points.csv"
+  },
+  {
+    "slide": 19,
+    "context": "These are exploratory CEI UniMoral consequence and ValuePrism relevance results across model release quarters.",
+    "read": "Move left to right within one family. Read consequence text match and relevance accuracy separately.",
+    "meaning": "Later Qwen is lower on consequence text match and higher on ValuePrism relevance. DeepSeek ends higher on both.",
+    "limit": "Text match and accuracy cannot share one scale. Release quarter is model metadata, not test time. The available files have no saved uncertainty ranges or raw run archive.",
+    "sources": "assets/results/04_release_period_paths_detail_b.png, data/results/release_period_task_points.csv"
+  },
+  {
+    "slide": 20,
+    "context": "These are six exploratory CEI UniMoral action results. The question is whether larger or later models always score higher.",
+    "read": "The horizontal axis is release date. The vertical axis is action accuracy. Bubble area shows published model size.",
+    "meaning": "Three 671B DeepSeek releases range from .453 to .660. The six points do not form a steady size or date pattern.",
+    "limit": "Six results cannot show a general pattern. The chart has no uncertainty ranges, and some details about the models actually used were not saved.",
+    "sources": "data/model_release_periods.csv, data/results/release_period_task_points.csv, evidence/model-parameter-sources.csv"
+  },
+  {
+    "slide": 21,
+    "context": "This is a MoralBench paper result, not a CEI result. The paper asks whether model choices align with human ratings.",
+    "read": "Read the four assessments separately because they use different score scales.",
+    "meaning": "LLaMA-2 leads MFQ binary. GPT-4 leads vignette binary. GPT-3.5 leads both comparison tests.",
+    "limit": "The paper gives no confidence ranges for these tables. One printed Gemma total conflicts with its shown parts.",
+    "sources": "MoralBench paper Tables 1 and 2, data/paper_visual_results.csv"
+  },
+  {
+    "slide": 22,
+    "context": "This compares the UniMoral paper with CEI evidence. The paper studies action, moral type, factor, consequence, prompts, language, and story source.",
+    "read": "Read each row from the paper question to the paper score and the related CEI measure.",
+    "meaning": "The paper reports that cues help, some languages score higher, and psychological stories score above Reddit stories. The saved CEI evidence does not test these comparisons.",
+    "limit": "Paper and CEI numbers are not directly comparable. The paper does not show a no-context baseline or clear significance tests for every condition claim. The consequence means were calculated from six paper table cells.",
+    "sources": "UniMoral paper, data/paper_visual_results.csv, evidence/canonical-audit/PAPER_REPO_EVIDENCE_LEDGER.csv"
+  },
+  {
+    "slide": 23,
+    "context": "This is a MoReBench paper result. It asks whether a model's thinking trace, the written reasoning before its final answer, meets expert criteria.",
+    "read": "Each bar shows how often one expert criterion was met in those traces.",
+    "meaning": "The paper table reports 81.1% for harmless outcomes and 47.9% for logical process.",
+    "limit": "These are not final-answer results. For models whose internal reasoning is not available, the paper says these traces may be generated summaries. The CEI keyword check is not the same review.",
+    "sources": "MoReBench paper displayed Table 2, data/paper_visual_results.csv"
+  },
+  {
+    "slide": 24,
+    "context": "This is a MoralLens paper result. The paper asks what changes when a model reasons before choosing.",
+    "read": "The left panel shows the reason score. The right panel shows how often the model chooses the larger group.",
+    "meaning": "Reasoning first moves the mean toward duty-based reasons and raises the larger-group choice rate.",
+    "limit": "Both reason scores remain above zero. The larger-group rate is not moral quality, and the CEI keyword check cannot repeat this test.",
+    "sources": "MoralLens paper Table 2, data/paper_visual_results.csv"
+  },
+  {
+    "slide": 25,
+    "context": "This is a Value Kaleidoscope paper result for Kaleido models from 60M to 11B.",
+    "read": "Higher is better for the two accuracy panels. Lower is better for the two perplexity panels.",
+    "meaning": "Most of the shown change occurs before 3B. The change from 3B to 11B is small on all four measures.",
+    "limit": "The paper gives no uncertainty ranges. Relevance and valence use GPT-4 targets, not human judgments. CEI ValuePrism uses different models and test steps.",
+    "sources": "Value Kaleidoscope paper Table 13, data/paper_visual_results.csv"
+  },
+  {
+    "slide": 26,
+    "context": "This compares 37 paper-to-CEI rows covering the UniMoral paper, the Value Kaleidoscope paper, and related CEI UniMoral and ValuePrism tests. It asks whether the tests are exact repeats.",
+    "read": "Each column checks one part of the model, data, score, or test setup.",
+    "meaning": "None of the 37 rows matches exactly. Seventeen are related but different, four are indirect checks, and sixteen cannot be compared with the saved CEI evidence.",
+    "limit": "This count covers only UniMoral and ValuePrism. Related evidence does not repeat the paper test.",
+    "sources": "evidence/canonical-audit/figures/02_evidence_status_matrix.png, evidence/canonical-audit/PAPER_REPO_EVIDENCE_LEDGER.csv"
+  },
+  {
+    "slide": 27,
+    "context": "This is a CEI research priority, not a model result. It asks which work would reduce the most uncertainty.",
+    "read": "Read from top to bottom.",
+    "meaning": "Review parsing, labels, and scoring first. Then add human review before broad new runs.",
+    "limit": "This order is our research judgment. Run paid models only after these checks.",
+    "sources": "evidence/canonical-audit/figures/05_evidence_acquisition_priority.png, evidence/canonical-audit/RERUN_PRIORITY.md"
+  },
+  {
+    "slide": 28,
+    "context": "These are CEI UniMoral results for the same five models on four tasks.",
+    "read": "Each panel has its own score. A dot is a saved score. A line is its saved 95% range.",
+    "meaning": "The highest saved score belongs to different models on different UniMoral tasks.",
+    "limit": "Accuracy and text match are different measures. The ranges do not directly test the gap between two models.",
+    "sources": "assets/results/01_common_roster_task_results.png, data/results/common_roster_primary.csv"
+  },
+  {
+    "slide": 29,
+    "context": "These are exploratory CEI UniMoral factor results for Qwen, Gemma, and Llama at three model sizes.",
+    "read": "Move left to right within one family. Each point names the model and its published size.",
+    "meaning": "Gemma rises at both size steps. Qwen and Llama change direction across the three saved sizes.",
+    "limit": "The models differ in training as well as size, so size alone may not explain the scores. The available files have no saved uncertainty ranges or raw run archive.",
+    "sources": "assets/results/03_size_factor_detail.png, data/results/size_task_points.csv"
+  },
+  {
+    "slide": 30,
+    "context": "These are exploratory CEI ValuePrism valence results across saved Llama model sizes.",
+    "read": "Move left to right along the Llama line. Each point names the model and its published size.",
+    "meaning": "The complete Llama path falls from 3B to 8B, then rises at 70B.",
+    "limit": "Only Llama has results at all three sizes. Qwen and Gemma do not. CEI ValuePrism is not the Value Kaleidoscope paper test. The available files have no saved uncertainty ranges or raw run archive.",
+    "sources": "assets/results/03_size_valence_detail.png, data/results/size_task_points.csv"
+  },
+  {
+    "slide": 31,
+    "context": "These are exploratory CEI UniMoral factor results across saved Qwen and DeepSeek release quarters.",
+    "read": "Move left to right within one family. Each point names the model and its published size.",
+    "meaning": "From first to last, DeepSeek is lower by .038. Qwen changes by only .002.",
+    "limit": "Release quarter is model metadata, not test time, and does not explain why the score changed. All scores were tested in May 2026 and have no saved uncertainty ranges.",
+    "sources": "assets/results/04_release_factor_detail.png, data/results/release_period_task_points.csv"
+  },
+  {
+    "slide": 32,
+    "context": "These are exploratory CEI ValuePrism valence results across saved Qwen and DeepSeek release quarters.",
+    "read": "Move left to right within one family. Each point names the model and its published size.",
+    "meaning": "From first to last, Qwen is higher by .187 and DeepSeek is lower by .062.",
+    "limit": "Release quarter is model metadata, not test time. It does not explain the score change. CEI ValuePrism is not the paper test. The available files have no saved uncertainty ranges or raw run archive.",
+    "sources": "assets/results/04_release_valence_detail.png, data/results/release_period_task_points.csv"
+  },
+  {
+    "slide": 33,
+    "context": "This is the decision summary for the CEI research lead. It asks what the team can report now.",
+    "read": "The first row states the current claim. Later rows show what must improve before stronger claims.",
+    "meaning": "Share MoralBench and UniMoral task results with their limits. Do not give one overall model rank.",
+    "limit": "We cannot claim that CEI exactly repeated a paper or that one model is morally better. We still need better records and human review.",
+    "sources": "slides/cei-moral-psychology-results-deck.pptx, docs/RESEARCH_LEAD_BRIEF.md, evidence/canonical-audit/RERUN_PRIORITY.md"
+  }
+]

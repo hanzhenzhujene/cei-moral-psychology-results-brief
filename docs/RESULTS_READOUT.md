@@ -5,7 +5,7 @@
 | Research question | Answer | Implication |
 |---|---|---|
 | Does one model lead all eight tasks? | No. The top saved score changes by task. | Keep task results separate. |
-| Can the comparison tests show a leader? | No: all 28 MFQ and 45 vignette marginal model-pair ranges overlap. | Restore answers and scores by question; check scoring and labels. |
+| Can the comparison tests show a leader? | No. For every pair of models, their two saved 95% score ranges overlap: 28 of 28 MFQ pairs and 45 of 45 vignette pairs. | Restore answers and scores by question; check scoring and labels. |
 | Do scores rise at both size steps? | Only 4 of 12 rise twice; 7 switch direction; 1 falls twice. | Size is a clue, not a rule. |
 | Are later Qwen and DeepSeek versions better on every task? | No: Qwen has 3 higher and 1 lower endpoint; DeepSeek has 2 higher and 2 lower. | Release period is metadata, not progress. |
 
@@ -29,7 +29,7 @@ The main chart uses the only five models that clear every one of the eight prima
 | Task block | Metric | Saved scored rows per model | What the chart supports |
 |---|---|---:|---|
 | MFQ and vignette agreement | Normalized preference | 20 and 24 | Task-specific agreement levels, with material uncertainty |
-| MFQ and vignette comparison | Accuracy | 20 and 24 | Available aggregate intervals do not resolve a model order; every pair overlaps marginally within each comparison task |
+| MFQ and vignette comparison | Accuracy | 20 and 24 | The saved 95% score ranges do not resolve a model order; the two model ranges overlap for every pair within each task |
 | UniMoral action, typology, and factor | Accuracy | 8,784; 3,492; 3,492 | Point estimates differ by task; nominal row-level intervals are narrow |
 | UniMoral consequence | METEOR | 1,782 | A generation metric that must not be averaged with accuracy or preference |
 
@@ -41,7 +41,7 @@ Source: [`common_roster_primary.csv`](../data/results/common_roster_primary.csv)
 
 ![Two cards showing complete pairwise overlap on both accuracy comparison tests](../assets/results/02_precision_by_task.png)
 
-This section uses all primary models: 8 for MFQ compare and 10 for vignette compare, not the five-model roster above. All 28 and 45 marginal model-pair ranges overlap. Because these are not paired difference tests, they do not resolve a leader.
+This section uses all primary models: 8 for MFQ compare and 10 for vignette compare, not the five-model roster above. For every pair of models, the two saved 95% score ranges overlap: all 28 MFQ pairs and all 45 vignette pairs. These are separate score ranges, not direct tests of the difference between two models, so they do not resolve a leader.
 
 | Accuracy test | Saved models × questions | Overlapping model pairs |
 |---|---:|---:|

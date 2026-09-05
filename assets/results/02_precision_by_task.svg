@@ -87,7 +87,7 @@ z
    <text style="fill: #66717c; font: 13px 'DejaVu Sans'; text-anchor: start" x="53.46" y="56.7" transform="rotate(-0 53.46 56.7)">No. Every saved model-pair range overlaps within both accuracy tests.</text>
   </g>
   <g id="text_11">
-   <text style="fill: #c44a3a; font: 700 12.5px 'DejaVu Sans'; text-anchor: start" x="68.04" y="396.9" transform="rotate(-0 68.04 396.9)">Result: the saved marginal ranges do not resolve a leader.</text>
+   <text style="fill: #c44a3a; font: 700 12.5px 'DejaVu Sans'; text-anchor: start" x="68.04" y="396.9" transform="rotate(-0 68.04 396.9)">Result: the saved 95% score ranges do not identify a leader.</text>
   </g>
   <g id="text_12">
    <text style="fill: #17212b; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="68.04" y="429.3" transform="rotate(-0 68.04 429.3)">Limit: these are not paired model-difference tests. Question-level results and cluster-aware uncertainty are unavailable.</text>

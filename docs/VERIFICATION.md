@@ -13,7 +13,7 @@ Technical checks passed: the published files, charts, and slides match the saved
 | Canonical manifested bundle | 31 of 31 artifact hashes and byte counts pass |
 | Canonical partition | `78 primary / 26 sensitivity / 9 extension / 30 excluded = 143` |
 | Canonical intervals | 78 unique cells; 18 intervals wider than `.30`, all on the two comparison tasks |
-| Compare-task overlap | `28/28` MFQ pairs and `45/45` vignette pairs overlap marginally |
+| Compare-task overlap | The two saved 95% score ranges overlap for `28/28` MFQ model pairs and `45/45` vignette model pairs |
 | Common roster | 40 unique cells = 5 models × 8 tasks; values match the canonical table |
 | Selected-grid snapshot | Both CSVs match the pinned source byte for byte; statuses are `102 success / 13 error / 4 cancelled`; no raw evaluation archives are present |
 | Size answer | The UniMoral-only headline counts 12 complete family × task paths: `4 rise twice / 7 change direction / 1 falls twice`. Its concrete Gemma example binds six plotted labels to factor `.578 → .601 → .613` and typology `.597 → .579 → .570` for the named 4B, 12B, and 27B variants |
@@ -25,7 +25,7 @@ Technical checks passed: the published files, charts, and slides match the saved
 | Missingness | No error, cancelled, or missing row is plotted as zero |
 | Protocol-budget drift | Qwen3-32B total `107,375` reasoning tokens; DeepSeek V4 total `1,171,189` confirmed from source metadata |
 
-Ten PNG/SVG figure pairs and seven result tables were generated twice consecutively in the recorded Python 3.12 release environment. All 27 payload files were byte-identical across the two builds; a separate manifest binds their hashes to the current builder and locked requirements. The figures use fixed canvases, so font-metric differences do not change the HTML dimensions; exact pixels can still vary across operating-system and FreeType builds.
+Seventeen PNG/SVG figure pairs and seven result tables were generated twice consecutively in the recorded Python 3.12 release environment. All 41 payload files were byte-identical across the two builds; a separate manifest binds their hashes to the current builder and locked requirements. The figures use fixed canvases, so font-metric differences do not change the HTML dimensions; exact pixels can still vary across operating-system and FreeType builds.
 
 ## Independent validators
 
@@ -43,7 +43,7 @@ It checks the canonical and selected-source manifests, all 80 derived point rows
 - `18/12` values in the collapsed semantic audit tables;
 - the six Gemma answer labels in both desktop and mobile size figures;
 - the eight endpoint-delta labels in both desktop and mobile release figures;
-- all `45/35` named-model + B labels in the split path figures;
+- all `45/35` named-model + B labels in the split detail figures, plus the exact labels used by the three two-panel slide figures;
 - image dimensions, portrait and landscape contracts, SVG safety, axis bounds, local links, PDF hashes, claim language, credentials, and private paths.
 
 The outer canonical validator also passed:
@@ -58,13 +58,13 @@ Its report confirmed 31 manifested artifacts, 42 links, the `78/26/9/30` partiti
 
 | Surface | Outcome |
 |---|---|
-| Local references | 59 HTML and 66 Markdown references resolve |
+| Local references | 60 HTML and 104 Markdown references resolve |
 | Images | 8 of 8 `<img>` elements have alt text and correct intrinsic dimensions. The two headline charts also have dedicated, dimensioned mobile `<source>` images |
 | Desktop | Chrome/Playwright passed at `1440 × 1000`: the size and release charts select their desktop sources and render at `1084 px` wide; the page has no horizontal overflow; both audit tables start closed; all 30 cells fit when opened; the console is clean |
 | Mobile | Chrome/Playwright passed at `390 × 844`: the charts select dedicated portrait sources and render at `316 × 570` and `316 × 728`; the page has no horizontal overflow; all 30 audit cells fit when opened; the console is clean |
 | Mobile readability | The former `720 px` horizontal chart scrollers were removed. Mobile receives stacked portrait figures with full model names, published B values, direct point labels, and no swipe requirement. The sticky navigation is disabled at this width so it cannot cover a chart |
 | Audit access | The six-task tables remain collapsed by default, and four full-resolution path-figure links retain every named model, published B value, task, and score |
-| Visual inspection | All ten PNGs were inspected at full resolution. The two headline figures and their mobile counterparts show no observed title, label, or edge clipping; the four audit-detail figures retain `45/45` and `35/35` direct labels |
+| Visual inspection | All 17 PNGs were inspected at full resolution. The two headline figures and their mobile versions show no observed title, label, or edge clipping. The four full detail figures retain `45/45` and `35/35` direct labels, and the seven slide-focused detail figures keep every plotted label visible. |
 | Accessibility | Model and family series use marker shapes and line styles in addition to color. Headline figures have descriptive alt text, and the underlying audit views remain semantic HTML |
 
 The README preview shows the main task-by-task result. The site keeps the size and release charts as exploratory follow-up views, with full-resolution PNG and SVG links immediately below each figure.
